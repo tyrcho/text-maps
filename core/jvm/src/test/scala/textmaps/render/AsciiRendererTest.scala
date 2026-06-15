@@ -1,20 +1,23 @@
 package textmaps.render
 
-import textmaps.*
+import java.nio.file.{Files, Path}
+import munit.FunSuite
 import textmaps.dsl.*
 import textmaps.layout.LayoutEngine
 
-class AsciiRendererTest extends munit.FunSuite:
+class AsciiRendererTest extends FunSuite:
 
-  override def beforeAll(): Unit = TestFilesPlatformInit.init()
+  private val approvedDir = Path.of("core/testdata/ascii")
+  private val shouldUpdate = sys.env.get("UPDATE_SNAPSHOTS").contains("1")
 
   private def approvalTest(name: String, map: textmaps.layout.RenderedMap): Unit =
-    val actual = AsciiRenderer.render(map)
-    if TestFiles.shouldUpdate then
-      TestFiles.writeApproved(name, actual)
-      println(s"[approved] wrote core/testdata/ascii/$name.approved.txt")
+    val actual  = AsciiRenderer.render(map)
+    val file    = approvedDir.resolve(s"$name.approved.txt")
+    if shouldUpdate then
+      Files.createDirectories(approvedDir)
+      Files.writeString(file, actual)
     else
-      val expected = TestFiles.readApproved(name)
+      val expected = Files.readString(file)
       assertEquals(actual, expected)
 
   test("two connected rooms"):
@@ -23,8 +26,7 @@ class AsciiRendererTest extends munit.FunSuite:
       Room("hall",     RoomSize(8, 4), Some("Great Hall")),
     )
     val conns = List(Connection("entrance", "hall", DoorType.Open))
-    approvalTest("two_rooms",
-      LayoutEngine.layout(rooms, conns, None))
+    approvalTest("two_rooms", LayoutEngine.layout(rooms, conns, None))
 
   test("locked door between rooms"):
     val rooms = List(
@@ -32,8 +34,7 @@ class AsciiRendererTest extends munit.FunSuite:
       Room("prison", RoomSize(4, 3), Some("Prison")),
     )
     val conns = List(Connection("guard", "prison", DoorType.Locked))
-    approvalTest("locked_door",
-      LayoutEngine.layout(rooms, conns, None))
+    approvalTest("locked_door", LayoutEngine.layout(rooms, conns, None))
 
   test("three rooms in a chain"):
     val rooms = List(
@@ -45,14 +46,11 @@ class AsciiRendererTest extends munit.FunSuite:
       Connection("entrance", "hall",  DoorType.Open),
       Connection("hall",     "vault", DoorType.Secret),
     )
-    approvalTest("three_rooms_chain",
-      LayoutEngine.layout(rooms, conns, None))
+    approvalTest("three_rooms_chain", LayoutEngine.layout(rooms, conns, None))
 
   test("single room"):
     val rooms = List(Room("alone", RoomSize(5, 3), Some("Alone")))
-    approvalTest("single_room",
-      LayoutEngine.layout(rooms, Nil, None))
+    approvalTest("single_room", LayoutEngine.layout(rooms, Nil, None))
 
   test("empty map"):
-    val actual = AsciiRenderer.render(LayoutEngine.layout(Nil, Nil, None))
-    assertEquals(actual, "(empty)")
+    assertEquals(AsciiRenderer.render(LayoutEngine.layout(Nil, Nil, None)), "(empty)")

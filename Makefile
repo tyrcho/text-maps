@@ -11,7 +11,7 @@ dev:
 	sbt --batch dev
 
 test:
-	sbt --batch "coreJS/test"
+	sbt --batch "coreJVM/test"
 
 build:
 	sbt --batch "js/fullLinkJS"
