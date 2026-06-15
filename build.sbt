@@ -13,7 +13,7 @@ lazy val core = crossProject(JSPlatform, NativePlatform)
     testFrameworks += new TestFramework("munit.Framework"),
   )
 
-// ── JS: browser app (Laminar + scalajs-dom) ───────────────────────────────
+// ── JS: browser app (scalajs-dom only; SVG rendered as strings by core) ──────
 
 lazy val js = project
   .in(file("js"))
@@ -22,10 +22,7 @@ lazy val js = project
   .settings(
     name := "text-maps-js",
     scalaJSUseMainModuleInitializer := true,
-    libraryDependencies ++= Seq(
-      "com.raquo"    %%% "laminar"     % "17.0.0",
-      "org.scala-js" %%% "scalajs-dom" % "2.8.0",
-    ),
+    libraryDependencies += "org.scala-js" %%% "scalajs-dom" % "2.8.0",
   )
 
 // ── Native: CLI binary (reads DSL from stdin/file, writes SVG) ─────────────

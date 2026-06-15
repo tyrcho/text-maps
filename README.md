@@ -56,11 +56,11 @@ generate dungeon rooms:10 seed:42
 
 ## Implementation details
 
-**Stack:** ScalaJS 1.16 + Scala Native 0.5.5 (cross-project). No npm, no Vite — sbt with an in-process Java HTTP dev server.
+**Stack:** ScalaJS 1.16 + Scala Native 0.5.5 (cross-project). No npm, no Vite, no Laminar — sbt with an in-process Java HTTP dev server.
 
 **Project layout:**
-- `core/` — shared code (DSL parser, layout engine, BSP generator, SVG string renderer). Cross-compiles to JS and Native.
-- `js/` — browser app (ScalaJS + scalajs-dom). Injects SVG from the shared renderer via `innerHTML`.
+- `core/` — DSL parser, layout engine, BSP generator, `SvgStringRenderer`. Cross-compiles to JS and Native.
+- `js/` — browser app (ScalaJS + scalajs-dom). Injects SVG strings from core via `innerHTML`.
 - `native/` — CLI binary (Scala Native). Reads DSL from stdin or file, writes SVG to stdout or file.
 
 **DSL parsing** (`core/dsl/DslParser.scala`): line-oriented parser. Declarations at column 0, properties indented. No parser combinator library.
