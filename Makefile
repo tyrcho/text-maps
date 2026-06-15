@@ -1,51 +1,28 @@
-.PHONY: dev watch test build ci clean metals help
+.PHONY: dev test build native clean help
 
-SBT ?= sbt --client
-
-METALS_MCP ?= $(HOME)/Library/Application\ Support/Coursier/bin/metals-mcp
-METALS_PORT ?= 52632
-
-# ── Development ────────────────────────────────────────────────────────────
+help:
+	@echo "make dev     — compile + watch + dev server on :8082"
+	@echo "make test    — run unit tests"
+	@echo "make build   — production JS build → public/"
+	@echo "make native  — compile native CLI binary"
+	@echo "make clean   — remove build artifacts"
 
 dev:
 	sbt --batch dev
 
-metals:
-	$(METALS_MCP) --workspace . --port $(METALS_PORT) --transport http
-
-watch:
-	$(SBT) '~fastLinkJS'
-
-# ── Quality ─────────────────────────────────────────────────────────────────
-
 test:
-	$(SBT) test
-
-# ── Production build ────────────────────────────────────────────────────────
+	sbt --batch "coreJS/test"
 
 build:
-	$(SBT) fullLinkJS
-	mkdir -p public
-	cp index.html public/
-	@cp "$$(find target -name "main.js" -path "*text-maps-opt*" | head -1)" public/main.js
-	touch public/.nojekyll
-	@echo "Built → public/"
+	sbt --batch "js/fullLinkJS"
+	@mkdir -p public
+	@cp -r js/target/scala-3.3.3/text-maps-js-opt public/ 2>/dev/null || true
+	@cp index.html public/
 
-ci: test build
-
-# ── Housekeeping ─────────────────────────────────────────────────────────────
+native:
+	sbt --batch "native/nativeLink"
+	@echo "Binary: native/target/scala-3.3.3/text-maps-native"
+	@echo "Usage:  echo 'map dungeon\\ngenerate dungeon rooms:8 seed:42' | native/target/scala-3.3.3/text-maps-native"
 
 clean:
-	$(SBT) clean
-	rm -rf public/
-
-help:
-	@echo "Usage: make <target> [SBT=sbt]"
-	@echo ""
-	@echo "  dev      compile + watch + serve on :8080 with live reload"
-	@echo "  watch    continuous recompile only (no server)"
-	@echo "  metals   start Metals MCP server on :52632 for Claude Code"
-	@echo "  test     run unit tests"
-	@echo "  build    production build → public/"
-	@echo "  ci       test + build (use SBT=sbt in CI)"
-	@echo "  clean    remove all build outputs"
+	sbt --batch clean

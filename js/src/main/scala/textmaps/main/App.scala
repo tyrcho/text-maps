@@ -4,9 +4,9 @@ import org.scalajs.dom
 import org.scalajs.dom.{document, window}
 import textmaps.dsl.{DslParser, DungeonMapSource}
 import textmaps.generate.DungeonGenerator
-import textmaps.layout.{LayoutEngine, RenderedMap}
+import textmaps.layout.LayoutEngine
 import textmaps.main.routing.{HashRouter, Route}
-import textmaps.render.SvgRenderer
+import textmaps.render.SvgStringRenderer
 
 val defaultDsl =
   """map dungeon "The Sunken Keep"
@@ -30,7 +30,6 @@ room boss 6x5
 
 connect entrance -> great_hall
   door: open
-  corridor: 2x4
 
 connect great_hall -> prison
   door: locked
@@ -39,7 +38,6 @@ connect great_hall -> vault
   door: secret
 
 connect great_hall -> boss
-  corridor: 3x5
 """.trim
 
 @main def main(): Unit =
@@ -57,13 +55,11 @@ def setup(): Unit =
 
   ta.value = defaultDsl
 
-  // Restore from hash
   HashRouter.current() match
     case Route.Map(compressed) => lzDecompress(compressed).foreach(ta.value = _)
-    case _ => ()
+    case _                     => ()
 
   render(ta.value, errEl, mapSvg)
-
   ta.addEventListener("input", (_: dom.Event) => render(ta.value, errEl, mapSvg))
 
   shareBtn.addEventListener("click", (_: dom.Event) =>
@@ -92,15 +88,22 @@ def render(dsl: String, errEl: dom.html.Div, mapSvg: dom.svg.SVG): Unit =
         case DungeonMapSource.Generated(n, _, seed) =>
           ast.copy(source = DungeonGenerator.generate(n, seed))
         case _ => ast
-      val map = LayoutEngine.compute(expanded)
-      renderToSvg(mapSvg, map)
+      val renderedMap = LayoutEngine.compute(expanded)
+      injectSvg(mapSvg, SvgStringRenderer.renderInner(renderedMap))
 
-def renderToSvg(svgEl: dom.svg.SVG, map: RenderedMap): Unit =
-  val vb = s"${map.minX.toInt} ${map.minY.toInt} ${map.width.toInt} ${map.height.toInt}"
-  svgEl.setAttribute("viewBox", vb)
-  svgEl.setAttribute("preserveAspectRatio", "xMidYMid meet")
-  while svgEl.firstChild != null do svgEl.removeChild(svgEl.firstChild)
-  SvgRenderer.render(map).foreach(el => svgEl.appendChild(el.ref))
+// Parses the renderInner output (which embeds viewBox as a sentinel) and
+// injects the SVG content into the live <svg> element.
+def injectSvg(svgEl: dom.svg.SVG, inner: String): Unit =
+  val vbPrefix = "__VIEWBOX__"
+  val vbEnd    = "__END__"
+  val vbStart  = inner.indexOf(vbPrefix)
+  val vbClose  = inner.indexOf(vbEnd)
+  if vbStart >= 0 && vbClose > vbStart then
+    val viewBox = inner.substring(vbStart + vbPrefix.length, vbClose)
+    val content = inner.substring(vbClose + vbEnd.length).trim
+    svgEl.setAttribute("viewBox", viewBox)
+    svgEl.setAttribute("preserveAspectRatio", "xMidYMid meet")
+    svgEl.innerHTML = content
 
 // LZString CDN facade
 @scala.scalajs.js.native
