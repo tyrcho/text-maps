@@ -5,12 +5,17 @@ ThisBuild / scalaVersion := "3.3.3"
 // ── Core: shared DSL, layout, generator, string renderer ───────────────────
 
 lazy val core = crossProject(JSPlatform, NativePlatform)
-  .crossType(CrossType.Pure)
+  .crossType(CrossType.Full)
   .in(file("core"))
   .settings(
     name := "text-maps-core",
     libraryDependencies += "org.scalameta" %%% "munit" % "1.0.0" % Test,
     testFrameworks += new TestFramework("munit.Framework"),
+  )
+  .jsSettings(
+    // Node.js fs/path modules used by TestFilesPlatform (requires CommonJS mode)
+    libraryDependencies += "org.scala-js" %%% "scalajs-dom" % "2.8.0" % Test,
+    Test / scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.CommonJSModule) },
   )
 
 // ── JS: browser app (scalajs-dom only; SVG rendered as strings by core) ──────
