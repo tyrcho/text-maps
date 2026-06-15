@@ -4,3 +4,4 @@ public/
 .metals/
 .bsp/
 *.class
+*.received
