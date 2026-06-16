@@ -46,3 +46,29 @@ class AsciiRendererTest extends FixtureAnyFunSuite with Approbation:
   test("empty map") { approver =>
     approver.verify(AsciiRenderer.render(LayoutEngine.layout(Nil, Nil, None)))
   }
+
+  test("dungeon room with stairs and windows") { approver =>
+    val rooms = List(
+      Room("entrance", RoomSize(4, 3), Some("Entry"),
+        features = List(RoomFeature.Exit(WallSide.West))),
+      Room("vault", RoomSize(3, 3), Some("Vault"),
+        features = List(RoomFeature.Stairs(StairDir.Up), RoomFeature.Window(WallSide.North))),
+    )
+    val conns = List(Connection("entrance", "vault", DoorType.Locked))
+    approver.verify(AsciiRenderer.render(LayoutEngine.layout(rooms, conns, None)))
+  }
+
+  test("building with exterior exits") { approver =>
+    val rooms = List(
+      Room("hall", RoomSize(5, 4), Some("Hall"),
+        features = List(
+          RoomFeature.Exit(WallSide.West),
+          RoomFeature.Exit(WallSide.East),
+          RoomFeature.Window(WallSide.North),
+        )),
+      Room("kitchen", RoomSize(3, 3), Some("Kitchen"),
+        features = List(RoomFeature.Exit(WallSide.South))),
+    )
+    val conns = List(Connection("hall", "kitchen", DoorType.Open))
+    approver.verify(AsciiRenderer.render(LayoutEngine.layout(rooms, conns, None, MapType.Building)))
+  }

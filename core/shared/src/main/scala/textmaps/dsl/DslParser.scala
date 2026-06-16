@@ -14,7 +14,7 @@ object DslParser:
   private enum Line:
     case Blank
     case Comment
-    case MapHeader(name: Option[String])
+    case MapHeader(name: Option[String], mapType: MapType)
     case RoomDecl(id: String, size: RoomSize)
     case ConnDecl(from: String, to: String)
     case GenerateDecl(roomCount: Int, style: Option[String], seed: Option[Long])
@@ -33,8 +33,9 @@ object DslParser:
       val tokens = line.split("\\s+").toList
       tokens match
         case "map" :: "dungeon" :: rest =>
-          val name = if rest.nonEmpty then Some(rest.mkString(" ").stripQuotes) else None
-          Right(Line.MapHeader(name))
+          Right(Line.MapHeader(if rest.nonEmpty then Some(rest.mkString(" ").stripQuotes) else None, MapType.Dungeon))
+        case "map" :: "building" :: rest =>
+          Right(Line.MapHeader(if rest.nonEmpty then Some(rest.mkString(" ").stripQuotes) else None, MapType.Building))
         case "room" :: id :: sizeStr :: _ =>
           parseSize(sizeStr).map(Line.RoomDecl(id, _))
         case "connect" :: from :: "->" :: to :: _ =>
@@ -57,19 +58,16 @@ object DslParser:
   private case class GenStmt(gen: DungeonMapSource.Generated) extends Stmt
 
   private def parseLines(lines: List[String]): ParseResult =
-    // Require map header as first non-blank line
     val nonBlank = lines.indexWhere(l => l.strip().nonEmpty && !l.strip().startsWith("#"))
     if nonBlank < 0 then
       return Left(ParseError("Empty document", 0, 1, 1))
 
-    // Parse header line
     val headerLine = lines(nonBlank)
     val metaResult = classifyLine(headerLine) match
-      case Right(Line.MapHeader(name)) => Right(MapMeta(name = name))
-      case _ => Left(ParseError(s"Expected 'map dungeon' but got: ${headerLine.take(40)}", 0, nonBlank + 1, 1))
+      case Right(Line.MapHeader(name, mapType)) => Right(MapMeta(name = name, mapType = mapType))
+      case _ => Left(ParseError(s"Expected 'map dungeon' or 'map building' but got: ${headerLine.take(40)}", 0, nonBlank + 1, 1))
 
     metaResult.flatMap { baseMeta =>
-      // Collect props after header (indented lines before first decl)
       val afterHeader = lines.drop(nonBlank + 1)
       val (headerProps, rest) = afterHeader.span(l => l.startsWith(" ") || l.startsWith("\t") || l.isBlank)
       val metaProps = headerProps.flatMap(l => classifyLine(l).toOption.collect { case Line.Prop(k, v) => k -> v }).toMap
@@ -78,7 +76,6 @@ object DslParser:
         style = metaProps.get("style"),
       )
 
-      // Parse remaining statements
       parseStatements(rest).map { stmts =>
         val genOpt = stmts.collectFirst { case GenStmt(g) => g }
         val source = genOpt.getOrElse {
@@ -96,16 +93,17 @@ object DslParser:
     val it    = lines.iterator.buffered
 
     while it.hasNext do
-      val (lineNo, raw) = it.next() match { case s => (0, s) }
+      val raw = it.next()
       classifyLine(raw) match
         case Right(Line.Blank) | Right(Line.Comment) => ()
         case Right(Line.RoomDecl(id, size)) =>
           val props = consumeProps(it)
           stmts += RoomStmt(Room(
-            id    = id,
-            size  = size,
-            label = props.get("label"),
-            shape = props.get("shape").flatMap(parseShape).getOrElse(RoomShape.Rectangular),
+            id       = id,
+            size     = size,
+            label    = props.get("label"),
+            shape    = props.get("shape").flatMap(parseShape).getOrElse(RoomShape.Rectangular),
+            features = parseRoomFeatures(props),
           ))
         case Right(Line.ConnDecl(from, to)) =>
           val props = consumeProps(it)
@@ -117,8 +115,8 @@ object DslParser:
           ))
         case Right(Line.GenerateDecl(n, style, seed)) =>
           stmts += GenStmt(DungeonMapSource.Generated(n, style, seed))
-        case Right(Line.MapHeader(_)) => () // ignore nested headers
-        case Right(Line.Prop(_, _))   => () // top-level props — ignore
+        case Right(Line.MapHeader(_, _)) => ()
+        case Right(Line.Prop(_, _))      => ()
         case Left(msg) =>
           return Left(ParseError(msg, 0, 1, 1))
 
@@ -127,11 +125,35 @@ object DslParser:
   private def consumeProps(it: collection.BufferedIterator[String]): Map[String, String] =
     val props = collection.mutable.Map[String, String]()
     while it.hasNext && (it.head.startsWith(" ") || it.head.startsWith("\t") || it.head.isBlank) do
-      val line = it.next()
-      classifyLine(line) match
+      classifyLine(it.next()) match
         case Right(Line.Prop(k, v)) => props(k) = v
         case _ => ()
     props.toMap
+
+  // ── Feature parsing ────────────────────────────────────────────────────
+
+  private def parseRoomFeatures(props: Map[String, String]): List[RoomFeature] =
+    val buf = List.newBuilder[RoomFeature]
+    props.get("stairs").flatMap(parseStairDir).foreach(d => buf += RoomFeature.Stairs(d))
+    props.get("window").foreach { v =>
+      v.split(",").flatMap(s => parseWallSide(s.strip())).foreach(side => buf += RoomFeature.Window(side))
+    }
+    props.get("exit").foreach { v =>
+      v.split(",").flatMap(s => parseWallSide(s.strip())).foreach(side => buf += RoomFeature.Exit(side))
+    }
+    buf.result()
+
+  private def parseWallSide(s: String): Option[WallSide] = s.toLowerCase match
+    case "north" | "n" => Some(WallSide.North)
+    case "south" | "s" => Some(WallSide.South)
+    case "east"  | "e" => Some(WallSide.East)
+    case "west"  | "w" => Some(WallSide.West)
+    case _             => None
+
+  private def parseStairDir(s: String): Option[StairDir] = s.toLowerCase match
+    case "up"   => Some(StairDir.Up)
+    case "down" => Some(StairDir.Down)
+    case _      => None
 
   // ── Helpers ─────────────────────────────────────────────────────────────
 

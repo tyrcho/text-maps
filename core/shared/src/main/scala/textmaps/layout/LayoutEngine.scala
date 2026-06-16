@@ -8,13 +8,14 @@ val MARGIN_PX   = 20.0  // padding around viewBox
 val CORRIDOR_W  = 30.0  // passage width (1 grid unit)
 
 case class RenderedRoom(
-  id:    String,
-  label: String,
-  x:     Double,  // top-left corner
-  y:     Double,
-  w:     Double,  // pixel width
-  h:     Double,  // pixel height
-  shape: RoomShape,
+  id:       String,
+  label:    String,
+  x:        Double,  // top-left corner
+  y:        Double,
+  w:        Double,  // pixel width
+  h:        Double,  // pixel height
+  shape:    RoomShape,
+  features: List[RoomFeature] = Nil,
 )
 
 // A floor rectangle segment of a corridor (H or V leg of the L-shape).
@@ -38,17 +39,18 @@ case class RenderedMap(
   minY:      Double,
   width:     Double,
   height:    Double,
+  mapType:   MapType = MapType.Dungeon,
 )
 
 object LayoutEngine:
 
   def compute(map: DungeonMap): RenderedMap =
     map.source match
-      case DungeonMapSource.Manual(rooms, conns) => layout(rooms, conns, map.meta.seed)
+      case DungeonMapSource.Manual(rooms, conns) => layout(rooms, conns, map.meta.seed, map.meta.mapType)
       case DungeonMapSource.Generated(_, _, _)   =>
-        layout(List.empty, List.empty, None) // generator expands before layout
+        layout(List.empty, List.empty, None, map.meta.mapType)
 
-  def layout(rooms: List[Room], conns: List[Connection], seed: Option[Long]): RenderedMap =
+  def layout(rooms: List[Room], conns: List[Connection], seed: Option[Long], mapType: MapType = MapType.Dungeon): RenderedMap =
     if rooms.isEmpty then emptyMap
     else
       val centers   = bfsLayout(rooms, conns)
@@ -66,6 +68,7 @@ object LayoutEngine:
         minY      = allY.min,
         width     = allX.max - allX.min,
         height    = allY.max - allY.min,
+        mapType   = mapType,
       )
 
   // ── BFS tree placement ──────────────────────────────────────────────────
@@ -135,7 +138,7 @@ object LayoutEngine:
   private def renderRoom(r: Room, center: Vec2): RenderedRoom =
     val w = r.size.width  * UNIT_PX
     val h = r.size.height * UNIT_PX
-    RenderedRoom(r.id, r.label.getOrElse(r.id), center.x - w / 2, center.y - h / 2, w, h, r.shape)
+    RenderedRoom(r.id, r.label.getOrElse(r.id), center.x - w / 2, center.y - h / 2, w, h, r.shape, r.features)
 
   // How far each corridor rect extends into the connected room.
   // The corridor's white fill paints over the room's wall border at this

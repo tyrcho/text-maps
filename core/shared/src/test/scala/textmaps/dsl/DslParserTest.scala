@@ -75,6 +75,34 @@ class DslParserTest extends munit.FunSuite:
     val result = DslParser.parse("not valid dungeon dsl")
     assert(result.isLeft)
 
+  test("parses map building"):
+    val input =
+      """map building "The Inn"
+        |room lobby 4x4
+        |  label: "Lobby"
+        |  exit: south
+        |  window: north, east
+        |""".stripMargin
+    DslParser.parse(input) match
+      case Right(DungeonMap(meta, DungeonMapSource.Manual(rooms, _))) =>
+        assertEquals(meta.mapType, MapType.Building)
+        assertEquals(rooms.head.features.count { case RoomFeature.Window(_) => true; case _ => false }, 2)
+        assert(rooms.head.features.contains(RoomFeature.Exit(WallSide.South)))
+        assert(rooms.head.features.contains(RoomFeature.Window(WallSide.North)))
+        assert(rooms.head.features.contains(RoomFeature.Window(WallSide.East)))
+      case other => fail(s"unexpected: $other")
+
+  test("parses stairs feature"):
+    val input =
+      """map dungeon
+        |room vault 3x3
+        |  stairs: up
+        |""".stripMargin
+    DslParser.parse(input) match
+      case Right(DungeonMap(_, DungeonMapSource.Manual(rooms, _))) =>
+        assert(rooms.head.features.contains(RoomFeature.Stairs(StairDir.Up)))
+      case other => fail(s"unexpected: $other")
+
   test("ignores comments"):
     val input =
       """# This is a comment
