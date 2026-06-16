@@ -3,13 +3,12 @@ package textmaps.render
 import textmaps.dsl.{DoorType, RoomShape}
 import textmaps.layout.*
 
-/** Renders a RenderedMap as an ASCII art dungeon map.
+/** Renders a RenderedMap as ASCII art.
  *
- *  Used as an intermediate representation for approval tests: the output is
- *  human-readable, deterministic, and shows up clearly in PR diffs.
+ *  Used as an intermediate representation for approval tests.
  *
  *  Visual conventions:
- *    #   rock / wall (background)
+ *    #   rock / background
  *    +   room corner
  *    -   horizontal room wall
  *    |   vertical room wall
@@ -21,7 +20,7 @@ import textmaps.layout.*
  */
 object AsciiRenderer:
 
-  private val PX_PER_CHAR = 10  // pixels per character cell
+  private val PX_PER_CHAR = 10
 
   private def toC(px: Double): Int = math.round(px / PX_PER_CHAR).toInt
 
@@ -36,7 +35,6 @@ object AsciiRenderer:
         math.max(1, toC(rm.w)), math.max(1, toC(rm.h)))
     }
 
-    // Bounding box with 1-cell padding outside room walls
     val pad  = 1
     val minX = cRooms.map(r => r.cx - 1).min - pad
     val minY = cRooms.map(r => r.cy - 1).min - pad
@@ -53,17 +51,22 @@ object AsciiRenderer:
       val ax = gx + ox; val ay = gy + oy
       if ax >= 0 && ax < W && ay >= 0 && ay < H then grid(ay)(ax) = c
 
-    // 1. Corridor floors (behind room walls — corridor opens through them)
-    for c <- map.corridors; r <- c.rects do
-      val cx = toC(r.x); val cy = toC(r.y)
-      val cw = math.max(1, toC(r.w)); val ch = math.max(1, toC(r.h))
-      for y <- cy until cy + ch; x <- cx until cx + cw do set(x, y, ' ')
+    // 1. Corridor centerlines — 1 char wide
+    for corr <- map.corridors; rect <- corr.rects do
+      val rx = toC(rect.x); val ry = toC(rect.y)
+      val rw = math.max(1, toC(rect.w)); val rh = math.max(1, toC(rect.h))
+      if rect.isHorizontal then
+        val midRow = toC(rect.y + rect.h / 2)
+        for x <- rx until rx + rw do set(x, midRow, ' ')
+      else
+        val midCol = toC(rect.x + rect.w / 2)
+        for y <- ry until ry + rh do set(midCol, y, ' ')
 
-    // 2. Room floors (drawn over corridor ends — rooms are always solid)
+    // 2. Room floors
     for r <- cRooms do
       for y <- r.cy until r.cy + r.ch; x <- r.cx until r.cx + r.cw do set(x, y, ' ')
 
-    // 3. Room wall borders (outside the floor rect)
+    // 3. Room wall borders
     for r <- cRooms do
       for x <- r.cx - 1 to r.cx + r.cw do
         set(x, r.cy - 1, '-'); set(x, r.cy + r.ch, '-')
@@ -79,14 +82,39 @@ object AsciiRenderer:
       val ly    = r.cy + r.ch / 2
       label.zipWithIndex.foreach { case (c, i) => set(lx + i, ly, c) }
 
-    // 5. Door glyphs (at the room exit wall, overwriting the border)
-    for d <- map.doors do
-      val glyph = d.doorType match
+    // 5. Door glyphs at both connecting room walls.
+    //    map.corridors[i] and map.doors[i] are both produced by conns.map in
+    //    the same order, so zip() pairs each corridor with its door.
+    val roomById = cRooms.map(r => r.id -> r).toMap
+    for (corr, door) <- map.corridors.zip(map.doors) do
+      val glyph = door.doorType match
         case DoorType.Open   => '.'
         case DoorType.Locked => 'L'
         case DoorType.Secret => '?'
         case DoorType.Barred => '='
-      set(toC(d.position.x), toC(d.position.y), glyph)
+      val a = roomById(corr.fromRoom)
+      val b = roomById(corr.toRoom)
+      corr.rects match
+        case Nil =>
+          // Rooms directly adjacent — use layout-provided position
+          set(toC(door.position.x), toC(door.position.y), glyph)
+        case rects =>
+          val first = rects.head
+          // FROM door: a's wall on the first rect's centerline
+          if first.isHorizontal then
+            val row = toC(first.y + first.h / 2)
+            set(if a.cx < b.cx then a.cx + a.cw else a.cx - 1, row, glyph)
+          else
+            val col = toC(first.x + first.w / 2)
+            set(col, if a.cy < b.cy then a.cy + a.ch else a.cy - 1, glyph)
+          // TO door: prefer the horizontal rect (first wall B's left/right is crossed);
+          // fall back to vertical rect only when no horizontal leg exists.
+          val toRect = rects.find(_.isHorizontal).getOrElse(rects.last)
+          if toRect.isHorizontal then
+            val row = toC(toRect.y + toRect.h / 2)
+            set(if a.cx < b.cx then b.cx - 1 else b.cx + b.cw, row, glyph)
+          else
+            val col = toC(toRect.x + toRect.w / 2)
+            set(col, if a.cy <= b.cy then b.cy - 1 else b.cy + b.ch, glyph)
 
-    // Render: strip trailing whitespace per line for clean diffs
     grid.map(row => row.mkString.stripTrailing()).mkString("\n")
