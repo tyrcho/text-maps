@@ -7,9 +7,6 @@
            patternTransform="rotate(45 0 0)" patternUnits="userSpaceOnUse">
     <line x1="0" y1="0" x2="0" y2="6" stroke="#888" stroke-width="1.2"/>
   </pattern>
-  <pattern id="floorgrid" width="30" height="30" patternUnits="userSpaceOnUse">
-    <path d="M 30 0 L 0 0 0 30" fill="none" stroke="#d8d8d8" stroke-width="0.5"/>
-  </pattern>
   <symbol id="door-open" viewBox="0 0 30 30">
     <rect x="0"  y="12" width="30" height="6" fill="white"/>
     <rect x="0"  y="11" width="4"  height="8" fill="#333"/>
@@ -37,14 +34,30 @@
 <rect x="57" y="-15" width="105" height="30" fill="white"/>
 <rect x="-60" y="-60" width="120" height="120" fill="white"/>
 <rect x="159" y="-60" width="240" height="120" fill="white"/>
-<rect x="57" y="-15" width="105" height="30" fill="url(#floorgrid)"/>
-<rect x="-60" y="-60" width="120" height="120" fill="url(#floorgrid)"/>
-<rect x="159" y="-60" width="240" height="120" fill="url(#floorgrid)"/>
 <line x1="57" y1="-15" x2="162" y2="-15" stroke="#333" stroke-width="1.5"/>
 <line x1="57" y1="15" x2="162" y2="15" stroke="#333" stroke-width="1.5"/>
 <rect x="-60" y="-60" width="120" height="120" fill="none" stroke="#333" stroke-width="1.5"/>
 <rect x="159" y="-60" width="240" height="120" fill="none" stroke="#333" stroke-width="1.5"/>
+<line x1="-30" y1="-60" x2="-30" y2="60" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="0" y1="-60" x2="0" y2="60" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="30" y1="-60" x2="30" y2="60" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="-60" y1="-30" x2="60" y2="-30" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="-60" y1="0" x2="60" y2="0" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="-60" y1="30" x2="60" y2="30" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="189" y1="-60" x2="189" y2="60" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="219" y1="-60" x2="219" y2="60" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="249" y1="-60" x2="249" y2="60" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="279" y1="-60" x2="279" y2="60" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="309" y1="-60" x2="309" y2="60" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="339" y1="-60" x2="339" y2="60" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="369" y1="-60" x2="369" y2="60" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="159" y1="-30" x2="399" y2="-30" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="159" y1="0" x2="399" y2="0" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="159" y1="30" x2="399" y2="30" stroke="#d8d8d8" stroke-width="0.5"/>
+
 <use href="#door-open" x="45" y="-15" width="30" height="30" transform="rotate(90,60,0)"/>
-<text x="0" y="0" text-anchor="middle" dominant-baseline="middle" fill="#333" font-size="9" font-family="serif" font-style="italic">Entry</text>
-<text x="279" y="0" text-anchor="middle" dominant-baseline="middle" fill="#333" font-size="9" font-family="serif" font-style="italic">Great Hall</text>
+<text x="0" y="-47" text-anchor="middle" dominant-baseline="auto" fill="#333" font-size="9" font-family="sans-serif" font-weight="bold">1</text>
+<text x="0" y="72" text-anchor="middle" dominant-baseline="auto" fill="#555" font-size="8" font-family="serif" font-style="italic">Entry</text>
+<text x="279" y="-47" text-anchor="middle" dominant-baseline="auto" fill="#333" font-size="9" font-family="sans-serif" font-weight="bold">2</text>
+<text x="279" y="72" text-anchor="middle" dominant-baseline="auto" fill="#555" font-size="8" font-family="serif" font-style="italic">Great Hall</text>
 </svg>

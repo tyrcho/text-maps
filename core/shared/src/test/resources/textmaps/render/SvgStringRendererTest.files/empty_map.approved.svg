@@ -7,9 +7,6 @@
            patternTransform="rotate(45 0 0)" patternUnits="userSpaceOnUse">
     <line x1="0" y1="0" x2="0" y2="6" stroke="#888" stroke-width="1.2"/>
   </pattern>
-  <pattern id="floorgrid" width="30" height="30" patternUnits="userSpaceOnUse">
-    <path d="M 30 0 L 0 0 0 30" fill="none" stroke="#d8d8d8" stroke-width="0.5"/>
-  </pattern>
   <symbol id="door-open" viewBox="0 0 30 30">
     <rect x="0"  y="12" width="30" height="6" fill="white"/>
     <rect x="0"  y="11" width="4"  height="8" fill="#333"/>

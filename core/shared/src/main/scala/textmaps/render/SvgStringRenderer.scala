@@ -1,18 +1,18 @@
 package textmaps.render
 
-import textmaps.dsl.{DoorType, RoomShape}
+import textmaps.dsl.{DoorType, RoomFeature, RoomShape, StairDir, WallSide}
 import textmaps.layout.*
 
 /** Renders a RenderedMap as a self-contained SVG string.
  *
- *  Used by the native CLI (stdout) and the browser app (innerHTML injection).
- *  No Laminar dependency — pure string generation.
- *
  *  Visual style: Dyson Logos / One Page Dungeon
- *  - Dense diagonal cross-hatching fills all "stone" areas
- *  - White floor rectangles punch through the hatch for rooms and corridors
- *  - Subtle 30px grid overlaid on floor areas
- *  - Dark ink wall strokes around room perimeters and corridor sides
+ *  - Dense diagonal cross-hatching fills all rock/exterior areas
+ *  - White floor rectangles for rooms and corridors
+ *  - Floor grid anchored to each room's walls (not global coordinates)
+ *  - Dark ink wall strokes; corridors have no grid
+ *  - Stairs: hatched box with direction arrow
+ *  - Windows: small opening gap on the wall
+ *  - Room number inside (bold, centred); room name below the room
  */
 object SvgStringRenderer:
 
@@ -34,16 +34,14 @@ object SvgStringRenderer:
         |${background(vx, vy, vw, vh)}
         |${map.corridors.flatMap(corridorFloors).mkString("\n")}
         |${map.rooms.map(roomFloor).mkString("\n")}
-        |${map.corridors.flatMap(corridorGrids).mkString("\n")}
-        |${map.rooms.map(roomGrid).mkString("\n")}
         |${map.corridors.flatMap(corridorWalls).mkString("\n")}
         |${map.rooms.map(roomWalls).mkString("\n")}
+        |${map.rooms.map(roomGrid).mkString("\n")}
+        |${map.rooms.flatMap(roomFeatures).mkString("\n")}
         |${map.doors.map(door).mkString("\n")}
-        |${map.rooms.map(roomLabel).mkString("\n")}
+        |${map.rooms.zipWithIndex.map { (rm, i) => roomLabel(rm, i + 1) }.mkString("\n")}
         |</svg>""".stripMargin
 
-  /** Returns the SVG inner content (without the <svg> wrapper).
-   *  Use this for innerHTML injection in the browser app. */
   def renderInner(map: RenderedMap): String =
     val pad = 60.0
     val vx  = (map.minX - pad).toInt
@@ -56,12 +54,12 @@ object SvgStringRenderer:
         |${background(vx, vy, vw, vh)}
         |${map.corridors.flatMap(corridorFloors).mkString("\n")}
         |${map.rooms.map(roomFloor).mkString("\n")}
-        |${map.corridors.flatMap(corridorGrids).mkString("\n")}
-        |${map.rooms.map(roomGrid).mkString("\n")}
         |${map.corridors.flatMap(corridorWalls).mkString("\n")}
         |${map.rooms.map(roomWalls).mkString("\n")}
+        |${map.rooms.map(roomGrid).mkString("\n")}
+        |${map.rooms.flatMap(roomFeatures).mkString("\n")}
         |${map.doors.map(door).mkString("\n")}
-        |${map.rooms.map(roomLabel).mkString("\n")}""".stripMargin
+        |${map.rooms.zipWithIndex.map { (rm, i) => roomLabel(rm, i + 1) }.mkString("\n")}""".stripMargin
 
   // ── <defs> ────────────────────────────────────────────────────────────
 
@@ -69,9 +67,6 @@ object SvgStringRenderer:
   <pattern id="hatch" width="6" height="6"
            patternTransform="rotate(45 0 0)" patternUnits="userSpaceOnUse">
     <line x1="0" y1="0" x2="0" y2="6" stroke="#888" stroke-width="1.2"/>
-  </pattern>
-  <pattern id="floorgrid" width="$GRID" height="$GRID" patternUnits="userSpaceOnUse">
-    <path d="M $GRID 0 L 0 0 0 $GRID" fill="none" stroke="#d8d8d8" stroke-width="0.5"/>
   </pattern>
   <symbol id="door-open" viewBox="0 0 30 30">
     <rect x="0"  y="12" width="30" height="6" fill="white"/>
@@ -108,44 +103,97 @@ object SvgStringRenderer:
     case RoomShape.Rectangular =>
       s"""<rect x="${rm.x.toInt}" y="${rm.y.toInt}" width="${rm.w.toInt}" height="${rm.h.toInt}" fill="white"/>"""
     case RoomShape.Circular =>
-      val cx = (rm.x + rm.w / 2).toInt
-      val cy = (rm.y + rm.h / 2).toInt
+      val cx = (rm.x + rm.w / 2).toInt; val cy = (rm.y + rm.h / 2).toInt
       val r  = (math.min(rm.w, rm.h) / 2).toInt
       s"""<circle cx="$cx" cy="$cy" r="$r" fill="white"/>"""
 
+  /** Grid lines anchored to this room's walls, not global space. */
   private def roomGrid(rm: RenderedRoom): String = rm.shape match
+    case RoomShape.Circular => ""
     case RoomShape.Rectangular =>
-      s"""<rect x="${rm.x.toInt}" y="${rm.y.toInt}" width="${rm.w.toInt}" height="${rm.h.toInt}" fill="url(#floorgrid)"/>"""
-    case RoomShape.Circular =>
-      val cx = (rm.x + rm.w / 2).toInt
-      val cy = (rm.y + rm.h / 2).toInt
-      val r  = (math.min(rm.w, rm.h) / 2).toInt
-      s"""<circle cx="$cx" cy="$cy" r="$r" fill="url(#floorgrid)"/>"""
+      val lines = collection.mutable.ListBuffer[String]()
+      var vx = rm.x + GRID
+      while vx < rm.x + rm.w do
+        lines += s"""<line x1="${vx.toInt}" y1="${rm.y.toInt}" x2="${vx.toInt}" y2="${(rm.y + rm.h).toInt}" stroke="#d8d8d8" stroke-width="0.5"/>"""
+        vx += GRID
+      var hy = rm.y + GRID
+      while hy < rm.y + rm.h do
+        lines += s"""<line x1="${rm.x.toInt}" y1="${hy.toInt}" x2="${(rm.x + rm.w).toInt}" y2="${hy.toInt}" stroke="#d8d8d8" stroke-width="0.5"/>"""
+        hy += GRID
+      lines.mkString("\n")
 
   private def roomWalls(rm: RenderedRoom): String = rm.shape match
     case RoomShape.Rectangular =>
       s"""<rect x="${rm.x.toInt}" y="${rm.y.toInt}" width="${rm.w.toInt}" height="${rm.h.toInt}" fill="none" stroke="#333" stroke-width="$WALL"/>"""
     case RoomShape.Circular =>
-      val cx = (rm.x + rm.w / 2).toInt
-      val cy = (rm.y + rm.h / 2).toInt
+      val cx = (rm.x + rm.w / 2).toInt; val cy = (rm.y + rm.h / 2).toInt
       val r  = (math.min(rm.w, rm.h) / 2).toInt
       s"""<circle cx="$cx" cy="$cy" r="$r" fill="none" stroke="#333" stroke-width="$WALL"/>"""
 
-  private def roomLabel(rm: RenderedRoom): String =
-    val lx = (rm.x + rm.w / 2).toInt
-    val ly = (rm.y + rm.h / 2).toInt
-    s"""<text x="$lx" y="$ly" text-anchor="middle" dominant-baseline="middle" fill="#333" font-size="$FONT_SZ" font-family="serif" font-style="italic">${escapeXml(rm.label)}</text>"""
+  /** Room number (bold, inside) + label text (italic, below room). */
+  private def roomLabel(rm: RenderedRoom, num: Int): String =
+    val cx = (rm.x + rm.w / 2).toInt
+    // Number at top-centre of room interior
+    val ny = (rm.y + FONT_SZ + 4).toInt
+    val numEl = s"""<text x="$cx" y="$ny" text-anchor="middle" dominant-baseline="auto" fill="#333" font-size="$FONT_SZ" font-family="sans-serif" font-weight="bold">$num</text>"""
+    // Label just below the room's bottom wall
+    val ly = (rm.y + rm.h + FONT_SZ + 3).toInt
+    val labelEl = s"""<text x="$cx" y="$ly" text-anchor="middle" dominant-baseline="auto" fill="#555" font-size="${FONT_SZ - 1}" font-family="serif" font-style="italic">${escapeXml(rm.label)}</text>"""
+    s"$numEl\n$labelEl"
+
+  // ── Room features (stairs, windows) ──────────────────────────────────
+
+  private def roomFeatures(rm: RenderedRoom): List[String] =
+    rm.features.flatMap {
+      case RoomFeature.Stairs(dir)   => List(stairSymbol(rm, dir))
+      case RoomFeature.Window(side)  => List(windowSymbol(rm, side))
+      case _                         => Nil
+    }
+
+  /** Hatched box with direction arrow — centred in the room. */
+  private def stairSymbol(rm: RenderedRoom, dir: StairDir): String =
+    val bw = GRID
+    val bh = GRID
+    val bx = (rm.x + (rm.w - bw) / 2).toInt
+    val by = (rm.y + (rm.h - bh) / 2).toInt
+    val clipId = s"sc${rm.id.filter(_.isLetterOrDigit)}"
+
+    val clip = s"""<clipPath id="$clipId"><rect x="$bx" y="$by" width="$bw" height="$bh"/></clipPath>"""
+    val box  = s"""<rect x="$bx" y="$by" width="$bw" height="$bh" fill="white" stroke="#333" stroke-width="0.8"/>"""
+
+    // 45° diagonal hatch lines (bottom-left to top-right)
+    val spacing = 5
+    val hatchLines = (-bh to bw + bh by spacing).map { d =>
+      s"""  <line x1="${bx + d}" y1="${by + bh}" x2="${bx + d + bh}" y2="$by" stroke="#333" stroke-width="0.7"/>"""
+    }.mkString("\n")
+    val hatch = s"""<g clip-path="url(#$clipId)">\n$hatchLines\n</g>"""
+
+    // Arrow indicating direction (small filled triangle)
+    val ax = bx + bw / 2
+    val arrow = dir match
+      case StairDir.Up =>
+        val ty = by + 4; val by2 = by + bh - 4
+        s"""<polygon points="$ax,$ty ${ax - 5},$by2 ${ax + 5},$by2" fill="#333"/>"""
+      case StairDir.Down =>
+        val ty = by + bh - 4; val by2 = by + 4
+        s"""<polygon points="$ax,$ty ${ax - 5},$by2 ${ax + 5},$by2" fill="#333"/>"""
+
+    s"$clip\n$box\n$hatch\n$arrow"
+
+  /** Small opening gap painted over the wall at the window position. */
+  private def windowSymbol(rm: RenderedRoom, side: WallSide): String =
+    val (x, y, w, h) = side match
+      case WallSide.North => ((rm.x + rm.w / 2 - 10).toInt, (rm.y - 1).toInt,       20, 3)
+      case WallSide.South => ((rm.x + rm.w / 2 - 10).toInt, (rm.y + rm.h - 1).toInt, 20, 3)
+      case WallSide.East  => ((rm.x + rm.w - 1).toInt,       (rm.y + rm.h / 2 - 10).toInt, 3, 20)
+      case WallSide.West  => ((rm.x - 1).toInt,               (rm.y + rm.h / 2 - 10).toInt, 3, 20)
+    s"""<rect x="$x" y="$y" width="$w" height="$h" fill="white" stroke="#99c" stroke-width="0.5"/>"""
 
   // ── Corridors ────────────────────────────────────────────────────────
 
   private def corridorFloors(c: RenderedCorridor): List[String] =
     c.rects.map { r =>
       s"""<rect x="${r.x.toInt}" y="${r.y.toInt}" width="${r.w.toInt}" height="${r.h.toInt}" fill="white"/>"""
-    }
-
-  private def corridorGrids(c: RenderedCorridor): List[String] =
-    c.rects.map { r =>
-      s"""<rect x="${r.x.toInt}" y="${r.y.toInt}" width="${r.w.toInt}" height="${r.h.toInt}" fill="url(#floorgrid)"/>"""
     }
 
   private def corridorWalls(c: RenderedCorridor): List[String] =

@@ -7,9 +7,6 @@
            patternTransform="rotate(45 0 0)" patternUnits="userSpaceOnUse">
     <line x1="0" y1="0" x2="0" y2="6" stroke="#888" stroke-width="1.2"/>
   </pattern>
-  <pattern id="floorgrid" width="30" height="30" patternUnits="userSpaceOnUse">
-    <path d="M 30 0 L 0 0 0 30" fill="none" stroke="#d8d8d8" stroke-width="0.5"/>
-  </pattern>
   <symbol id="door-open" viewBox="0 0 30 30">
     <rect x="0"  y="12" width="30" height="6" fill="white"/>
     <rect x="0"  y="11" width="4"  height="8" fill="#333"/>
@@ -37,9 +34,15 @@
 
 <rect x="-75" y="-45" width="150" height="90" fill="white"/>
 
-<rect x="-75" y="-45" width="150" height="90" fill="url(#floorgrid)"/>
-
 <rect x="-75" y="-45" width="150" height="90" fill="none" stroke="#333" stroke-width="1.5"/>
+<line x1="-45" y1="-45" x2="-45" y2="45" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="-15" y1="-45" x2="-15" y2="45" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="15" y1="-45" x2="15" y2="45" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="45" y1="-45" x2="45" y2="45" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="-75" y1="-15" x2="75" y2="-15" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="-75" y1="15" x2="75" y2="15" stroke="#d8d8d8" stroke-width="0.5"/>
 
-<text x="0" y="0" text-anchor="middle" dominant-baseline="middle" fill="#333" font-size="9" font-family="serif" font-style="italic">Alone</text>
+
+<text x="0" y="-32" text-anchor="middle" dominant-baseline="auto" fill="#333" font-size="9" font-family="sans-serif" font-weight="bold">1</text>
+<text x="0" y="57" text-anchor="middle" dominant-baseline="auto" fill="#555" font-size="8" font-family="serif" font-style="italic">Alone</text>
 </svg>
