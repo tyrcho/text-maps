@@ -1,6 +1,6 @@
 package textmaps.render
 
-import textmaps.dsl.{DoorType, MapType, RoomFeature, RoomShape, StairDir, WallSide}
+import textmaps.dsl.{DoorType, FeatureSize, MapType, RoomFeature, RoomShape, StairDir, WallSide}
 import textmaps.layout.*
 
 /** Renders a RenderedMap as ASCII art.
@@ -90,14 +90,63 @@ object AsciiRenderer:
       set(r.cx - 1, r.cy - 1, '+'); set(r.cx + r.cw, r.cy - 1, '+')
       set(r.cx - 1, r.cy + r.ch, '+'); set(r.cx + r.cw, r.cy + r.ch, '+')
 
-    // 4. Room labels — movement-feature prefix/suffix baked in, centered, truncated
+    // 4. Natural / structural features (drawn before labels so labels read on top)
+    val charsPerGrid = 30 / PX_PER_CHAR  // 30px per grid / 10px per char = 3
+    for r <- cRooms do
+      r.features.foreach {
+        case RoomFeature.Stream(size) =>
+          val rows = math.max(1, size.h * charsPerGrid)
+          val startRow = r.cy + (r.ch - rows) / 2
+          for row <- startRow until startRow + rows; x <- r.cx until r.cx + r.cw do set(x, row, '~')
+
+        case RoomFeature.Stalactite(size) =>
+          val cols = math.min(size.w * charsPerGrid, r.cw)
+          val rows = math.min(size.h * charsPerGrid, r.ch)
+          val startCol = r.cx + (r.cw - cols) / 2
+          for row <- r.cy until r.cy + rows; x <- startCol until startCol + cols do set(x, row, 'v')
+
+        case RoomFeature.Stalagmite(size) =>
+          val cols = math.min(size.w * charsPerGrid, r.cw)
+          val rows = math.min(size.h * charsPerGrid, r.ch)
+          val startCol = r.cx + (r.cw - cols) / 2
+          for row <- (r.cy + r.ch - rows) until r.cy + r.ch; x <- startCol until startCol + cols do set(x, row, '^')
+
+        case RoomFeature.Pool(size) =>
+          val cols = math.min(size.w * charsPerGrid, r.cw)
+          val rows = math.min(size.h * charsPerGrid, r.ch)
+          val startCol = r.cx + (r.cw - cols) / 2
+          val startRow = r.cy + (r.ch - rows) / 2
+          for row <- startRow until startRow + rows; x <- startCol until startCol + cols do set(x, row, '~')
+
+        case RoomFeature.Crevasse(size) =>
+          val rows = math.max(1, size.h * charsPerGrid)
+          val startRow = r.cy + (r.ch - rows) / 2
+          for row <- startRow until startRow + rows; x <- r.cx until r.cx + r.cw do
+            set(x, row, if (row - startRow) % 2 == 0 then '/' else '\\')
+
+        case RoomFeature.Pillar(size) =>
+          val cols = math.min(size.w * charsPerGrid, r.cw)
+          val rows = math.min(size.h * charsPerGrid, r.ch)
+          val cx = r.cx + (r.cw - cols) / 2; val cy = r.cy + (r.ch - rows) / 2
+          for row <- cy until cy + rows; x <- cx until cx + cols do set(x, row, 'O')
+
+        case RoomFeature.Statue(size) =>
+          val cols = math.min(size.w * charsPerGrid, r.cw)
+          val rows = math.min(size.h * charsPerGrid, r.ch)
+          val cx = r.cx + (r.cw - cols) / 2; val cy = r.cy + (r.ch - rows) / 2
+          for row <- cy until cy + rows; x <- cx until cx + cols do set(x, row, '@')
+
+        case _ =>
+      }
+
+    // 4b. Room labels — movement-feature prefix/suffix baked in; drawn after features so labels read on top
     for r <- cRooms do
       val prefix = r.features.collectFirst {
-        case RoomFeature.Stairs(StairDir.Up)        => "< "
-        case RoomFeature.SpiralStairs(StairDir.Up)  => "S< "
-        case RoomFeature.SpiralStairs(StairDir.Down)=> "S> "
-        case RoomFeature.Ladder(StairDir.Up)        => "^ "
-        case RoomFeature.Ladder(StairDir.Down)      => "v "
+        case RoomFeature.Stairs(StairDir.Up)         => "< "
+        case RoomFeature.SpiralStairs(StairDir.Up)   => "S< "
+        case RoomFeature.SpiralStairs(StairDir.Down) => "S> "
+        case RoomFeature.Ladder(StairDir.Up)         => "^ "
+        case RoomFeature.Ladder(StairDir.Down)       => "v "
       }.getOrElse("")
       val suffix = r.features.collectFirst {
         case RoomFeature.Stairs(StairDir.Down) => " >"
@@ -106,49 +155,6 @@ object AsciiRenderer:
       val lx      = r.cx + (r.cw - display.length) / 2
       val ly      = r.cy + r.ch / 2
       display.zipWithIndex.foreach { case (c, i) => set(lx + i, ly, c) }
-
-    // 4b. Natural / structural features — scale to fill the room
-    for r <- cRooms do
-      r.features.foreach {
-        // Natural features — span the room
-        case RoomFeature.Stream =>
-          val row = r.cy + r.ch / 2
-          for x <- r.cx until r.cx + r.cw do set(x, row, '~')
-          val row2 = row + 1
-          if row2 < r.cy + r.ch then
-            for x <- r.cx until r.cx + r.cw do set(x, row2, '~')
-
-        case RoomFeature.Stalactite =>
-          // Hang from ceiling — fill top interior rows
-          val rows = math.max(1, r.ch / 3)
-          for row <- r.cy until r.cy + rows; x <- r.cx until r.cx + r.cw do set(x, row, 'v')
-
-        case RoomFeature.Stalagmite =>
-          // Rise from floor — fill bottom interior rows
-          val rows = math.max(1, r.ch / 3)
-          for row <- (r.cy + r.ch - rows) until r.cy + r.ch; x <- r.cx until r.cx + r.cw do set(x, row, '^')
-
-        case RoomFeature.Pool =>
-          // Fill a central rectangle
-          val padX = r.cw / 4; val padY = r.ch / 4
-          for row <- (r.cy + padY) until (r.cy + r.ch - padY)
-              col <- (r.cx + padX) until (r.cx + r.cw - padX) do set(col, row, '~')
-
-        case RoomFeature.Crevasse =>
-          // Diagonal crack across the room center
-          val row = r.cy + r.ch / 2
-          for x <- r.cx until r.cx + r.cw do set(x, row, '/')
-          if r.ch > 2 then
-            for x <- r.cx until r.cx + r.cw do set(x, row - 1, '\\')
-
-        // Single-point structural features
-        case RoomFeature.Pillar =>
-          set(r.cx + r.cw / 2, r.cy + r.ch / 2 + 1, 'O')
-        case RoomFeature.Statue =>
-          set(r.cx + r.cw / 2, r.cy + r.ch / 2 + 1, '@')
-
-        case _ =>
-      }
 
     // 5. Corridor door glyphs at both connecting room walls
     val roomById = cRooms.map(r => r.id -> r).toMap

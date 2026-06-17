@@ -22,6 +22,13 @@ enum WallSide:
 enum StairDir:
   case Up, Down
 
+/** Size of a room feature in grid squares (1 square = GRID px = 30 px).
+ *  Default is 1×1.  DSL syntax:  `pool:` → 1×1, `pool: 2` → 2×2, `pool: 3x2` → 3×2. */
+case class FeatureSize(w: Int = 1, h: Int = 1)
+object FeatureSize:
+  val default: FeatureSize = FeatureSize()
+  def square(n: Int): FeatureSize = FeatureSize(n, n)
+
 enum RoomFeature:
   // Vertical movement
   case Stairs(dir: StairDir)             // standard staircase
@@ -36,15 +43,15 @@ enum RoomFeature:
   case Fireplace(side: WallSide)         // fireplace against a wall
   case Bed(side: WallSide)               // bed against a wall
   case Curtain(side: WallSide)           // hanging curtain across a wall
-  // Structural
-  case Pillar                            // load-bearing column
-  case Statue                            // decorative statue
-  // Natural features
-  case Stalactite                        // icicle-shaped ceiling formation
-  case Stalagmite                        // spike-shaped floor formation
-  case Crevasse                          // crack/fissure in the floor
-  case Pool                              // pool of water
-  case Stream                            // flowing water crossing the room
+  // Structural — default 1 square, can be resized
+  case Pillar(size: FeatureSize = FeatureSize.default)
+  case Statue(size: FeatureSize = FeatureSize.default)
+  // Natural features — default 1 square, can be resized
+  case Stalactite(size: FeatureSize = FeatureSize.default)
+  case Stalagmite(size: FeatureSize = FeatureSize.default)
+  case Crevasse(size: FeatureSize = FeatureSize.default)
+  case Pool(size: FeatureSize = FeatureSize.default)
+  case Stream(size: FeatureSize = FeatureSize.default)
 
 case class RoomSize(width: Int, height: Int)
 

@@ -154,16 +154,28 @@ object DslParser:
     sides("bed")(RoomFeature.Bed(_))
     sides("curtain")(RoomFeature.Curtain(_))
 
-    // No-argument features — presence of the key is enough
-    if props.contains("pillar")     then buf += RoomFeature.Pillar
-    if props.contains("statue")     then buf += RoomFeature.Statue
-    if props.contains("stalactite") then buf += RoomFeature.Stalactite
-    if props.contains("stalagmite") then buf += RoomFeature.Stalagmite
-    if props.contains("crevasse")   then buf += RoomFeature.Crevasse
-    if props.contains("pool")       then buf += RoomFeature.Pool
-    if props.contains("stream")     then buf += RoomFeature.Stream
+    // Sized features — presence of the key triggers the feature; value sets size
+    def sized(key: String)(f: FeatureSize => RoomFeature): Unit =
+      props.get(key).foreach(v => buf += f(parseFeatureSize(v)))
+
+    sized("pillar")(RoomFeature.Pillar(_))
+    sized("statue")(RoomFeature.Statue(_))
+    sized("stalactite")(RoomFeature.Stalactite(_))
+    sized("stalagmite")(RoomFeature.Stalagmite(_))
+    sized("crevasse")(RoomFeature.Crevasse(_))
+    sized("pool")(RoomFeature.Pool(_))
+    sized("stream")(RoomFeature.Stream(_))
 
     buf.result()
+
+  private def parseFeatureSize(v: String): FeatureSize =
+    v.strip() match
+      case "" => FeatureSize.default
+      case s if s.contains("x") =>
+        s.split("x", 2) match
+          case Array(w, h) => FeatureSize(w.strip().toIntOption.getOrElse(1), h.strip().toIntOption.getOrElse(1))
+          case _           => FeatureSize.default
+      case n => FeatureSize.square(n.toIntOption.getOrElse(1))
 
   private def parseWallSide(s: String): Option[WallSide] = s.toLowerCase match
     case "north" | "n" => Some(WallSide.North)

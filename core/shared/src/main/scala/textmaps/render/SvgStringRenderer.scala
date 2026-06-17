@@ -1,6 +1,6 @@
 package textmaps.render
 
-import textmaps.dsl.{DoorType, RoomFeature, RoomShape, RoomSize, StairDir, WallSide}
+import textmaps.dsl.{DoorType, FeatureSize, RoomFeature, RoomShape, RoomSize, StairDir, WallSide}
 import textmaps.layout.*
 
 /** Renders a RenderedMap as a self-contained SVG string.
@@ -246,13 +246,13 @@ object SvgStringRenderer:
       case RoomFeature.Stairs(dir)        => List(stairHatch(rm, dir, spiral = false))
       case RoomFeature.SpiralStairs(dir)  => List(spiralStairs(rm, dir))
       case RoomFeature.Ladder(dir)        => List(centeredSymbol(rm, "feat-ladder", dir))
-      case RoomFeature.Pillar             => List(centeredUse(rm, "feat-pillar"))   // structural: fixed 1 square
-      case RoomFeature.Statue             => List(centeredUse(rm, "feat-statue"))   // structural: fixed 1 square
-      case RoomFeature.Pool               => List(naturalCentered(rm, "feat-pool"))
-      case RoomFeature.Stream             => List(naturalStream(rm))
-      case RoomFeature.Stalactite         => List(naturalCeiling(rm, "feat-stalactite"))
-      case RoomFeature.Stalagmite         => List(naturalFloor(rm, "feat-stalagmite"))
-      case RoomFeature.Crevasse           => List(naturalCentered(rm, "feat-crevasse", slim = true))
+      case RoomFeature.Pillar(size)     => List(sizedCentered(rm, "feat-pillar",     size))
+      case RoomFeature.Statue(size)     => List(sizedCentered(rm, "feat-statue",     size))
+      case RoomFeature.Pool(size)       => List(sizedCentered(rm, "feat-pool",       size))
+      case RoomFeature.Crevasse(size)   => List(sizedCentered(rm, "feat-crevasse",   size, slimH = true))
+      case RoomFeature.Stream(size)     => List(sizedStream(rm, size))
+      case RoomFeature.Stalactite(size) => List(sizedCeiling(rm, "feat-stalactite", size))
+      case RoomFeature.Stalagmite(size) => List(sizedFloor(rm,  "feat-stalagmite",  size))
       // Wall features — use `<use>` placed on the wall
       case RoomFeature.Window(side)       => List(wallUse(rm, side, "feat-window",      30, 6))
       case RoomFeature.ArrowSlit(side)    => List(wallUse(rm, side, "feat-arrow-slit",  30, 6))
@@ -297,46 +297,46 @@ object SvgStringRenderer:
     val tip   = s"""<polygon points="${cx-10},$cy ${cx-10+tipDx-3},${cy+tipDy} ${cx-10+tipDx+3},${cy+tipDy}" fill="#333"/>"""
     s"$box\n$outer\n$inner\n$tip"
 
-  // ── Natural feature sizing (room-proportional, min = 1 grid square) ─────
+  // ── Feature sizing (explicit FeatureSize, min = 1 grid square) ──────────
 
-  /** Pool / crevasse: fills the room interior. slim=true uses full width but GRID height. */
-  private def naturalCentered(rm: RenderedRoom, id: String, slim: Boolean = false): String =
-    val pad = GRID / 2
-    val sw  = math.max(GRID, rm.w.toInt - pad * 2)
-    val sh  = if slim then GRID else math.max(GRID, rm.h.toInt - pad * 2)
-    val x   = (rm.x + (rm.w - sw) / 2).toInt
-    val y   = (rm.y + (rm.h - sh) / 2).toInt
+  /** Pool, pillar, statue, crevasse: centred, sized by FeatureSize.
+   *  slimH=true fixes height at 1 GRID (crevasse is a horizontal band). */
+  private def sizedCentered(rm: RenderedRoom, id: String, size: FeatureSize, slimH: Boolean = false): String =
+    val sw = size.w * GRID
+    val sh = if slimH then GRID else size.h * GRID
+    val x  = (rm.x + (rm.w - sw) / 2).toInt
+    val y  = (rm.y + (rm.h - sh) / 2).toInt
     s"""<use href="#$id" x="$x" y="$y" width="$sw" height="$sh"/>"""
 
-  /** Stalactite: full width, top half of the room. */
-  private def naturalCeiling(rm: RenderedRoom, id: String): String =
-    val pad = GRID / 4
-    val sw  = math.max(GRID, rm.w.toInt - pad * 2)
-    val sh  = math.max(GRID, (rm.h / 2).toInt)
-    val x   = (rm.x + (rm.w - sw) / 2).toInt
-    val y   = (rm.y + pad / 2).toInt
+  /** Stalactite: centred horizontally, anchored to ceiling. */
+  private def sizedCeiling(rm: RenderedRoom, id: String, size: FeatureSize): String =
+    val sw = size.w * GRID
+    val sh = size.h * GRID
+    val x  = (rm.x + (rm.w - sw) / 2).toInt
+    val y  = rm.y.toInt
     s"""<use href="#$id" x="$x" y="$y" width="$sw" height="$sh"/>"""
 
-  /** Stalagmite: full width, bottom half of the room. */
-  private def naturalFloor(rm: RenderedRoom, id: String): String =
-    val pad = GRID / 4
-    val sw  = math.max(GRID, rm.w.toInt - pad * 2)
-    val sh  = math.max(GRID, (rm.h / 2).toInt)
-    val x   = (rm.x + (rm.w - sw) / 2).toInt
-    val y   = (rm.y + rm.h - sh - pad / 2).toInt
+  /** Stalagmite: centred horizontally, anchored to floor. */
+  private def sizedFloor(rm: RenderedRoom, id: String, size: FeatureSize): String =
+    val sw = size.w * GRID
+    val sh = size.h * GRID
+    val x  = (rm.x + (rm.w - sw) / 2).toInt
+    val y  = (rm.y + rm.h - sh).toInt
     s"""<use href="#$id" x="$x" y="$y" width="$sw" height="$sh"/>"""
 
-  /** Stream: full room width, centered vertically, two wavy lines. */
-  private def naturalStream(rm: RenderedRoom): String =
-    val x1 = rm.x.toInt;  val x2 = (rm.x + rm.w).toInt
-    val mx = (rm.x + rm.w / 2).toInt
-    val y1 = (rm.y + rm.h * 0.40).toInt
-    val y2 = (rm.y + rm.h * 0.60).toInt
-    val amp = math.min(12, (rm.h * 0.1).toInt)
-    s"""<path d="M $x1,$y1 Q $mx,${y1-amp} $x2,$y1" fill="none" stroke="#99c" stroke-width="1.8"/>
-<path d="M $x1,$y2 Q $mx,${y2+amp} $x2,$y2" fill="none" stroke="#99c" stroke-width="1.8"/>"""
+  /** Stream: always spans full room width; size.h controls band height. */
+  private def sizedStream(rm: RenderedRoom, size: FeatureSize): String =
+    val sw  = rm.w.toInt
+    val sh  = size.h * GRID
+    val x   = rm.x.toInt
+    val y1  = (rm.y + (rm.h - sh) / 2).toInt
+    val y2  = y1 + sh / 2
+    val mx  = (rm.x + rm.w / 2).toInt
+    val amp = math.min(sh / 4, 12)
+    s"""<path d="M $x,$y1 Q $mx,${y1-amp} ${x+sw},$y1" fill="none" stroke="#99c" stroke-width="1.8"/>
+<path d="M $x,$y2 Q $mx,${y2+amp} ${x+sw},$y2" fill="none" stroke="#99c" stroke-width="1.8"/>"""
 
-  /** A centred <use> of a GRID×GRID symbol (structural features: pillar, statue). */
+  /** A centred <use> of a GRID×GRID symbol (used by centeredSymbol for ladders). */
   private def centeredUse(rm: RenderedRoom, id: String): String =
     val x = (rm.x + (rm.w - GRID) / 2).toInt
     val y = (rm.y + (rm.h - GRID) / 2).toInt

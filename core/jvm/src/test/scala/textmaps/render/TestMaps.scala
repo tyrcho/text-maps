@@ -103,11 +103,11 @@ object TestMaps:
   val naturalStructuralFeatures: RenderedMap = LayoutEngine.layout(
     List(
       Room("cave", RoomSize(6, 4), Some("Cave"),
-        features = List(RoomFeature.Stalactite, RoomFeature.Stalagmite, RoomFeature.Crevasse)),
+        features = List(RoomFeature.Stalactite(), RoomFeature.Stalagmite(), RoomFeature.Crevasse())),
       Room("hall", RoomSize(5, 4), Some("Hall"),
-        features = List(RoomFeature.Pillar, RoomFeature.Statue, RoomFeature.Pool)),
+        features = List(RoomFeature.Pillar(), RoomFeature.Statue(), RoomFeature.Pool())),
       Room("stream_room", RoomSize(5, 3), Some("Stream"),
-        features = List(RoomFeature.Stream)),
+        features = List(RoomFeature.Stream())),
     ),
     List(
       Connection("cave", "hall",        DoorType.Open),

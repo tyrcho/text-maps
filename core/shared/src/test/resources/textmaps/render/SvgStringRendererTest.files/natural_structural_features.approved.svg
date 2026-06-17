@@ -162,14 +162,14 @@
 <line x1="552" y1="-45" x2="552" y2="45" stroke="#d8d8d8" stroke-width="0.5"/>
 <line x1="432" y1="-15" x2="582" y2="-15" stroke="#d8d8d8" stroke-width="0.5"/>
 <line x1="432" y1="15" x2="582" y2="15" stroke="#d8d8d8" stroke-width="0.5"/>
-<use href="#feat-stalactite" x="-83" y="-57" width="166" height="60"/>
-<use href="#feat-stalagmite" x="-83" y="-3" width="166" height="60"/>
-<use href="#feat-crevasse" x="-75" y="-15" width="150" height="30"/>
+<use href="#feat-stalactite" x="-15" y="-60" width="30" height="30"/>
+<use href="#feat-stalagmite" x="-15" y="30" width="30" height="30"/>
+<use href="#feat-crevasse" x="-15" y="-15" width="30" height="30"/>
 <use href="#feat-pillar" x="249" y="-15" width="30" height="30"/>
 <use href="#feat-statue" x="249" y="-15" width="30" height="30"/>
-<use href="#feat-pool" x="204" y="-45" width="120" height="90"/>
-<path d="M 432,-9 Q 507,-18 582,-9" fill="none" stroke="#99c" stroke-width="1.8"/>
-<path d="M 432,9 Q 507,18 582,9" fill="none" stroke="#99c" stroke-width="1.8"/>
+<use href="#feat-pool" x="249" y="-15" width="30" height="30"/>
+<path d="M 432,-15 Q 507,-22 582,-15" fill="none" stroke="#99c" stroke-width="1.8"/>
+<path d="M 432,0 Q 507,7 582,0" fill="none" stroke="#99c" stroke-width="1.8"/>
 <use href="#door-open" x="75" y="-15" width="30" height="30" transform="rotate(90,90,0)"/>
 <use href="#door-open" x="324" y="-15" width="30" height="30" transform="rotate(90,339,0)"/>
 <text x="0" y="-47" text-anchor="middle" dominant-baseline="auto" fill="#333" font-size="9" font-family="sans-serif" font-weight="bold">1</text>
