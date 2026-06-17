@@ -34,28 +34,20 @@
 </defs>
 <rect x="-140" y="-140" width="749" height="280" fill="white"/>
 <rect x="-140" y="-140" width="749" height="280" fill="url(#hatch)"/>
-<rect x="57" y="-15" width="196" height="30" fill="white"/>
-<rect x="238" y="-63" width="30" height="63" fill="white"/>
-<rect x="340" y="-15" width="144" height="30" fill="white"/>
-<rect x="469" y="-48" width="30" height="48" fill="white"/>
+<rect x="57" y="-15" width="109" height="30" fill="white"/>
+<rect x="340" y="-15" width="102" height="30" fill="white"/>
 <rect x="-60" y="-60" width="120" height="120" fill="white"/>
 <rect x="163" y="-60" width="180" height="120" fill="white"/>
 <rect x="439" y="-45" width="90" height="90" fill="white"/>
-<rect x="57" y="-15" width="196" height="30" fill="url(#floorgrid)"/>
-<rect x="238" y="-63" width="30" height="63" fill="url(#floorgrid)"/>
-<rect x="340" y="-15" width="144" height="30" fill="url(#floorgrid)"/>
-<rect x="469" y="-48" width="30" height="48" fill="url(#floorgrid)"/>
+<rect x="57" y="-15" width="109" height="30" fill="url(#floorgrid)"/>
+<rect x="340" y="-15" width="102" height="30" fill="url(#floorgrid)"/>
 <rect x="-60" y="-60" width="120" height="120" fill="url(#floorgrid)"/>
 <rect x="163" y="-60" width="180" height="120" fill="url(#floorgrid)"/>
 <rect x="439" y="-45" width="90" height="90" fill="url(#floorgrid)"/>
-<line x1="57" y1="-15" x2="253" y2="-15" stroke="#333" stroke-width="1.5"/>
-<line x1="57" y1="15" x2="253" y2="15" stroke="#333" stroke-width="1.5"/>
-<line x1="238" y1="-63" x2="238" y2="0" stroke="#333" stroke-width="1.5"/>
-<line x1="268" y1="-63" x2="268" y2="0" stroke="#333" stroke-width="1.5"/>
-<line x1="340" y1="-15" x2="484" y2="-15" stroke="#333" stroke-width="1.5"/>
-<line x1="340" y1="15" x2="484" y2="15" stroke="#333" stroke-width="1.5"/>
-<line x1="469" y1="-48" x2="469" y2="0" stroke="#333" stroke-width="1.5"/>
-<line x1="499" y1="-48" x2="499" y2="0" stroke="#333" stroke-width="1.5"/>
+<line x1="57" y1="-15" x2="166" y2="-15" stroke="#333" stroke-width="1.5"/>
+<line x1="57" y1="15" x2="166" y2="15" stroke="#333" stroke-width="1.5"/>
+<line x1="340" y1="-15" x2="442" y2="-15" stroke="#333" stroke-width="1.5"/>
+<line x1="340" y1="15" x2="442" y2="15" stroke="#333" stroke-width="1.5"/>
 <rect x="-60" y="-60" width="120" height="120" fill="none" stroke="#333" stroke-width="1.5"/>
 <rect x="163" y="-60" width="180" height="120" fill="none" stroke="#333" stroke-width="1.5"/>
 <rect x="439" y="-45" width="90" height="90" fill="none" stroke="#333" stroke-width="1.5"/>

@@ -34,18 +34,14 @@
 </defs>
 <rect x="-140" y="-140" width="619" height="280" fill="white"/>
 <rect x="-140" y="-140" width="619" height="280" fill="url(#hatch)"/>
-<rect x="57" y="-15" width="222" height="30" fill="white"/>
-<rect x="264" y="-63" width="30" height="63" fill="white"/>
+<rect x="57" y="-15" width="105" height="30" fill="white"/>
 <rect x="-60" y="-60" width="120" height="120" fill="white"/>
 <rect x="159" y="-60" width="240" height="120" fill="white"/>
-<rect x="57" y="-15" width="222" height="30" fill="url(#floorgrid)"/>
-<rect x="264" y="-63" width="30" height="63" fill="url(#floorgrid)"/>
+<rect x="57" y="-15" width="105" height="30" fill="url(#floorgrid)"/>
 <rect x="-60" y="-60" width="120" height="120" fill="url(#floorgrid)"/>
 <rect x="159" y="-60" width="240" height="120" fill="url(#floorgrid)"/>
-<line x1="57" y1="-15" x2="279" y2="-15" stroke="#333" stroke-width="1.5"/>
-<line x1="57" y1="15" x2="279" y2="15" stroke="#333" stroke-width="1.5"/>
-<line x1="264" y1="-63" x2="264" y2="0" stroke="#333" stroke-width="1.5"/>
-<line x1="294" y1="-63" x2="294" y2="0" stroke="#333" stroke-width="1.5"/>
+<line x1="57" y1="-15" x2="162" y2="-15" stroke="#333" stroke-width="1.5"/>
+<line x1="57" y1="15" x2="162" y2="15" stroke="#333" stroke-width="1.5"/>
 <rect x="-60" y="-60" width="120" height="120" fill="none" stroke="#333" stroke-width="1.5"/>
 <rect x="159" y="-60" width="240" height="120" fill="none" stroke="#333" stroke-width="1.5"/>
 <use href="#door-open" x="45" y="-15" width="30" height="30" transform="rotate(90,60,0)"/>

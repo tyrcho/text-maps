@@ -154,25 +154,39 @@ object LayoutEngine:
     val cyB  = b.y + b.h / 2
     val half = CORRIDOR_W / 2
 
-    // Room A exit: the wall facing toward B, pulled inward by WALL_OVERLAP
-    val exitX =
-      if cxB >= cxA then a.x + a.w - WALL_OVERLAP else a.x + WALL_OVERLAP
-
-    // Room B entry: the wall facing the L-corner, pulled inward by WALL_OVERLAP
-    val entryY =
-      if cyB >= cyA then b.y - WALL_OVERLAP else b.y + b.h + WALL_OVERLAP
-
     val rects = collection.mutable.ListBuffer[CorridorRect]()
 
-    // Horizontal leg: from room A wall to room B's vertical center
-    val hLen = math.abs(cxB - exitX)
-    if hLen > 1 then
-      rects += CorridorRect(math.min(exitX, cxB), cyA - half, hLen, CORRIDOR_W)
+    val heightDiff = math.abs(cyB - cyA)
+    val widthDiff  = math.abs(cxB - cxA)
 
-    // Vertical leg: from H-level down/up to room B wall
-    val vLen = math.abs(entryY - cyA)
-    if vLen > 1 then
-      rects += CorridorRect(cxB - half, math.min(cyA, entryY), CORRIDOR_W, vLen)
+    if heightDiff <= CORRIDOR_W then
+      // Same-ish height: straight horizontal corridor wall-to-wall
+      val exitX  = if cxB >= cxA then a.x + a.w - WALL_OVERLAP else a.x + WALL_OVERLAP
+      val entryX = if cxB >= cxA then b.x + WALL_OVERLAP else b.x + b.w - WALL_OVERLAP
+      val hLen   = math.abs(entryX - exitX)
+      if hLen > 1 then
+        val midY = (cyA + cyB) / 2
+        rects += CorridorRect(math.min(exitX, entryX), midY - half, hLen, CORRIDOR_W)
+
+    else if widthDiff <= CORRIDOR_W then
+      // Same-ish x: straight vertical corridor wall-to-wall
+      val exitY  = if cyB >= cyA then a.y + a.h - WALL_OVERLAP else a.y + WALL_OVERLAP
+      val entryY = if cyB >= cyA then b.y + WALL_OVERLAP else b.y + b.h - WALL_OVERLAP
+      val vLen   = math.abs(entryY - exitY)
+      if vLen > 1 then
+        val midX = (cxA + cxB) / 2
+        rects += CorridorRect(midX - half, math.min(exitY, entryY), CORRIDOR_W, vLen)
+
+    else
+      // L-shaped: horizontal to B's vertical axis, then vertical to B's entry wall
+      val exitX  = if cxB >= cxA then a.x + a.w - WALL_OVERLAP else a.x + WALL_OVERLAP
+      val entryY = if cyB >= cyA then b.y - WALL_OVERLAP else b.y + b.h + WALL_OVERLAP
+      val hLen   = math.abs(cxB - exitX)
+      if hLen > 1 then
+        rects += CorridorRect(math.min(exitX, cxB), cyA - half, hLen, CORRIDOR_W)
+      val vLen   = math.abs(entryY - cyA)
+      if vLen > 1 then
+        rects += CorridorRect(cxB - half, math.min(cyA, entryY), CORRIDOR_W, vLen)
 
     RenderedCorridor(c.from, c.to, c.door, rects.toList)
 
