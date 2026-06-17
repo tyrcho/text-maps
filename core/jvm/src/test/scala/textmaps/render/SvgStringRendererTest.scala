@@ -14,7 +14,7 @@ import textmaps.layout.LayoutEngine
  */
 class SvgStringRendererTest extends AnyFunSuite:
 
-  private val approvedDir  = Path.of("src/test/resources/textmaps/render/SvgStringRendererTest.files")
+  private val approvedDir  = Path.of("core/shared/src/test/resources/textmaps/render/SvgStringRendererTest.files")
   private val shouldUpdate = sys.env.get("UPDATE_SNAPSHOTS").contains("1")
 
   private def svgApproval(name: String, map: textmaps.layout.RenderedMap): Unit =

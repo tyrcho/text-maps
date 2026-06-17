@@ -13,7 +13,7 @@ lazy val core = crossProject(JSPlatform, JVMPlatform, NativePlatform)
     testFrameworks += new TestFramework("munit.Framework"),
   )
   .jvmSettings(
-    libraryDependencies += "com.colisweb" %% "approvals-scala" % "1.3.1" % Test,
+    libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.20" % Test,
   )
 
 // ── JS: browser app (scalajs-dom only; SVG rendered as strings by core) ──────

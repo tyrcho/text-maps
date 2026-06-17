@@ -1,74 +1,101 @@
 package textmaps.render
 
-import com.github.writethemfirst.Approbation
-import org.scalatest.funsuite.FixtureAnyFunSuite
+import java.nio.file.{Files, Path}
+import org.scalatest.funsuite.AnyFunSuite
 import textmaps.dsl.*
 import textmaps.layout.LayoutEngine
 
-class AsciiRendererTest extends FixtureAnyFunSuite with Approbation:
+/** Approval tests for AsciiRenderer.
+ *
+ *  Approved files live in core/shared/src/test/resources/textmaps/render/AsciiRendererTest.files/
+ *  as *.approved.txt — plain text so editors and diffs display them correctly.
+ *
+ *  To regenerate all approved files: UPDATE_SNAPSHOTS=1 make test
+ */
+class AsciiRendererTest extends AnyFunSuite:
 
-  test("two connected rooms") { approver =>
-    val rooms = List(
-      Room("entrance", RoomSize(4, 4), Some("Entry")),
-      Room("hall",     RoomSize(8, 4), Some("Great Hall")),
-    )
-    val conns = List(Connection("entrance", "hall", DoorType.Open))
-    approver.verify(AsciiRenderer.render(LayoutEngine.layout(rooms, conns, None)))
-  }
+  private val approvedDir  = Path.of("core/shared/src/test/resources/textmaps/render/AsciiRendererTest.files")
+  private val shouldUpdate = sys.env.get("UPDATE_SNAPSHOTS").contains("1")
 
-  test("locked door between rooms") { approver =>
-    val rooms = List(
-      Room("guard",  RoomSize(3, 3), Some("Guard")),
-      Room("prison", RoomSize(4, 3), Some("Prison")),
-    )
-    val conns = List(Connection("guard", "prison", DoorType.Locked))
-    approver.verify(AsciiRenderer.render(LayoutEngine.layout(rooms, conns, None)))
-  }
+  private def asciiApproval(name: String, map: textmaps.layout.RenderedMap): Unit =
+    val actual = AsciiRenderer.render(map)
+    val file   = approvedDir.resolve(s"$name.approved.txt")
+    if shouldUpdate then
+      Files.createDirectories(approvedDir)
+      Files.writeString(file, actual)
+    else
+      val expected = Files.readString(file)
+      assert(actual == expected, s"ASCII output changed for '$name' — run UPDATE_SNAPSHOTS=1 to re-approve")
 
-  test("three rooms in a chain") { approver =>
-    val rooms = List(
-      Room("entrance", RoomSize(4, 4), Some("Entrance")),
-      Room("hall",     RoomSize(6, 4), Some("Hall")),
-      Room("vault",    RoomSize(3, 3), Some("Vault")),
-    )
-    val conns = List(
-      Connection("entrance", "hall",  DoorType.Open),
-      Connection("hall",     "vault", DoorType.Secret),
-    )
-    approver.verify(AsciiRenderer.render(LayoutEngine.layout(rooms, conns, None)))
-  }
+  test("two connected rooms"):
+    asciiApproval("two_connected_rooms", LayoutEngine.layout(
+      List(
+        Room("entrance", RoomSize(4, 4), Some("Entry")),
+        Room("hall",     RoomSize(8, 4), Some("Great Hall")),
+      ),
+      List(Connection("entrance", "hall", DoorType.Open)),
+      None,
+    ))
 
-  test("single room") { approver =>
-    val rooms = List(Room("alone", RoomSize(5, 3), Some("Alone")))
-    approver.verify(AsciiRenderer.render(LayoutEngine.layout(rooms, Nil, None)))
-  }
+  test("locked door between rooms"):
+    asciiApproval("locked_door_between_rooms", LayoutEngine.layout(
+      List(
+        Room("guard",  RoomSize(3, 3), Some("Guard")),
+        Room("prison", RoomSize(4, 3), Some("Prison")),
+      ),
+      List(Connection("guard", "prison", DoorType.Locked)),
+      None,
+    ))
 
-  test("empty map") { approver =>
-    approver.verify(AsciiRenderer.render(LayoutEngine.layout(Nil, Nil, None)))
-  }
+  test("three rooms in a chain"):
+    asciiApproval("three_rooms_in_a_chain", LayoutEngine.layout(
+      List(
+        Room("entrance", RoomSize(4, 4), Some("Entrance")),
+        Room("hall",     RoomSize(6, 4), Some("Hall")),
+        Room("vault",    RoomSize(3, 3), Some("Vault")),
+      ),
+      List(
+        Connection("entrance", "hall",  DoorType.Open),
+        Connection("hall",     "vault", DoorType.Secret),
+      ),
+      None,
+    ))
 
-  test("dungeon room with stairs and windows") { approver =>
-    val rooms = List(
-      Room("entrance", RoomSize(4, 3), Some("Entry"),
-        features = List(RoomFeature.Exit(WallSide.West))),
-      Room("vault", RoomSize(3, 3), Some("Vault"),
-        features = List(RoomFeature.Stairs(StairDir.Up), RoomFeature.Window(WallSide.North))),
-    )
-    val conns = List(Connection("entrance", "vault", DoorType.Locked))
-    approver.verify(AsciiRenderer.render(LayoutEngine.layout(rooms, conns, None)))
-  }
+  test("single room"):
+    asciiApproval("single_room", LayoutEngine.layout(
+      List(Room("alone", RoomSize(5, 3), Some("Alone"))),
+      Nil,
+      None,
+    ))
 
-  test("building with exterior exits") { approver =>
-    val rooms = List(
-      Room("hall", RoomSize(5, 4), Some("Hall"),
-        features = List(
-          RoomFeature.Exit(WallSide.West),
-          RoomFeature.Exit(WallSide.East),
-          RoomFeature.Window(WallSide.North),
-        )),
-      Room("kitchen", RoomSize(3, 3), Some("Kitchen"),
-        features = List(RoomFeature.Exit(WallSide.South))),
-    )
-    val conns = List(Connection("hall", "kitchen", DoorType.Open))
-    approver.verify(AsciiRenderer.render(LayoutEngine.layout(rooms, conns, None, MapType.Building)))
-  }
+  test("empty map"):
+    asciiApproval("empty_map", LayoutEngine.layout(Nil, Nil, None))
+
+  test("dungeon room with stairs and windows"):
+    asciiApproval("dungeon_room_with_stairs_and_windows", LayoutEngine.layout(
+      List(
+        Room("entrance", RoomSize(4, 3), Some("Entry"),
+          features = List(RoomFeature.Exit(WallSide.West))),
+        Room("vault", RoomSize(3, 3), Some("Vault"),
+          features = List(RoomFeature.Stairs(StairDir.Up), RoomFeature.Window(WallSide.North))),
+      ),
+      List(Connection("entrance", "vault", DoorType.Locked)),
+      None,
+    ))
+
+  test("building with exterior exits"):
+    asciiApproval("building_with_exterior_exits", LayoutEngine.layout(
+      List(
+        Room("hall", RoomSize(5, 4), Some("Hall"),
+          features = List(
+            RoomFeature.Exit(WallSide.West),
+            RoomFeature.Exit(WallSide.East),
+            RoomFeature.Window(WallSide.North),
+          )),
+        Room("kitchen", RoomSize(3, 3), Some("Kitchen"),
+          features = List(RoomFeature.Exit(WallSide.South))),
+      ),
+      List(Connection("hall", "kitchen", DoorType.Open)),
+      None,
+      MapType.Building,
+    ))
