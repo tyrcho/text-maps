@@ -91,7 +91,7 @@ object AsciiRenderer:
       set(r.cx - 1, r.cy + r.ch, '+'); set(r.cx + r.cw, r.cy + r.ch, '+')
 
     // 4. Natural / structural features (drawn before labels so labels read on top)
-    val charsPerGrid = 1  // 1 char per grid square
+    val charsPerGrid = 30 / PX_PER_CHAR  // GRID px / px-per-char = 3 chars per square
     for r <- cRooms do
       r.features.foreach {
         case RoomFeature.Stream(size) =>
