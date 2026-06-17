@@ -38,16 +38,16 @@
 <rect x="183" y="-48" width="30" height="48" fill="white"/>
 <rect x="-60" y="-45" width="120" height="90" fill="white"/>
 <rect x="153" y="-45" width="90" height="90" fill="white"/>
-<rect x="-60" y="-45" width="120" height="90" fill="url(#floorgrid)"/>
-<rect x="153" y="-45" width="90" height="90" fill="url(#floorgrid)"/>
 <rect x="57" y="-15" width="141" height="30" fill="url(#floorgrid)"/>
 <rect x="183" y="-48" width="30" height="48" fill="url(#floorgrid)"/>
-<rect x="-60" y="-45" width="120" height="90" fill="none" stroke="#333" stroke-width="1.5"/>
-<rect x="153" y="-45" width="90" height="90" fill="none" stroke="#333" stroke-width="1.5"/>
+<rect x="-60" y="-45" width="120" height="90" fill="url(#floorgrid)"/>
+<rect x="153" y="-45" width="90" height="90" fill="url(#floorgrid)"/>
 <line x1="57" y1="-15" x2="198" y2="-15" stroke="#333" stroke-width="1.5"/>
 <line x1="57" y1="15" x2="198" y2="15" stroke="#333" stroke-width="1.5"/>
 <line x1="183" y1="-48" x2="183" y2="0" stroke="#333" stroke-width="1.5"/>
 <line x1="213" y1="-48" x2="213" y2="0" stroke="#333" stroke-width="1.5"/>
+<rect x="-60" y="-45" width="120" height="90" fill="none" stroke="#333" stroke-width="1.5"/>
+<rect x="153" y="-45" width="90" height="90" fill="none" stroke="#333" stroke-width="1.5"/>
 <use href="#door-locked" x="45" y="-15" width="30" height="30" transform="rotate(90,60,0)"/>
 <text x="0" y="0" text-anchor="middle" dominant-baseline="middle" fill="#333" font-size="9" font-family="serif" font-style="italic">Entry</text>
 <text x="198" y="0" text-anchor="middle" dominant-baseline="middle" fill="#333" font-size="9" font-family="serif" font-style="italic">Vault</text>

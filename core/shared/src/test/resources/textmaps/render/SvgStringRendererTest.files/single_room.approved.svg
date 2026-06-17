@@ -36,10 +36,10 @@
 <rect x="-155" y="-125" width="310" height="250" fill="url(#hatch)"/>
 
 <rect x="-75" y="-45" width="150" height="90" fill="white"/>
+
 <rect x="-75" y="-45" width="150" height="90" fill="url(#floorgrid)"/>
 
 <rect x="-75" y="-45" width="150" height="90" fill="none" stroke="#333" stroke-width="1.5"/>
-
 
 <text x="0" y="0" text-anchor="middle" dominant-baseline="middle" fill="#333" font-size="9" font-family="serif" font-style="italic">Alone</text>
 </svg>

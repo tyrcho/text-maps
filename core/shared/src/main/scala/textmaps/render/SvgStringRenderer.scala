@@ -34,10 +34,10 @@ object SvgStringRenderer:
         |${background(vx, vy, vw, vh)}
         |${map.corridors.flatMap(corridorFloors).mkString("\n")}
         |${map.rooms.map(roomFloor).mkString("\n")}
-        |${map.rooms.map(roomGrid).mkString("\n")}
         |${map.corridors.flatMap(corridorGrids).mkString("\n")}
-        |${map.rooms.map(roomWalls).mkString("\n")}
+        |${map.rooms.map(roomGrid).mkString("\n")}
         |${map.corridors.flatMap(corridorWalls).mkString("\n")}
+        |${map.rooms.map(roomWalls).mkString("\n")}
         |${map.doors.map(door).mkString("\n")}
         |${map.rooms.map(roomLabel).mkString("\n")}
         |</svg>""".stripMargin
@@ -56,10 +56,10 @@ object SvgStringRenderer:
         |${background(vx, vy, vw, vh)}
         |${map.corridors.flatMap(corridorFloors).mkString("\n")}
         |${map.rooms.map(roomFloor).mkString("\n")}
-        |${map.rooms.map(roomGrid).mkString("\n")}
         |${map.corridors.flatMap(corridorGrids).mkString("\n")}
-        |${map.rooms.map(roomWalls).mkString("\n")}
+        |${map.rooms.map(roomGrid).mkString("\n")}
         |${map.corridors.flatMap(corridorWalls).mkString("\n")}
+        |${map.rooms.map(roomWalls).mkString("\n")}
         |${map.doors.map(door).mkString("\n")}
         |${map.rooms.map(roomLabel).mkString("\n")}""".stripMargin
 

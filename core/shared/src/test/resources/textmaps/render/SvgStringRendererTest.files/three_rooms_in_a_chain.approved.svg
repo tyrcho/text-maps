@@ -41,16 +41,13 @@
 <rect x="-60" y="-60" width="120" height="120" fill="white"/>
 <rect x="163" y="-60" width="180" height="120" fill="white"/>
 <rect x="439" y="-45" width="90" height="90" fill="white"/>
-<rect x="-60" y="-60" width="120" height="120" fill="url(#floorgrid)"/>
-<rect x="163" y="-60" width="180" height="120" fill="url(#floorgrid)"/>
-<rect x="439" y="-45" width="90" height="90" fill="url(#floorgrid)"/>
 <rect x="57" y="-15" width="196" height="30" fill="url(#floorgrid)"/>
 <rect x="238" y="-63" width="30" height="63" fill="url(#floorgrid)"/>
 <rect x="340" y="-15" width="144" height="30" fill="url(#floorgrid)"/>
 <rect x="469" y="-48" width="30" height="48" fill="url(#floorgrid)"/>
-<rect x="-60" y="-60" width="120" height="120" fill="none" stroke="#333" stroke-width="1.5"/>
-<rect x="163" y="-60" width="180" height="120" fill="none" stroke="#333" stroke-width="1.5"/>
-<rect x="439" y="-45" width="90" height="90" fill="none" stroke="#333" stroke-width="1.5"/>
+<rect x="-60" y="-60" width="120" height="120" fill="url(#floorgrid)"/>
+<rect x="163" y="-60" width="180" height="120" fill="url(#floorgrid)"/>
+<rect x="439" y="-45" width="90" height="90" fill="url(#floorgrid)"/>
 <line x1="57" y1="-15" x2="253" y2="-15" stroke="#333" stroke-width="1.5"/>
 <line x1="57" y1="15" x2="253" y2="15" stroke="#333" stroke-width="1.5"/>
 <line x1="238" y1="-63" x2="238" y2="0" stroke="#333" stroke-width="1.5"/>
@@ -59,6 +56,9 @@
 <line x1="340" y1="15" x2="484" y2="15" stroke="#333" stroke-width="1.5"/>
 <line x1="469" y1="-48" x2="469" y2="0" stroke="#333" stroke-width="1.5"/>
 <line x1="499" y1="-48" x2="499" y2="0" stroke="#333" stroke-width="1.5"/>
+<rect x="-60" y="-60" width="120" height="120" fill="none" stroke="#333" stroke-width="1.5"/>
+<rect x="163" y="-60" width="180" height="120" fill="none" stroke="#333" stroke-width="1.5"/>
+<rect x="439" y="-45" width="90" height="90" fill="none" stroke="#333" stroke-width="1.5"/>
 <use href="#door-open" x="45" y="-15" width="30" height="30" transform="rotate(90,60,0)"/>
 <use href="#door-secret" x="328" y="-15" width="30" height="30" transform="rotate(90,343,0)"/>
 <text x="0" y="0" text-anchor="middle" dominant-baseline="middle" fill="#333" font-size="9" font-family="serif" font-style="italic">Entrance</text>
