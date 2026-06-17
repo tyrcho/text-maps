@@ -1,6 +1,6 @@
 package textmaps.render
 
-import textmaps.dsl.{DoorType, MapType, RoomFeature, StairDir, WallSide}
+import textmaps.dsl.{DoorType, MapType, RoomFeature, RoomShape, StairDir, WallSide}
 import textmaps.layout.*
 
 /** Renders a RenderedMap as ASCII art.
@@ -90,23 +90,51 @@ object AsciiRenderer:
       set(r.cx - 1, r.cy - 1, '+'); set(r.cx + r.cw, r.cy - 1, '+')
       set(r.cx - 1, r.cy + r.ch, '+'); set(r.cx + r.cw, r.cy + r.ch, '+')
 
-    // 4. Room labels — stairs prefix/suffix baked in, centered, truncated
+    // 4. Room labels — movement-feature prefix/suffix baked in, centered, truncated
     for r <- cRooms do
-      val prefix = if r.features.exists { case RoomFeature.Stairs(StairDir.Up)   => true; case _ => false } then "< " else ""
-      val suffix = if r.features.exists { case RoomFeature.Stairs(StairDir.Down) => true; case _ => false } then " >" else ""
+      val prefix = r.features.collectFirst {
+        case RoomFeature.Stairs(StairDir.Up)        => "< "
+        case RoomFeature.SpiralStairs(StairDir.Up)  => "S< "
+        case RoomFeature.SpiralStairs(StairDir.Down)=> "S> "
+        case RoomFeature.Ladder(StairDir.Up)        => "^ "
+        case RoomFeature.Ladder(StairDir.Down)      => "v "
+      }.getOrElse("")
+      val suffix = r.features.collectFirst {
+        case RoomFeature.Stairs(StairDir.Down) => " >"
+      }.getOrElse("")
       val display = (prefix + r.label + suffix).take(r.cw)
       val lx      = r.cx + (r.cw - display.length) / 2
       val ly      = r.cy + r.ch / 2
       display.zipWithIndex.foreach { case (c, i) => set(lx + i, ly, c) }
 
+    // 4b. In-room markers for natural/structural features (one row below label)
+    for r <- cRooms do
+      val marker = r.features.collectFirst {
+        case RoomFeature.Pillar     => 'O'
+        case RoomFeature.Statue     => '@'
+        case RoomFeature.Pool       => '~'
+        case RoomFeature.Stream     => '~'
+        case RoomFeature.Crevasse   => '/'
+        case RoomFeature.Stalactite => 'v'
+        case RoomFeature.Stalagmite => '^'
+      }
+      marker.foreach { c =>
+        val mx = r.cx + r.cw / 2
+        val my = r.cy + r.ch / 2 + 1
+        if my < r.cy + r.ch then set(mx, my, c)
+      }
+
     // 5. Corridor door glyphs at both connecting room walls
     val roomById = cRooms.map(r => r.id -> r).toMap
     for (corr, door) <- map.corridors.zip(map.doors) do
       val glyph = door.doorType match
-        case DoorType.Open   => '.'
-        case DoorType.Locked => 'L'
-        case DoorType.Secret => '?'
-        case DoorType.Barred => '='
+        case DoorType.Open       => '.'
+        case DoorType.Locked     => 'L'
+        case DoorType.Secret     => '?'
+        case DoorType.Barred     => '='
+        case DoorType.Double     => 'D'
+        case DoorType.Doorway    => ' '  // open passage — no glyph, wall stays open
+        case DoorType.Portcullis => '#'
       val a = roomById(corr.fromRoom)
       val b = roomById(corr.toRoom)
       corr.rects match
@@ -128,18 +156,20 @@ object AsciiRenderer:
             val col = toC(toRect.x + toRect.w / 2)
             set(col, if a.cy <= b.cy then b.cy - 1 else b.cy + b.ch, glyph)
 
-    // 6. Windows — 'w' on the appropriate wall, centered on that side
+    // 6. Wall-placed features — glyphs on the appropriate wall side
     for r <- cRooms do
-      r.features.collect { case RoomFeature.Window(side) => side }.foreach { side =>
-        val (wx, wy) = wallPos(r, side)
-        set(wx, wy, 'w')
-      }
-
-    // 7. Exterior exits — door glyph on the appropriate outer wall
-    for r <- cRooms do
-      r.features.collect { case RoomFeature.Exit(side) => side }.foreach { side =>
-        val (ex, ey) = wallPos(r, side)
-        set(ex, ey, '.')
+      r.features.foreach {
+        case RoomFeature.Window(side)       => val (x,y) = wallPos(r,side); set(x,y,'w')
+        case RoomFeature.ArrowSlit(side)    => val (x,y) = wallPos(r,side); set(x,y,'>')
+        case RoomFeature.IllusoryWall(side) => val (x,y) = wallPos(r,side); set(x,y,'!')
+        case RoomFeature.Exit(side)         => val (x,y) = wallPos(r,side); set(x,y,'.')
+        case RoomFeature.Fireplace(side)    => val (x,y) = wallPos(r,side); set(x,y,'f')
+        case RoomFeature.Curtain(side)      => val (x,y) = wallPos(r,side); set(x,y,'~')
+        case RoomFeature.Bed(side)          =>
+          val (bx,by) = wallPos(r,side)
+          // Draw bed as a 2-char wide marker along the wall
+          set(bx, by, '=')
+        case _ =>
       }
 
     grid.map(row => row.mkString.stripTrailing()).mkString("\n")

@@ -134,13 +134,35 @@ object DslParser:
 
   private def parseRoomFeatures(props: Map[String, String]): List[RoomFeature] =
     val buf = List.newBuilder[RoomFeature]
+
+    // Vertical movement
     props.get("stairs").flatMap(parseStairDir).foreach(d => buf += RoomFeature.Stairs(d))
-    props.get("window").foreach { v =>
-      v.split(",").flatMap(s => parseWallSide(s.strip())).foreach(side => buf += RoomFeature.Window(side))
-    }
-    props.get("exit").foreach { v =>
-      v.split(",").flatMap(s => parseWallSide(s.strip())).foreach(side => buf += RoomFeature.Exit(side))
-    }
+    props.get("spiral-stairs").flatMap(parseStairDir).foreach(d => buf += RoomFeature.SpiralStairs(d))
+    props.get("ladder").flatMap(parseStairDir).foreach(d => buf += RoomFeature.Ladder(d))
+
+    // Wall openings (all support comma-separated sides)
+    def sides(key: String)(f: WallSide => RoomFeature): Unit =
+      props.get(key).foreach(_.split(",").flatMap(s => parseWallSide(s.strip())).foreach(s => buf += f(s)))
+
+    sides("window")(RoomFeature.Window(_))
+    sides("arrow-slit")(RoomFeature.ArrowSlit(_))
+    sides("illusory-wall")(RoomFeature.IllusoryWall(_))
+    sides("exit")(RoomFeature.Exit(_))
+
+    // Furniture / fixtures
+    sides("fireplace")(RoomFeature.Fireplace(_))
+    sides("bed")(RoomFeature.Bed(_))
+    sides("curtain")(RoomFeature.Curtain(_))
+
+    // No-argument features — presence of the key is enough
+    if props.contains("pillar")     then buf += RoomFeature.Pillar
+    if props.contains("statue")     then buf += RoomFeature.Statue
+    if props.contains("stalactite") then buf += RoomFeature.Stalactite
+    if props.contains("stalagmite") then buf += RoomFeature.Stalagmite
+    if props.contains("crevasse")   then buf += RoomFeature.Crevasse
+    if props.contains("pool")       then buf += RoomFeature.Pool
+    if props.contains("stream")     then buf += RoomFeature.Stream
+
     buf.result()
 
   private def parseWallSide(s: String): Option[WallSide] = s.toLowerCase match
@@ -171,11 +193,14 @@ object DslParser:
     case _             => None
 
   private def parseDoor(s: String): Option[DoorType] = s.toLowerCase match
-    case "open"   => Some(DoorType.Open)
-    case "locked" => Some(DoorType.Locked)
-    case "secret" => Some(DoorType.Secret)
-    case "barred" => Some(DoorType.Barred)
-    case _        => None
+    case "open"       => Some(DoorType.Open)
+    case "locked"     => Some(DoorType.Locked)
+    case "secret"     => Some(DoorType.Secret)
+    case "barred"     => Some(DoorType.Barred)
+    case "double"     => Some(DoorType.Double)
+    case "doorway"    => Some(DoorType.Doorway)
+    case "portcullis" => Some(DoorType.Portcullis)
+    case _            => None
 
   private def parseKvs(tokens: List[String]): Map[String, String] =
     tokens.flatMap { t =>

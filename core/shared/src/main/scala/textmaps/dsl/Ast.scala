@@ -1,28 +1,50 @@
 package textmaps.dsl
 
-/** Whether the map is carved from rock (dungeon) or constructed above ground (building). */
 enum MapType:
-  case Dungeon   // thick rock walls, thin corridors OK
-  case Building  // thin 1-char walls, multiple exterior exits, open exterior
+  case Dungeon   // carved in rock — thick walls, thin corridors OK
+  case Building  // constructed — thin 1-char walls, multiple exterior exits
 
 enum DoorType:
-  case Open, Locked, Secret, Barred
+  case Open       // standard unlocked door
+  case Locked     // locked door
+  case Secret     // secret/concealed door
+  case Barred     // barred door
+  case Double     // double door (two panels)
+  case Doorway    // open doorway (no door, just an opening)
+  case Portcullis // iron gate / grating
 
 enum RoomShape:
   case Rectangular, Circular
 
-/** Cardinal wall side — used to place windows, exterior exits, and stairs exits. */
 enum WallSide:
   case North, South, East, West
 
 enum StairDir:
   case Up, Down
 
-/** Per-room features that don't create connections between rooms. */
 enum RoomFeature:
-  case Stairs(dir: StairDir)        // staircase going up or down
-  case Window(side: WallSide)       // window opening (light/sight, not traversable)
-  case Exit(side: WallSide)         // exterior door (to street, surface, or outdoors)
+  // Vertical movement
+  case Stairs(dir: StairDir)             // standard staircase
+  case SpiralStairs(dir: StairDir)       // spiral staircase
+  case Ladder(dir: StairDir)             // ladder up or down
+  // Wall openings
+  case Window(side: WallSide)            // window (light/sight, not traversable)
+  case ArrowSlit(side: WallSide)         // narrow defensive slit
+  case IllusoryWall(side: WallSide)      // wall that appears solid but isn't
+  case Exit(side: WallSide)              // exterior exit (to street, surface, outdoors)
+  // Furniture / fixtures
+  case Fireplace(side: WallSide)         // fireplace against a wall
+  case Bed(side: WallSide)               // bed against a wall
+  case Curtain(side: WallSide)           // hanging curtain across a wall
+  // Structural
+  case Pillar                            // load-bearing column
+  case Statue                            // decorative statue
+  // Natural features
+  case Stalactite                        // icicle-shaped ceiling formation
+  case Stalagmite                        // spike-shaped floor formation
+  case Crevasse                          // crack/fissure in the floor
+  case Pool                              // pool of water
+  case Stream                            // flowing water crossing the room
 
 case class RoomSize(width: Int, height: Int)
 
