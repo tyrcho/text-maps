@@ -99,3 +99,78 @@ class AsciiRendererTest extends AnyFunSuite:
       None,
       MapType.Building,
     ))
+
+  test("new door types"):
+    asciiApproval("new_door_types", LayoutEngine.layout(
+      List(
+        Room("a", RoomSize(3, 3), Some("A")),
+        Room("b", RoomSize(3, 3), Some("B")),
+        Room("c", RoomSize(3, 3), Some("C")),
+        Room("d", RoomSize(3, 3), Some("D")),
+      ),
+      List(
+        Connection("a", "b", DoorType.Double),
+        Connection("b", "c", DoorType.Doorway),
+        Connection("c", "d", DoorType.Portcullis),
+      ),
+      None,
+    ))
+
+  test("movement features"):
+    asciiApproval("movement_features", LayoutEngine.layout(
+      List(
+        Room("top",    RoomSize(4, 3), Some("Top"),    features = List(RoomFeature.SpiralStairs(StairDir.Down))),
+        Room("middle", RoomSize(4, 3), Some("Middle"), features = List(RoomFeature.Ladder(StairDir.Up))),
+        Room("bottom", RoomSize(4, 3), Some("Bottom"), features = List(RoomFeature.Ladder(StairDir.Down))),
+      ),
+      List(
+        Connection("top", "middle", DoorType.Open),
+        Connection("middle", "bottom", DoorType.Open),
+      ),
+      None,
+    ))
+
+  test("natural and structural features"):
+    asciiApproval("natural_structural_features", LayoutEngine.layout(
+      List(
+        Room("cave", RoomSize(6, 4), Some("Cave"),
+          features = List(
+            RoomFeature.Stalactite,
+            RoomFeature.Stalagmite,
+            RoomFeature.Crevasse,
+          )),
+        Room("hall", RoomSize(5, 4), Some("Hall"),
+          features = List(
+            RoomFeature.Pillar,
+            RoomFeature.Statue,
+            RoomFeature.Pool,
+          )),
+        Room("stream_room", RoomSize(5, 3), Some("Stream"),
+          features = List(RoomFeature.Stream)),
+      ),
+      List(
+        Connection("cave", "hall", DoorType.Open),
+        Connection("hall", "stream_room", DoorType.Open),
+      ),
+      None,
+    ))
+
+  test("wall features"):
+    asciiApproval("wall_features", LayoutEngine.layout(
+      List(
+        Room("barracks", RoomSize(5, 4), Some("Barracks"),
+          features = List(
+            RoomFeature.Bed(WallSide.North),
+            RoomFeature.Bed(WallSide.South),
+            RoomFeature.ArrowSlit(WallSide.East),
+          )),
+        Room("hall", RoomSize(5, 4), Some("Hall"),
+          features = List(
+            RoomFeature.Fireplace(WallSide.North),
+            RoomFeature.Curtain(WallSide.West),
+            RoomFeature.IllusoryWall(WallSide.South),
+          )),
+      ),
+      List(Connection("barracks", "hall", DoorType.Open)),
+      None,
+    ))

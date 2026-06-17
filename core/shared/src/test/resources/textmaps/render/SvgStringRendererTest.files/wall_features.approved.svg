@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg"
+     viewBox="-155 -140 562 280"
+     width="562" height="280">
+<defs>
+  <pattern id="hatch" width="6" height="6"
+           patternTransform="rotate(45 0 0)" patternUnits="userSpaceOnUse">
+    <line x1="0" y1="0" x2="0" y2="6" stroke="#888" stroke-width="1.2"/>
+  </pattern>
+
+  <!-- ── Door symbols (viewBox 0 0 30 30, open gap fills corridor width) ── -->
+  <symbol id="door-open" viewBox="0 0 30 30">
+    <rect x="0"  y="12" width="30" height="6" fill="white"/>
+    <rect x="0"  y="11" width="4"  height="8" fill="#333"/>
+    <rect x="26" y="11" width="4"  height="8" fill="#333"/>
+  </symbol>
+  <symbol id="door-locked" viewBox="0 0 30 30">
+    <rect x="0" y="12" width="30" height="6" fill="white"/>
+    <rect x="2" y="11" width="26" height="8" fill="#333"/>
+    <rect x="4" y="13" width="22" height="4" fill="white"/>
+  </symbol>
+  <symbol id="door-secret" viewBox="0 0 30 30">
+    <line x1="0" y1="15" x2="30" y2="15"
+          stroke="#888" stroke-width="1.2" stroke-dasharray="6,6"/>
+  </symbol>
+  <symbol id="door-barred" viewBox="0 0 30 30">
+    <rect x="0"  y="12" width="30" height="6" fill="white"/>
+    <rect x="2"  y="11" width="26" height="8" fill="#555"/>
+    <line x1="8"  y1="11" x2="8"  y2="19" stroke="white" stroke-width="2"/>
+    <line x1="15" y1="11" x2="15" y2="19" stroke="white" stroke-width="2"/>
+    <line x1="22" y1="11" x2="22" y2="19" stroke="white" stroke-width="2"/>
+  </symbol>
+  <symbol id="door-double" viewBox="0 0 30 30">
+    <rect x="0"  y="12" width="30" height="6" fill="white"/>
+    <rect x="0"  y="11" width="3"  height="8" fill="#333"/>
+    <rect x="27" y="11" width="3"  height="8" fill="#333"/>
+    <line x1="15" y1="11" x2="15" y2="19" stroke="#333" stroke-width="1"/>
+    <circle cx="11" cy="15" r="1.5" fill="#333"/>
+    <circle cx="19" cy="15" r="1.5" fill="#333"/>
+  </symbol>
+  <symbol id="door-doorway" viewBox="0 0 30 30">
+    <rect x="0" y="12" width="30" height="6" fill="white"/>
+  </symbol>
+  <symbol id="door-portcullis" viewBox="0 0 30 30">
+    <rect x="0"  y="12" width="30" height="6" fill="white"/>
+    <rect x="0"  y="11" width="4"  height="8" fill="#333"/>
+    <rect x="26" y="11" width="4"  height="8" fill="#333"/>
+    <line x1="9"  y1="11" x2="9"  y2="19" stroke="#333" stroke-width="1.2"/>
+    <line x1="15" y1="11" x2="15" y2="19" stroke="#333" stroke-width="1.2"/>
+    <line x1="21" y1="11" x2="21" y2="19" stroke="#333" stroke-width="1.2"/>
+  </symbol>
+
+  <!-- ── Room feature symbols (viewBox 0 0 30 30, one grid cell) ── -->
+  <symbol id="feat-ladder" viewBox="0 0 30 30">
+    <line x1="8"  y1="3"  x2="8"  y2="27" stroke="#333" stroke-width="1.5"/>
+    <line x1="22" y1="3"  x2="22" y2="27" stroke="#333" stroke-width="1.5"/>
+    <line x1="8"  y1="7"  x2="22" y2="7"  stroke="#333" stroke-width="1"/>
+    <line x1="8"  y1="13" x2="22" y2="13" stroke="#333" stroke-width="1"/>
+    <line x1="8"  y1="19" x2="22" y2="19" stroke="#333" stroke-width="1"/>
+    <line x1="8"  y1="25" x2="22" y2="25" stroke="#333" stroke-width="1"/>
+  </symbol>
+  <symbol id="feat-pillar" viewBox="0 0 30 30">
+    <circle cx="15" cy="15" r="10" fill="#666" stroke="#333" stroke-width="1"/>
+    <circle cx="15" cy="15" r="7"  fill="#888"/>
+  </symbol>
+  <symbol id="feat-statue" viewBox="0 0 30 30">
+    <polygon points="15,3 27,15 15,27 3,15" fill="#ccc" stroke="#333" stroke-width="1.2"/>
+    <line x1="15" y1="7"  x2="15" y2="23" stroke="#333" stroke-width="0.8"/>
+    <line x1="7"  y1="15" x2="23" y2="15" stroke="#333" stroke-width="0.8"/>
+  </symbol>
+  <symbol id="feat-pool" viewBox="0 0 30 30">
+    <rect x="2" y="2" width="26" height="26" rx="8" fill="white" stroke="#99c" stroke-width="1"/>
+    <path d="M 6 10 Q 10 7 14 10 Q 18 13 22 10" fill="none" stroke="#99c" stroke-width="1.2"/>
+    <path d="M 6 16 Q 10 13 14 16 Q 18 19 22 16" fill="none" stroke="#99c" stroke-width="1.2"/>
+    <path d="M 6 22 Q 10 19 14 22 Q 18 25 22 22" fill="none" stroke="#99c" stroke-width="1.2"/>
+  </symbol>
+  <symbol id="feat-stream" viewBox="0 0 30 30">
+    <path d="M 0 12 Q 5 8 10 14 Q 15 20 20 14 Q 25 8 30 12"
+          fill="none" stroke="#99c" stroke-width="1.8"/>
+    <path d="M 0 18 Q 5 14 10 20 Q 15 26 20 20 Q 25 14 30 18"
+          fill="none" stroke="#99c" stroke-width="1.8"/>
+  </symbol>
+  <symbol id="feat-stalactite" viewBox="0 0 30 30">
+    <polygon points="7,2  4,16  10,16"  fill="#666"/>
+    <polygon points="15,2 12,13  18,13" fill="#666"/>
+    <polygon points="23,2 20,18  26,18" fill="#666"/>
+  </symbol>
+  <symbol id="feat-stalagmite" viewBox="0 0 30 30">
+    <polygon points="7,28  4,14  10,14"  fill="#666"/>
+    <polygon points="15,28 12,17  18,17" fill="#666"/>
+    <polygon points="23,28 20,12  26,12" fill="#666"/>
+  </symbol>
+  <symbol id="feat-crevasse" viewBox="0 0 30 30">
+    <polygon points="0,15 5,10 9,16 13,8 17,18 21,9 25,16 30,15 30,20 25,20 21,14 17,23 13,13 9,21 5,15 0,20"
+             fill="#555" stroke="#333" stroke-width="0.5"/>
+  </symbol>
+
+  <!-- Wall-placed feature symbols (30×30, designed to sit on a wall) -->
+  <symbol id="feat-window" viewBox="0 0 30 6">
+    <rect x="0"  y="0" width="30" height="6" fill="white"/>
+    <rect x="0"  y="1" width="8"  height="4" fill="#cce" stroke="#99c" stroke-width="0.5"/>
+    <rect x="11" y="1" width="8"  height="4" fill="#cce" stroke="#99c" stroke-width="0.5"/>
+    <rect x="22" y="1" width="8"  height="4" fill="#cce" stroke="#99c" stroke-width="0.5"/>
+  </symbol>
+  <symbol id="feat-arrow-slit" viewBox="0 0 30 6">
+    <rect x="0"  y="0" width="30" height="6" fill="white"/>
+    <rect x="12" y="1" width="6"  height="4" fill="#555"/>
+  </symbol>
+  <symbol id="feat-illusory-wall" viewBox="0 0 30 4">
+    <line x1="0" y1="2" x2="30" y2="2"
+          stroke="#888" stroke-width="1.5" stroke-dasharray="4,3"/>
+  </symbol>
+  <symbol id="feat-fireplace" viewBox="0 0 30 20">
+    <rect x="0"  y="0"  width="30" height="20" fill="#555" stroke="#333" stroke-width="1"/>
+    <path d="M 7 19 L 7 8 A 8 8 0 0 1 23 8 L 23 19 Z" fill="white"/>
+    <path d="M 11 17 Q 15 9 19 17" fill="none" stroke="#c63" stroke-width="1.5"/>
+  </symbol>
+  <symbol id="feat-bed" viewBox="0 0 30 24">
+    <rect x="1"  y="1"  width="28" height="22" fill="white" stroke="#333" stroke-width="1"/>
+    <rect x="1"  y="1"  width="28" height="7"  fill="#ddd" stroke="#333" stroke-width="0.5"/>
+    <circle cx="8"  cy="5" r="3" fill="white" stroke="#333" stroke-width="0.5"/>
+    <circle cx="22" cy="5" r="3" fill="white" stroke="#333" stroke-width="0.5"/>
+  </symbol>
+  <symbol id="feat-curtain" viewBox="0 0 30 16">
+    <line x1="0" y1="2" x2="30" y2="2" stroke="#333" stroke-width="1.5"/>
+    <path d="M 0 2 Q 3 14 6 8 Q 9 2 12 14 Q 15 2 18 14 Q 21 2 24 14 Q 27 2 30 8"
+          fill="none" stroke="#333" stroke-width="1.2"/>
+  </symbol>
+</defs>
+<rect x="-155" y="-140" width="562" height="280" fill="white"/>
+<rect x="-155" y="-140" width="562" height="280" fill="url(#hatch)"/>
+<rect x="72" y="-15" width="108" height="30" fill="white"/>
+<rect x="-75" y="-60" width="150" height="120" fill="white"/>
+<rect x="177" y="-60" width="150" height="120" fill="white"/>
+<line x1="72" y1="-15" x2="180" y2="-15" stroke="#333" stroke-width="1.5"/>
+<line x1="72" y1="15" x2="180" y2="15" stroke="#333" stroke-width="1.5"/>
+<rect x="-75" y="-60" width="150" height="120" fill="none" stroke="#333" stroke-width="1.5"/>
+<rect x="177" y="-60" width="150" height="120" fill="none" stroke="#333" stroke-width="1.5"/>
+<line x1="-45" y1="-60" x2="-45" y2="60" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="-15" y1="-60" x2="-15" y2="60" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="15" y1="-60" x2="15" y2="60" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="45" y1="-60" x2="45" y2="60" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="-75" y1="-30" x2="75" y2="-30" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="-75" y1="0" x2="75" y2="0" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="-75" y1="30" x2="75" y2="30" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="207" y1="-60" x2="207" y2="60" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="237" y1="-60" x2="237" y2="60" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="267" y1="-60" x2="267" y2="60" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="297" y1="-60" x2="297" y2="60" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="177" y1="-30" x2="327" y2="-30" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="177" y1="0" x2="327" y2="0" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="177" y1="30" x2="327" y2="30" stroke="#d8d8d8" stroke-width="0.5"/>
+<use href="#feat-bed" x="-15" y="-60" width="30" height="24" transform="rotate(180,0,-48)"/>
+<use href="#feat-bed" x="-15" y="36" width="30" height="24"/>
+<use href="#feat-arrow-slit" x="69" y="-15" width="30" height="6" transform="rotate(90,72,0)"/>
+<use href="#feat-fireplace" x="237" y="-60" width="30" height="20" transform="rotate(180,252,-50)"/>
+<use href="#feat-curtain" x="177" y="-15" width="30" height="16" transform="rotate(-90,185,0)"/>
+<use href="#feat-illusory-wall" x="237" y="56" width="30" height="4"/>
+<use href="#door-open" x="60" y="-15" width="30" height="30" transform="rotate(90,75,0)"/>
+<text x="0" y="-47" text-anchor="middle" dominant-baseline="auto" fill="#333" font-size="9" font-family="sans-serif" font-weight="bold">1</text>
+<text x="0" y="72" text-anchor="middle" dominant-baseline="auto" fill="#555" font-size="8" font-family="serif" font-style="italic">Barracks</text>
+<text x="252" y="-47" text-anchor="middle" dominant-baseline="auto" fill="#333" font-size="9" font-family="sans-serif" font-weight="bold">2</text>
+<text x="252" y="72" text-anchor="middle" dominant-baseline="auto" fill="#555" font-size="8" font-family="serif" font-style="italic">Hall</text>
+</svg>
