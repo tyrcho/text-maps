@@ -246,13 +246,13 @@ object SvgStringRenderer:
       case RoomFeature.Stairs(dir)        => List(stairHatch(rm, dir, spiral = false))
       case RoomFeature.SpiralStairs(dir)  => List(spiralStairs(rm, dir))
       case RoomFeature.Ladder(dir)        => List(centeredSymbol(rm, "feat-ladder", dir))
-      case RoomFeature.Pillar             => List(centeredUse(rm, "feat-pillar"))
-      case RoomFeature.Statue             => List(centeredUse(rm, "feat-statue"))
-      case RoomFeature.Pool               => List(centeredUse(rm, "feat-pool", scale = 2))
-      case RoomFeature.Stream             => List(streamSymbol(rm))
-      case RoomFeature.Stalactite         => List(centeredUse(rm, "feat-stalactite"))
-      case RoomFeature.Stalagmite         => List(centeredUse(rm, "feat-stalagmite"))
-      case RoomFeature.Crevasse           => List(centeredUse(rm, "feat-crevasse", scale = 2))
+      case RoomFeature.Pillar             => List(centeredUse(rm, "feat-pillar"))   // structural: fixed 1 square
+      case RoomFeature.Statue             => List(centeredUse(rm, "feat-statue"))   // structural: fixed 1 square
+      case RoomFeature.Pool               => List(naturalCentered(rm, "feat-pool"))
+      case RoomFeature.Stream             => List(naturalStream(rm))
+      case RoomFeature.Stalactite         => List(naturalCeiling(rm, "feat-stalactite"))
+      case RoomFeature.Stalagmite         => List(naturalFloor(rm, "feat-stalagmite"))
+      case RoomFeature.Crevasse           => List(naturalCentered(rm, "feat-crevasse", slim = true))
       // Wall features — use `<use>` placed on the wall
       case RoomFeature.Window(side)       => List(wallUse(rm, side, "feat-window",      30, 6))
       case RoomFeature.ArrowSlit(side)    => List(wallUse(rm, side, "feat-arrow-slit",  30, 6))
@@ -297,12 +297,50 @@ object SvgStringRenderer:
     val tip   = s"""<polygon points="${cx-10},$cy ${cx-10+tipDx-3},${cy+tipDy} ${cx-10+tipDx+3},${cy+tipDy}" fill="#333"/>"""
     s"$box\n$outer\n$inner\n$tip"
 
-  /** A centred <use> of a 30×30 symbol. scale=2 doubles the size. */
-  private def centeredUse(rm: RenderedRoom, id: String, scale: Int = 1): String =
-    val sw = GRID * scale; val sh = GRID * scale
-    val x  = (rm.x + (rm.w - sw) / 2).toInt
-    val y  = (rm.y + (rm.h - sh) / 2).toInt
+  // ── Natural feature sizing (room-proportional, min = 1 grid square) ─────
+
+  /** Pool / crevasse: fills the room interior. slim=true uses full width but GRID height. */
+  private def naturalCentered(rm: RenderedRoom, id: String, slim: Boolean = false): String =
+    val pad = GRID / 2
+    val sw  = math.max(GRID, rm.w.toInt - pad * 2)
+    val sh  = if slim then GRID else math.max(GRID, rm.h.toInt - pad * 2)
+    val x   = (rm.x + (rm.w - sw) / 2).toInt
+    val y   = (rm.y + (rm.h - sh) / 2).toInt
     s"""<use href="#$id" x="$x" y="$y" width="$sw" height="$sh"/>"""
+
+  /** Stalactite: full width, top half of the room. */
+  private def naturalCeiling(rm: RenderedRoom, id: String): String =
+    val pad = GRID / 4
+    val sw  = math.max(GRID, rm.w.toInt - pad * 2)
+    val sh  = math.max(GRID, (rm.h / 2).toInt)
+    val x   = (rm.x + (rm.w - sw) / 2).toInt
+    val y   = (rm.y + pad / 2).toInt
+    s"""<use href="#$id" x="$x" y="$y" width="$sw" height="$sh"/>"""
+
+  /** Stalagmite: full width, bottom half of the room. */
+  private def naturalFloor(rm: RenderedRoom, id: String): String =
+    val pad = GRID / 4
+    val sw  = math.max(GRID, rm.w.toInt - pad * 2)
+    val sh  = math.max(GRID, (rm.h / 2).toInt)
+    val x   = (rm.x + (rm.w - sw) / 2).toInt
+    val y   = (rm.y + rm.h - sh - pad / 2).toInt
+    s"""<use href="#$id" x="$x" y="$y" width="$sw" height="$sh"/>"""
+
+  /** Stream: full room width, centered vertically, two wavy lines. */
+  private def naturalStream(rm: RenderedRoom): String =
+    val x1 = rm.x.toInt;  val x2 = (rm.x + rm.w).toInt
+    val mx = (rm.x + rm.w / 2).toInt
+    val y1 = (rm.y + rm.h * 0.40).toInt
+    val y2 = (rm.y + rm.h * 0.60).toInt
+    val amp = math.min(12, (rm.h * 0.1).toInt)
+    s"""<path d="M $x1,$y1 Q $mx,${y1-amp} $x2,$y1" fill="none" stroke="#99c" stroke-width="1.8"/>
+<path d="M $x1,$y2 Q $mx,${y2+amp} $x2,$y2" fill="none" stroke="#99c" stroke-width="1.8"/>"""
+
+  /** A centred <use> of a GRID×GRID symbol (structural features: pillar, statue). */
+  private def centeredUse(rm: RenderedRoom, id: String): String =
+    val x = (rm.x + (rm.w - GRID) / 2).toInt
+    val y = (rm.y + (rm.h - GRID) / 2).toInt
+    s"""<use href="#$id" x="$x" y="$y" width="$GRID" height="$GRID"/>"""
 
   /** Centred symbol with a direction arrow overlay (for ladders). */
   private def centeredSymbol(rm: RenderedRoom, id: String, dir: StairDir): String =
@@ -313,15 +351,6 @@ object SvgStringRenderer:
       case StairDir.Up   => s"""<polygon points="$ax,${ay-8} ${ax-4},$ay ${ax+4},$ay" fill="#333"/>"""
       case StairDir.Down => s"""<polygon points="$ax,${ay} ${ax-4},${ay-8} ${ax+4},${ay-8}" fill="#333"/>"""
     s"$base\n$arrow"
-
-  /** Stream: two wavy lines crossing the full room width. */
-  private def streamSymbol(rm: RenderedRoom): String =
-    val y1 = (rm.y + rm.h * 0.4).toInt
-    val y2 = (rm.y + rm.h * 0.6).toInt
-    val x1 = rm.x.toInt; val x2 = (rm.x + rm.w).toInt
-    val mx = (rm.x + rm.w / 2).toInt
-    s"""<path d="M $x1,$y1 Q $mx,${y1-8} $x2,$y1" fill="none" stroke="#99c" stroke-width="1.8"/>
-<path d="M $x1,$y2 Q $mx,${y2+8} $x2,$y2" fill="none" stroke="#99c" stroke-width="1.8"/>"""
 
   /** Place a symbol on a wall, centred, with correct rotation. */
   private def wallUse(rm: RenderedRoom, side: WallSide, id: String, sw: Int, sh: Int): String =

@@ -107,21 +107,47 @@ object AsciiRenderer:
       val ly      = r.cy + r.ch / 2
       display.zipWithIndex.foreach { case (c, i) => set(lx + i, ly, c) }
 
-    // 4b. In-room markers for natural/structural features (one row below label)
+    // 4b. Natural / structural features — scale to fill the room
     for r <- cRooms do
-      val marker = r.features.collectFirst {
-        case RoomFeature.Pillar     => 'O'
-        case RoomFeature.Statue     => '@'
-        case RoomFeature.Pool       => '~'
-        case RoomFeature.Stream     => '~'
-        case RoomFeature.Crevasse   => '/'
-        case RoomFeature.Stalactite => 'v'
-        case RoomFeature.Stalagmite => '^'
-      }
-      marker.foreach { c =>
-        val mx = r.cx + r.cw / 2
-        val my = r.cy + r.ch / 2 + 1
-        if my < r.cy + r.ch then set(mx, my, c)
+      r.features.foreach {
+        // Natural features — span the room
+        case RoomFeature.Stream =>
+          val row = r.cy + r.ch / 2
+          for x <- r.cx until r.cx + r.cw do set(x, row, '~')
+          val row2 = row + 1
+          if row2 < r.cy + r.ch then
+            for x <- r.cx until r.cx + r.cw do set(x, row2, '~')
+
+        case RoomFeature.Stalactite =>
+          // Hang from ceiling — fill top interior rows
+          val rows = math.max(1, r.ch / 3)
+          for row <- r.cy until r.cy + rows; x <- r.cx until r.cx + r.cw do set(x, row, 'v')
+
+        case RoomFeature.Stalagmite =>
+          // Rise from floor — fill bottom interior rows
+          val rows = math.max(1, r.ch / 3)
+          for row <- (r.cy + r.ch - rows) until r.cy + r.ch; x <- r.cx until r.cx + r.cw do set(x, row, '^')
+
+        case RoomFeature.Pool =>
+          // Fill a central rectangle
+          val padX = r.cw / 4; val padY = r.ch / 4
+          for row <- (r.cy + padY) until (r.cy + r.ch - padY)
+              col <- (r.cx + padX) until (r.cx + r.cw - padX) do set(col, row, '~')
+
+        case RoomFeature.Crevasse =>
+          // Diagonal crack across the room center
+          val row = r.cy + r.ch / 2
+          for x <- r.cx until r.cx + r.cw do set(x, row, '/')
+          if r.ch > 2 then
+            for x <- r.cx until r.cx + r.cw do set(x, row - 1, '\\')
+
+        // Single-point structural features
+        case RoomFeature.Pillar =>
+          set(r.cx + r.cw / 2, r.cy + r.ch / 2 + 1, 'O')
+        case RoomFeature.Statue =>
+          set(r.cx + r.cw / 2, r.cy + r.ch / 2 + 1, '@')
+
+        case _ =>
       }
 
     // 5. Corridor door glyphs at both connecting room walls
