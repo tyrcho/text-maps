@@ -2,16 +2,7 @@ package textmaps.render
 
 import java.nio.file.{Files, Path}
 import org.scalatest.funsuite.AnyFunSuite
-import textmaps.dsl.*
-import textmaps.layout.LayoutEngine
 
-/** Approval tests for SvgStringRenderer.
- *
- *  Approved files live in src/test/resources/textmaps/render/SvgStringRendererTest.files/
- *  as *.approved.svg — proper extension so editors render and diff them correctly.
- *
- *  To regenerate all approved files: UPDATE_SNAPSHOTS=1 make test
- */
 class SvgStringRendererTest extends AnyFunSuite:
 
   private val approvedDir  = Path.of("core/shared/src/test/resources/textmaps/render/SvgStringRendererTest.files")
@@ -27,150 +18,14 @@ class SvgStringRendererTest extends AnyFunSuite:
       val expected = Files.readString(file)
       assert(actual == expected, s"SVG output changed for '$name' — run UPDATE_SNAPSHOTS=1 to re-approve")
 
-  test("two connected rooms"):
-    svgApproval("two_connected_rooms", LayoutEngine.layout(
-      List(
-        Room("entrance", RoomSize(4, 4), Some("Entry")),
-        Room("hall",     RoomSize(8, 4), Some("Great Hall")),
-      ),
-      List(Connection("entrance", "hall", DoorType.Open)),
-      None,
-    ))
-
-  test("locked door between rooms"):
-    svgApproval("locked_door_between_rooms", LayoutEngine.layout(
-      List(
-        Room("guard",  RoomSize(3, 3), Some("Guard")),
-        Room("prison", RoomSize(4, 3), Some("Prison")),
-      ),
-      List(Connection("guard", "prison", DoorType.Locked)),
-      None,
-    ))
-
-  test("three rooms in a chain"):
-    svgApproval("three_rooms_in_a_chain", LayoutEngine.layout(
-      List(
-        Room("entrance", RoomSize(4, 4), Some("Entrance")),
-        Room("hall",     RoomSize(6, 4), Some("Hall")),
-        Room("vault",    RoomSize(3, 3), Some("Vault")),
-      ),
-      List(
-        Connection("entrance", "hall",  DoorType.Open),
-        Connection("hall",     "vault", DoorType.Secret),
-      ),
-      None,
-    ))
-
-  test("single room"):
-    svgApproval("single_room", LayoutEngine.layout(
-      List(Room("alone", RoomSize(5, 3), Some("Alone"))),
-      Nil,
-      None,
-    ))
-
-  test("empty map"):
-    svgApproval("empty_map", LayoutEngine.layout(Nil, Nil, None))
-
-  test("dungeon room with stairs and windows"):
-    svgApproval("dungeon_room_with_stairs_and_windows", LayoutEngine.layout(
-      List(
-        Room("entrance", RoomSize(4, 3), Some("Entry"),
-          features = List(RoomFeature.Exit(WallSide.West))),
-        Room("vault", RoomSize(3, 3), Some("Vault"),
-          features = List(RoomFeature.Stairs(StairDir.Up), RoomFeature.Window(WallSide.North))),
-      ),
-      List(Connection("entrance", "vault", DoorType.Locked)),
-      None,
-    ))
-
-  test("building with exterior exits"):
-    svgApproval("building_with_exterior_exits", LayoutEngine.layout(
-      List(
-        Room("hall", RoomSize(5, 4), Some("Hall"),
-          features = List(
-            RoomFeature.Exit(WallSide.West),
-            RoomFeature.Exit(WallSide.East),
-            RoomFeature.Window(WallSide.North),
-          )),
-        Room("kitchen", RoomSize(3, 3), Some("Kitchen"),
-          features = List(RoomFeature.Exit(WallSide.South))),
-      ),
-      List(Connection("hall", "kitchen", DoorType.Open)),
-      None,
-      MapType.Building,
-    ))
-
-  test("new door types"):
-    svgApproval("new_door_types", LayoutEngine.layout(
-      List(
-        Room("a", RoomSize(3, 3), Some("A")),
-        Room("b", RoomSize(3, 3), Some("B")),
-        Room("c", RoomSize(3, 3), Some("C")),
-        Room("d", RoomSize(3, 3), Some("D")),
-      ),
-      List(
-        Connection("a", "b", DoorType.Double),
-        Connection("b", "c", DoorType.Doorway),
-        Connection("c", "d", DoorType.Portcullis),
-      ),
-      None,
-    ))
-
-  test("movement features"):
-    svgApproval("movement_features", LayoutEngine.layout(
-      List(
-        Room("top",    RoomSize(4, 3), Some("Top"),    features = List(RoomFeature.SpiralStairs(StairDir.Down))),
-        Room("middle", RoomSize(4, 3), Some("Middle"), features = List(RoomFeature.Ladder(StairDir.Up))),
-        Room("bottom", RoomSize(4, 3), Some("Bottom"), features = List(RoomFeature.Ladder(StairDir.Down))),
-      ),
-      List(
-        Connection("top", "middle", DoorType.Open),
-        Connection("middle", "bottom", DoorType.Open),
-      ),
-      None,
-    ))
-
-  test("natural and structural features"):
-    svgApproval("natural_structural_features", LayoutEngine.layout(
-      List(
-        Room("cave", RoomSize(6, 4), Some("Cave"),
-          features = List(
-            RoomFeature.Stalactite,
-            RoomFeature.Stalagmite,
-            RoomFeature.Crevasse,
-          )),
-        Room("hall", RoomSize(5, 4), Some("Hall"),
-          features = List(
-            RoomFeature.Pillar,
-            RoomFeature.Statue,
-            RoomFeature.Pool,
-          )),
-        Room("stream_room", RoomSize(5, 3), Some("Stream"),
-          features = List(RoomFeature.Stream)),
-      ),
-      List(
-        Connection("cave", "hall", DoorType.Open),
-        Connection("hall", "stream_room", DoorType.Open),
-      ),
-      None,
-    ))
-
-  test("wall features"):
-    svgApproval("wall_features", LayoutEngine.layout(
-      List(
-        Room("barracks", RoomSize(5, 4), Some("Barracks"),
-          features = List(
-            RoomFeature.Bed(WallSide.North),
-            RoomFeature.Bed(WallSide.South),
-            RoomFeature.ArrowSlit(WallSide.East),
-          )),
-        Room("hall", RoomSize(5, 4), Some("Hall"),
-          features = List(
-            RoomFeature.Fireplace(WallSide.North),
-            RoomFeature.Curtain(WallSide.West),
-            RoomFeature.IllusoryWall(WallSide.South),
-          )),
-      ),
-      List(Connection("barracks", "hall", DoorType.Open)),
-      None,
-    ))
+  test("two connected rooms")             { svgApproval("two_connected_rooms",             TestMaps.twoConnectedRooms)             }
+  test("locked door between rooms")       { svgApproval("locked_door_between_rooms",       TestMaps.lockedDoorBetweenRooms)        }
+  test("three rooms in a chain")          { svgApproval("three_rooms_in_a_chain",          TestMaps.threeRoomsInAChain)            }
+  test("single room")                     { svgApproval("single_room",                     TestMaps.singleRoom)                    }
+  test("empty map")                       { svgApproval("empty_map",                       TestMaps.emptyMap)                      }
+  test("dungeon room with stairs")        { svgApproval("dungeon_room_with_stairs_and_windows", TestMaps.dungeonRoomWithStairsAndWindows) }
+  test("building with exterior exits")    { svgApproval("building_with_exterior_exits",    TestMaps.buildingWithExteriorExits)     }
+  test("new door types")                  { svgApproval("new_door_types",                  TestMaps.newDoorTypes)                  }
+  test("movement features")               { svgApproval("movement_features",               TestMaps.movementFeatures)              }
+  test("natural and structural features") { svgApproval("natural_structural_features",     TestMaps.naturalStructuralFeatures)     }
+  test("wall features")                   { svgApproval("wall_features",                   TestMaps.wallFeatures)                  }
