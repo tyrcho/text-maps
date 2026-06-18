@@ -26,7 +26,7 @@ import textmaps.layout.*
  */
 object AsciiRenderer:
 
-  private val PX_PER_CHAR = 10
+  private val PX_PER_CHAR = 30  // 1 room square (UNIT_PX = 30 px) = 1 ASCII char
 
   private def toC(px: Double): Int = math.round(px / PX_PER_CHAR).toInt
 
