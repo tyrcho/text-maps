@@ -33,6 +33,10 @@ since the "why" for both draws on the same reference images.
 - `dungeon-5e-stone-tooth-fortress.webp` and `-sunless-citadel.webp` are classic module maps with more
   rectilinear structure (built fortress rather than natural cave) — useful for comparing against the BSP
   generator's rectangular-room output.
+- **Implemented:** the stairs glyph (`RoomFeature.Stairs`, `SvgStringRenderer.stairHatch`) was redesigned
+  from a diagonal cross-hatch box to a bordered box with tapering horizontal step bars (narrow near the
+  top, wide near the bottom — "steps receding into the distance"), directly from a reference icon the user
+  shared, keeping the existing direction-arrow overlay.
 
 ### Medieval
 

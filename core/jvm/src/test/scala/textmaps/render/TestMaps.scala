@@ -59,15 +59,16 @@ object TestMaps:
   val buildingWithExteriorExits: RenderedMap = LayoutEngine.layout(
     List(
       Room("hall", RoomSize(5, 4), Some("Hall"),
+        // Order matches DslParser.parseRoomFeatures' fixed emission order (window before exit).
         features = List(
+          RoomFeature.Window(WallSide.North),
           RoomFeature.Exit(WallSide.West),
           RoomFeature.Exit(WallSide.East),
-          RoomFeature.Window(WallSide.North),
         )),
       Room("kitchen", RoomSize(3, 3), Some("Kitchen"),
         features = List(RoomFeature.Exit(WallSide.South))),
     ),
-    List(Connection("hall", "kitchen", DoorType.Open)),
+    List(Connection("hall", "kitchen", DoorType.Open, corridor = Some(RoomSize(1, 3)), doorTo = Some(DoorType.Locked))),
     None,
     MapType.Building,
   )

@@ -72,6 +72,7 @@ case class Connection(
   to:       String,
   door:     DoorType         = DoorType.Open,
   corridor: Option[RoomSize] = None,
+  doorTo:   Option[DoorType] = None, // None = same as `door` (the door at the `to`-room end of the connection)
 )
 
 case class MapMeta(

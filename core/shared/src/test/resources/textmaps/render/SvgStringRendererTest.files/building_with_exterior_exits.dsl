@@ -10,4 +10,6 @@ room kitchen 3x3
   exit: south
 
 connect hall -> kitchen
+  corridor: 1x3
   door: open
+  door-to: locked

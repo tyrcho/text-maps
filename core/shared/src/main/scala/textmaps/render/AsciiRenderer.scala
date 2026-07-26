@@ -156,37 +156,41 @@ object AsciiRenderer:
       val ly      = r.cy + r.ch / 2
       display.zipWithIndex.foreach { case (c, i) => set(lx + i, ly, c) }
 
-    // 5. Corridor door glyphs at both connecting room walls
+    // 5. Corridor door glyphs at both connecting room walls — two doors per
+    //    connection now (one per end, independently typed), in the same order
+    //    as map.corridors, so pair them up two-at-a-time.
     val roomById = cRooms.map(r => r.id -> r).toMap
-    for (corr, door) <- map.corridors.zip(map.doors) do
-      val glyph = door.doorType match
-        case DoorType.Open       => '.'
-        case DoorType.Locked     => 'L'
-        case DoorType.Secret     => '?'
-        case DoorType.Barred     => '='
-        case DoorType.Double     => 'D'
-        case DoorType.Doorway    => ' '  // open passage — no glyph, wall stays open
-        case DoorType.Portcullis => '#'
+    def glyphOf(door: textmaps.layout.RenderedDoor): Char = door.doorType match
+      case DoorType.Open       => '.'
+      case DoorType.Locked     => 'L'
+      case DoorType.Secret     => '?'
+      case DoorType.Barred     => '='
+      case DoorType.Double     => 'D'
+      case DoorType.Doorway    => ' '  // open passage — no glyph, wall stays open
+      case DoorType.Portcullis => '#'
+    for (corr, doorPair) <- map.corridors.zip(map.doors.grouped(2).toList) do
+      val fromDoor = doorPair.head
+      val toDoor   = doorPair.lastOption.getOrElse(fromDoor)
       val a = roomById(corr.fromRoom)
       val b = roomById(corr.toRoom)
       corr.rects match
         case Nil =>
-          set(toC(door.position.x), toC(door.position.y), glyph)
+          set(toC(fromDoor.position.x), toC(fromDoor.position.y), glyphOf(fromDoor))
         case rects =>
           val first = rects.head
           if first.isHorizontal then
             val row = toC(first.y + first.h / 2)
-            set(if a.cx < b.cx then a.cx + a.cw else a.cx - 1, row, glyph)
+            set(if a.cx < b.cx then a.cx + a.cw else a.cx - 1, row, glyphOf(fromDoor))
           else
             val col = toC(first.x + first.w / 2)
-            set(col, if a.cy < b.cy then a.cy + a.ch else a.cy - 1, glyph)
+            set(col, if a.cy < b.cy then a.cy + a.ch else a.cy - 1, glyphOf(fromDoor))
           val toRect = rects.find(_.isHorizontal).getOrElse(rects.last)
           if toRect.isHorizontal then
             val row = toC(toRect.y + toRect.h / 2)
-            set(if a.cx < b.cx then b.cx - 1 else b.cx + b.cw, row, glyph)
+            set(if a.cx < b.cx then b.cx - 1 else b.cx + b.cw, row, glyphOf(toDoor))
           else
             val col = toC(toRect.x + toRect.w / 2)
-            set(col, if a.cy <= b.cy then b.cy - 1 else b.cy + b.ch, glyph)
+            set(col, if a.cy <= b.cy then b.cy - 1 else b.cy + b.ch, glyphOf(toDoor))
 
     // 6. Wall-placed features — glyphs on the appropriate wall side
     for r <- cRooms do

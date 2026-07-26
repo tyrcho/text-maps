@@ -170,6 +170,10 @@ object SvgStringRenderer:
     <rect x="0"  y="0" width="30" height="6" fill="white"/>
     <rect x="12" y="1" width="6"  height="4" fill="#555"/>
   </symbol>
+  <symbol id="feat-exit" viewBox="0 0 30 6">
+    <rect x="0"  y="0" width="30" height="6" fill="white"/>
+    <polygon points="12,1 18,1 15,5" fill="#333"/>
+  </symbol>
   <symbol id="feat-illusory-wall" viewBox="0 0 30 4">
     <line x1="0" y1="2" x2="30" y2="2"
           stroke="#888" stroke-width="1.5" stroke-dasharray="4,3"/>
@@ -317,30 +321,35 @@ object SvgStringRenderer:
       // Wall features — use `<use>` placed on the wall
       case RoomFeature.Window(side)       => List(wallUse(rm, side, "feat-window",      30, 6))
       case RoomFeature.ArrowSlit(side)    => List(wallUse(rm, side, "feat-arrow-slit",  30, 6))
+      case RoomFeature.Exit(side)         => List(wallUse(rm, side, "feat-exit",        30, 6))
       case RoomFeature.IllusoryWall(side) => List(wallUse(rm, side, "feat-illusory-wall", 30, 4))
       case RoomFeature.Fireplace(side)    => List(wallUse(rm, side, "feat-fireplace",   30, 20))
       case RoomFeature.Bed(side)          => List(wallUse(rm, side, "feat-bed",         30, 24))
       case RoomFeature.Curtain(side)      => List(wallUse(rm, side, "feat-curtain",     30, 16))
-      case _                              => Nil
     }
 
   /** Hatched stair box with direction arrow, centred in the room. */
+  /** Bordered box with tapering horizontal step bars (narrow near the top, wide
+   *  near the bottom) — "steps receding into the distance", plus a direction arrow. */
   private def stairHatch(rm: RenderedRoom, dir: StairDir, spiral: Boolean): String =
     val bw = GRID; val bh = GRID
     val bx = (rm.x + (rm.w - bw) / 2).toInt
     val by = (rm.y + (rm.h - bh) / 2).toInt
-    val clipId = s"sc${rm.id.filter(_.isLetterOrDigit)}"
-    val clip = s"""<clipPath id="$clipId"><rect x="$bx" y="$by" width="$bw" height="$bh"/></clipPath>"""
-    val box  = s"""<rect x="$bx" y="$by" width="$bw" height="$bh" fill="white" stroke="#333" stroke-width="0.8"/>"""
-    val hatchLines = (-bh to bw + bh by 5).map { d =>
-      s"""  <line x1="${bx+d}" y1="${by+bh}" x2="${bx+d+bh}" y2="$by" stroke="#333" stroke-width="0.7"/>"""
+    val box = s"""<rect x="$bx" y="$by" width="$bw" height="$bh" fill="white" stroke="#333" stroke-width="0.8"/>"""
+    val steps  = 5
+    val stepGap = bh.toDouble / (steps + 1)
+    val cx = bx + bw / 2.0
+    val bars = (1 to steps).map { i =>
+      val y         = by + stepGap * i
+      val widthFrac = 0.28 + 0.13 * i
+      val halfW     = bw * widthFrac / 2
+      f"""<line x1="${cx - halfW}%.1f" y1="$y%.1f" x2="${cx + halfW}%.1f" y2="$y%.1f" stroke="#333" stroke-width="1.4"/>"""
     }.mkString("\n")
-    val hatch = s"""<g clip-path="url(#$clipId)">\n$hatchLines\n</g>"""
     val ax = bx + bw / 2
     val arrow = dir match
       case StairDir.Up   => s"""<polygon points="$ax,${by+4} ${ax-5},${by+bh-4} ${ax+5},${by+bh-4}" fill="#333"/>"""
       case StairDir.Down => s"""<polygon points="$ax,${by+bh-4} ${ax-5},${by+4} ${ax+5},${by+4}" fill="#333"/>"""
-    s"$clip\n$box\n$hatch\n$arrow"
+    s"$box\n$bars\n$arrow"
 
   /** Spiral staircase: circular arrow in a box. */
   private def spiralStairs(rm: RenderedRoom, dir: StairDir): String =
@@ -469,11 +478,14 @@ object SvgStringRenderer:
       case DoorType.Double     => "door-double"
       case DoorType.Doorway    => "door-doorway"
       case DoorType.Portcullis => "door-portcullis"
-    val ux = (d.position.x - 15).toInt
+    val dw = d.width.toInt
+    val ux = (d.position.x - dw / 2).toInt
     val uy = (d.position.y - 15).toInt
     val px = d.position.x.toInt
     val py = d.position.y.toInt
-    s"""<use href="#$symbolId" x="$ux" y="$uy" width="30" height="30" transform="rotate(${d.angle.toInt},$px,$py)"/>"""
+    // preserveAspectRatio="none": stretch the (square) symbol to the corridor's actual width
+    // so the door gap fully spans the passage instead of being letterboxed at 30px.
+    s"""<use href="#$symbolId" x="$ux" y="$uy" width="$dw" height="30" preserveAspectRatio="none" transform="rotate(${d.angle.toInt},$px,$py)"/>"""
 
   private def escapeXml(s: String): String =
     s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace("\"", "&quot;")

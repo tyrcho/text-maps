@@ -113,6 +113,7 @@ object DslParser:
             to       = to,
             door     = props.get("door").flatMap(parseDoor).getOrElse(DoorType.Open),
             corridor = props.get("corridor").flatMap(parseSize(_).toOption),
+            doorTo   = props.get("door-to").flatMap(parseDoor),
           ))
         case Right(Line.GenerateDecl(n, style, seed)) =>
           stmts += GenStmt(DungeonMapSource.Generated(n, style, seed))

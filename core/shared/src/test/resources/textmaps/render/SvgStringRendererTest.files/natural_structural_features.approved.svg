@@ -106,6 +106,10 @@
     <rect x="0"  y="0" width="30" height="6" fill="white"/>
     <rect x="12" y="1" width="6"  height="4" fill="#555"/>
   </symbol>
+  <symbol id="feat-exit" viewBox="0 0 30 6">
+    <rect x="0"  y="0" width="30" height="6" fill="white"/>
+    <polygon points="12,1 18,1 15,5" fill="#333"/>
+  </symbol>
   <symbol id="feat-illusory-wall" viewBox="0 0 30 4">
     <line x1="0" y1="2" x2="30" y2="2"
           stroke="#888" stroke-width="1.5" stroke-dasharray="4,3"/>
@@ -170,8 +174,10 @@
 <use href="#feat-pool" x="249" y="-15" width="30" height="30"/>
 <path d="M 432,-15 Q 507,-22 582,-15" fill="none" stroke="#99c" stroke-width="1.8"/>
 <path d="M 432,0 Q 507,7 582,0" fill="none" stroke="#99c" stroke-width="1.8"/>
-<use href="#door-open" x="75" y="-15" width="30" height="30" transform="rotate(90,90,0)"/>
-<use href="#door-open" x="324" y="-15" width="30" height="30" transform="rotate(90,339,0)"/>
+<use href="#door-open" x="75" y="-15" width="30" height="30" preserveAspectRatio="none" transform="rotate(90,90,0)"/>
+<use href="#door-open" x="174" y="-15" width="30" height="30" preserveAspectRatio="none" transform="rotate(90,189,0)"/>
+<use href="#door-open" x="324" y="-15" width="30" height="30" preserveAspectRatio="none" transform="rotate(90,339,0)"/>
+<use href="#door-open" x="417" y="-15" width="30" height="30" preserveAspectRatio="none" transform="rotate(90,432,0)"/>
 <text x="0" y="-47" text-anchor="middle" dominant-baseline="auto" fill="#333" font-size="9" font-family="sans-serif" font-weight="bold">1</text>
 <text x="264" y="-47" text-anchor="middle" dominant-baseline="auto" fill="#333" font-size="9" font-family="sans-serif" font-weight="bold">2</text>
 <text x="507" y="-32" text-anchor="middle" dominant-baseline="auto" fill="#333" font-size="9" font-family="sans-serif" font-weight="bold">3</text>

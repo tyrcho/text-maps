@@ -46,7 +46,16 @@ connect entrance -> great_hall
 
 connect great_hall -> vault
   door: secret
+
+connect vault -> cavern
+  corridor: 1x3
+  door: locked
+  door-to: barred
 ```
+
+**Connections:** `corridor: WxH` sets the passage's width (W, replaces the 1-unit default) and the minimum
+straight-line distance to leave between the two rooms (H); `door:` sets the door at the `from`-room end,
+`door-to:` optionally sets an independent door at the `to`-room end (defaults to matching `door:` if omitted).
 
 **Room shapes:** `rectangular` (default) | `circular` | `cave` (irregular, hand-drawn-looking outline)
 
@@ -75,7 +84,7 @@ generate dungeon rooms:10 seed:42
 
 **DSL parsing** (`core/dsl/DslParser.scala`): line-oriented parser. Declarations at column 0, properties indented. No parser combinator library.
 
-**Layout engine** (`core/layout/LayoutEngine.scala`): BFS tree placement starting from the room named `entrance`. Corridors are computed as L-shaped rectangle segments (H + V legs) starting at room edges, creating visual doorway openings through wall borders.
+**Layout engine** (`core/layout/LayoutEngine.scala`): BFS tree placement starting from the room named `entrance`. Corridors are computed as L-shaped rectangle segments (H + V legs) starting at room edges, creating visual doorway openings through wall borders. Each connection renders two independently-typed, correctly-angled doors — one where the corridor meets each room's wall.
 
 **SVG rendering** (`core/render/SvgStringRenderer.scala`): Dyson Logos / One Page Dungeon style — dense diagonal cross-hatching fills the stone areas of `Dungeon` maps; `Building` maps get a plain background instead, matching real floor-plan references. White floor shapes punch through (rectangular, circular, or an irregular hand-drawn-looking "cave" outline); subtle 30px grid overlaid on rectangular floors; dark ink wall strokes. Room labels are either numbered (bold number inside the room, keyed to a legend box below the map — `labels: legend`, the `Dungeon` default) or inline (label text centred in the room, no numbers — `labels: inline`, the `Building` default). Pure string generation, works on both JS and Native.
 

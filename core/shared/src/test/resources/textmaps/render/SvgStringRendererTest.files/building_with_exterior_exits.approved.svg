@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg"
-     viewBox="-155 -140 499 280"
-     width="499" height="280">
+     viewBox="-155 -140 529 280"
+     width="529" height="280">
 <defs>
   <pattern id="hatch" width="6" height="6"
            patternTransform="rotate(45 0 0)" patternUnits="userSpaceOnUse">
@@ -106,6 +106,10 @@
     <rect x="0"  y="0" width="30" height="6" fill="white"/>
     <rect x="12" y="1" width="6"  height="4" fill="#555"/>
   </symbol>
+  <symbol id="feat-exit" viewBox="0 0 30 6">
+    <rect x="0"  y="0" width="30" height="6" fill="white"/>
+    <polygon points="12,1 18,1 15,5" fill="#333"/>
+  </symbol>
   <symbol id="feat-illusory-wall" viewBox="0 0 30 4">
     <line x1="0" y1="2" x2="30" y2="2"
           stroke="#888" stroke-width="1.5" stroke-dasharray="4,3"/>
@@ -127,14 +131,14 @@
           fill="none" stroke="#333" stroke-width="1.2"/>
   </symbol>
 </defs>
-<rect x="-155" y="-140" width="499" height="280" fill="white"/>
-<rect x="72" y="-15" width="105" height="30" fill="white"/>
+<rect x="-155" y="-140" width="529" height="280" fill="white"/>
+<rect x="72" y="-15" width="135" height="30" fill="white"/>
 <rect x="-75" y="-60" width="150" height="120" fill="white"/>
-<rect x="174" y="-45" width="90" height="90" fill="white"/>
-<line x1="72" y1="-15" x2="177" y2="-15" stroke="#333" stroke-width="1.5"/>
-<line x1="72" y1="15" x2="177" y2="15" stroke="#333" stroke-width="1.5"/>
+<rect x="204" y="-45" width="90" height="90" fill="white"/>
+<line x1="72" y1="-15" x2="207" y2="-15" stroke="#333" stroke-width="1.5"/>
+<line x1="72" y1="15" x2="207" y2="15" stroke="#333" stroke-width="1.5"/>
 <rect x="-75" y="-60" width="150" height="120" fill="none" stroke="#333" stroke-width="1.5"/>
-<rect x="174" y="-45" width="90" height="90" fill="none" stroke="#333" stroke-width="1.5"/>
+<rect x="204" y="-45" width="90" height="90" fill="none" stroke="#333" stroke-width="1.5"/>
 <line x1="-45" y1="-60" x2="-45" y2="60" stroke="#d8d8d8" stroke-width="0.5"/>
 <line x1="-15" y1="-60" x2="-15" y2="60" stroke="#d8d8d8" stroke-width="0.5"/>
 <line x1="15" y1="-60" x2="15" y2="60" stroke="#d8d8d8" stroke-width="0.5"/>
@@ -142,13 +146,17 @@
 <line x1="-75" y1="-30" x2="75" y2="-30" stroke="#d8d8d8" stroke-width="0.5"/>
 <line x1="-75" y1="0" x2="75" y2="0" stroke="#d8d8d8" stroke-width="0.5"/>
 <line x1="-75" y1="30" x2="75" y2="30" stroke="#d8d8d8" stroke-width="0.5"/>
-<line x1="204" y1="-45" x2="204" y2="45" stroke="#d8d8d8" stroke-width="0.5"/>
 <line x1="234" y1="-45" x2="234" y2="45" stroke="#d8d8d8" stroke-width="0.5"/>
-<line x1="174" y1="-15" x2="264" y2="-15" stroke="#d8d8d8" stroke-width="0.5"/>
-<line x1="174" y1="15" x2="264" y2="15" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="264" y1="-45" x2="264" y2="45" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="204" y1="-15" x2="294" y2="-15" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="204" y1="15" x2="294" y2="15" stroke="#d8d8d8" stroke-width="0.5"/>
 <use href="#feat-window" x="-15" y="-60" width="30" height="6" transform="rotate(180,0,-57)"/>
-<use href="#door-open" x="60" y="-15" width="30" height="30" transform="rotate(90,75,0)"/>
+<use href="#feat-exit" x="-75" y="-15" width="30" height="6" transform="rotate(-90,-72,0)"/>
+<use href="#feat-exit" x="69" y="-15" width="30" height="6" transform="rotate(90,72,0)"/>
+<use href="#feat-exit" x="234" y="39" width="30" height="6"/>
+<use href="#door-open" x="60" y="-15" width="30" height="30" preserveAspectRatio="none" transform="rotate(90,75,0)"/>
+<use href="#door-locked" x="189" y="-15" width="30" height="30" preserveAspectRatio="none" transform="rotate(90,204,0)"/>
 <text x="0" y="3" text-anchor="middle" dominant-baseline="auto" fill="#333" font-size="9" font-family="sans-serif">Hall</text>
-<text x="219" y="3" text-anchor="middle" dominant-baseline="auto" fill="#333" font-size="9" font-family="sans-serif">Kitchen</text>
+<text x="249" y="3" text-anchor="middle" dominant-baseline="auto" fill="#333" font-size="9" font-family="sans-serif">Kitchen</text>
 
 </svg>

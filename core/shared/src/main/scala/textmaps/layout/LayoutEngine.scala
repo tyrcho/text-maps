@@ -29,7 +29,7 @@ case class RenderedCorridor(
   rects:    List[CorridorRect],
 )
 
-case class RenderedDoor(position: Vec2, doorType: DoorType, angle: Double)
+case class RenderedDoor(position: Vec2, doorType: DoorType, angle: Double, width: Double = CORRIDOR_W)
 
 case class RenderedMap(
   rooms:      List[RenderedRoom],
@@ -71,7 +71,7 @@ object LayoutEngine:
       val rendered  = rooms.map(r => renderRoom(r, centers(r.id)))
       val byId      = rendered.map(r => r.id -> r).toMap
       val corridors = conns.map(c => renderCorridor(c, byId))
-      val doors     = conns.map(c => renderDoor(c, byId))
+      val doors     = conns.flatMap(c => renderDoors(c, byId))
       val allX = rendered.flatMap(r => List(r.x - MARGIN_PX, r.x + r.w + MARGIN_PX))
       val allY = rendered.flatMap(r => List(r.y - MARGIN_PX, r.y + r.h + MARGIN_PX))
       RenderedMap(
@@ -97,6 +97,9 @@ object LayoutEngine:
 
     val roomsById = rooms.map(r => r.id -> r).toMap
     val angles    = Array(0.0, 90.0, 270.0, 180.0, 45.0, 135.0, 225.0, 315.0)
+    // Indexed both directions since a connection between cur/nb may be declared either way.
+    val connByPair: Map[(String, String), Connection] =
+      conns.flatMap(c => List((c.from, c.to) -> c, (c.to, c.from) -> c)).toMap
 
     while queue.nonEmpty do
       val (cur, pos, _, _) = queue.dequeue()
@@ -105,7 +108,8 @@ object LayoutEngine:
         val angle     = angles(i % angles.length)
         val curRoom   = roomsById(cur)
         val nbRoom    = roomsById(nb)
-        val dist      = roomHalfDiag(curRoom) + roomHalfDiag(nbRoom) + CORRIDOR_PX
+        val gap       = connByPair.get((cur, nb)).flatMap(_.corridor).map(_.height * UNIT_PX).getOrElse(CORRIDOR_PX)
+        val dist      = roomHalfDiag(curRoom) + roomHalfDiag(nbRoom) + gap
         val candidate = pos + Vec2.polar(angle, dist)
         val final_    = resolveCollision(candidate, placed.toMap, roomsById)
         placed(nb) = final_
@@ -167,30 +171,31 @@ object LayoutEngine:
     val cyA  = a.y + a.h / 2
     val cxB  = b.x + b.w / 2
     val cyB  = b.y + b.h / 2
-    val half = CORRIDOR_W / 2
+    val width = c.corridor.map(_.width * UNIT_PX).getOrElse(CORRIDOR_W)
+    val half = width / 2
 
     val rects = collection.mutable.ListBuffer[CorridorRect]()
 
     val heightDiff = math.abs(cyB - cyA)
     val widthDiff  = math.abs(cxB - cxA)
 
-    if heightDiff <= CORRIDOR_W then
+    if heightDiff <= width then
       // Same-ish height: straight horizontal corridor wall-to-wall
       val exitX  = if cxB >= cxA then a.x + a.w - WALL_OVERLAP else a.x + WALL_OVERLAP
       val entryX = if cxB >= cxA then b.x + WALL_OVERLAP else b.x + b.w - WALL_OVERLAP
       val hLen   = math.abs(entryX - exitX)
       if hLen > 1 then
         val midY = (cyA + cyB) / 2
-        rects += CorridorRect(math.min(exitX, entryX), midY - half, hLen, CORRIDOR_W)
+        rects += CorridorRect(math.min(exitX, entryX), midY - half, hLen, width)
 
-    else if widthDiff <= CORRIDOR_W then
+    else if widthDiff <= width then
       // Same-ish x: straight vertical corridor wall-to-wall
       val exitY  = if cyB >= cyA then a.y + a.h - WALL_OVERLAP else a.y + WALL_OVERLAP
       val entryY = if cyB >= cyA then b.y + WALL_OVERLAP else b.y + b.h - WALL_OVERLAP
       val vLen   = math.abs(entryY - exitY)
       if vLen > 1 then
         val midX = (cxA + cxB) / 2
-        rects += CorridorRect(midX - half, math.min(exitY, entryY), CORRIDOR_W, vLen)
+        rects += CorridorRect(midX - half, math.min(exitY, entryY), width, vLen)
 
     else
       // L-shaped: horizontal to B's vertical axis, then vertical to B's entry wall
@@ -198,20 +203,54 @@ object LayoutEngine:
       val entryY = if cyB >= cyA then b.y - WALL_OVERLAP else b.y + b.h + WALL_OVERLAP
       val hLen   = math.abs(cxB - exitX)
       if hLen > 1 then
-        rects += CorridorRect(math.min(exitX, cxB), cyA - half, hLen, CORRIDOR_W)
+        rects += CorridorRect(math.min(exitX, cxB), cyA - half, hLen, width)
       val vLen   = math.abs(entryY - cyA)
       if vLen > 1 then
-        rects += CorridorRect(cxB - half, math.min(cyA, entryY), CORRIDOR_W, vLen)
+        rects += CorridorRect(cxB - half, math.min(cyA, entryY), width, vLen)
 
     RenderedCorridor(c.from, c.to, c.door, rects.toList)
 
-  private def renderDoor(c: Connection, byId: Map[String, RenderedRoom]): RenderedDoor =
+  /** Two doors per connection — one at each room's wall opening, independently
+   *  typed (`door` for the `from` end, `doorTo` for the `to` end) and correctly
+   *  angled for whichever wall (E/W vs N/S) each end actually sits on. */
+  private def renderDoors(c: Connection, byId: Map[String, RenderedRoom]): List[RenderedDoor] =
     val a    = byId(c.from)
     val b    = byId(c.to)
     val cxA  = a.x + a.w / 2
     val cyA  = a.y + a.h / 2
     val cxB  = b.x + b.w / 2
-    val exitX = if cxB >= cxA then a.x + a.w else a.x
-    RenderedDoor(Vec2(exitX, cyA), c.door, 90.0)
+    val cyB  = b.y + b.h / 2
+    val width  = c.corridor.map(_.width * UNIT_PX).getOrElse(CORRIDOR_W)
+    val doorTo = c.doorTo.getOrElse(c.door)
+
+    val heightDiff = math.abs(cyB - cyA)
+    val widthDiff  = math.abs(cxB - cxA)
+
+    if heightDiff <= width then
+      // Straight horizontal: both doors sit on E/W walls
+      val midY   = (cyA + cyB) / 2
+      val exitX  = if cxB >= cxA then a.x + a.w else a.x
+      val entryX = if cxB >= cxA then b.x else b.x + b.w
+      List(
+        RenderedDoor(Vec2(exitX, midY),  c.door, 90.0, width),
+        RenderedDoor(Vec2(entryX, midY), doorTo, 90.0, width),
+      )
+    else if widthDiff <= width then
+      // Straight vertical: both doors sit on N/S walls
+      val midX   = (cxA + cxB) / 2
+      val exitY  = if cyB >= cyA then a.y + a.h else a.y
+      val entryY = if cyB >= cyA then b.y else b.y + b.h
+      List(
+        RenderedDoor(Vec2(midX, exitY),  c.door, 0.0, width),
+        RenderedDoor(Vec2(midX, entryY), doorTo, 0.0, width),
+      )
+    else
+      // L-shaped: A's leg is horizontal (E/W wall), B's leg is vertical (N/S wall)
+      val exitX  = if cxB >= cxA then a.x + a.w else a.x
+      val entryY = if cyB >= cyA then b.y else b.y + b.h
+      List(
+        RenderedDoor(Vec2(exitX, cyA), c.door, 90.0, width),
+        RenderedDoor(Vec2(cxB, entryY), doorTo, 0.0, width),
+      )
 
   private val emptyMap = RenderedMap(Nil, Nil, Nil, 0, 0, 400, 300)
