@@ -2,7 +2,7 @@
 
 ## Context
 
-`doc/map-references/` holds 15 reference images (dungeon, medieval, modern building/house maps) gathered
+`doc/map-references/` holds 16 reference images (dungeon, medieval, modern building/house maps) gathered
 to ground future rendering-style decisions in real examples rather than working from memory alone. See
 `doc/map-references/SOURCES.md` for full attribution, including a licensing note: the dungeon/medieval
 images are official D&D 5e adventure art (copyrighted, reference-only), the modern images are from
@@ -37,12 +37,19 @@ changes accompany it.
 
 ### Modern buildings/houses
 
-- All 5 modern examples are thin-wall, rectilinear, multi-room floor plans with doors/windows marked on
+- All 6 modern examples are thin-wall, rectilinear, multi-room floor plans with doors/windows marked on
   walls — this matches the current `Building` `MapType`'s thin-wall/multiple-exterior-exit design in
   `Ast.scala`/`SvgStringRenderer.scala`. No structural mismatch found.
-- Several examples (`modern-floorplan-scan.jpg`, `modern-floorplan-designer.png`) label rooms with names
-  and sometimes dimensions directly inside the room, not just below it as `SvgStringRenderer` currently
-  does. Worth considering as a future label-placement option, not required now.
+- **In-room label placement is the strongest recurring signal across this whole reference set**, not just
+  the modern category: `modern-floorplan-scan.jpg`, `modern-floorplan-designer.png`, and especially
+  `modern-cubicasa5k-labeled-plan.png` (real-estate-style plan, room name centered inside each room, no
+  external legend at all) all place the label *inside* the room shape rather than below it as
+  `SvgStringRenderer` currently does. Worth prioritizing as a future label-placement option over the other
+  more speculative ideas in this ADR.
+- A clean, modern **institutional/facility** floor plan style (icon-based legend, identical floor plan
+  repeated across several labeled sectors/floors) was identified as a gap — nothing in this folder covers
+  it, and no reachable open-source example was found. See the "Note on scope" in SOURCES.md for where to
+  look if broader web access becomes available.
 
 ## Non-decisions
 

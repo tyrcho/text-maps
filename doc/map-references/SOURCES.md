@@ -41,6 +41,7 @@ projects on GitHub:
 | `modern-blueprintjs-2d.png` | Modern | [aalavandhaann/blueprint-js](https://github.com/aalavandhaann/blueprint-js) | 2D interior/furniture floor plan from a browser floor-planning tool |
 | `modern-blueprintjs-3d.png` | Modern | [aalavandhaann/blueprint-js](https://github.com/aalavandhaann/blueprint-js) | 3D-rendered view of the same floor plan tool |
 | `modern-floorplan-designer.png` | Modern | [bugfishtm/floor-plan-designer](https://github.com/bugfishtm/floor-plan-designer) | Browser-based 2D floor plan designer screenshot |
+| `modern-cubicasa5k-labeled-plan.png` | Modern | [yunusskeete/floor-plan-datasets](https://github.com/yunusskeete/floor-plan-datasets) (sample from the [CubiCasa5k](https://github.com/CubiCasa/CubiCasa5k) dataset, real Finnish real-estate floor plans) | Plain black-line floor plan with room-name labels placed *inside* each room — closest match to real-estate/survey-style plans |
 
 ## Note on scope
 
@@ -48,3 +49,10 @@ This sandbox's network egress policy only allows `github.com`/`raw.githubusercon
 suited to sourcing freely-licensed medieval/dungeon art (Dyson Logos' blog, Wikimedia Commons, itch.io) were
 unreachable, which is why the medieval/dungeon set above relies on a copyrighted-content mirror instead —
 flagged clearly above so it isn't mistaken for a freely-licensed asset.
+
+Also researched but not added: a clean, modern, rectilinear **institutional/sci-fi facility floor plan**
+style (icon-based legend for stairs/restrooms/hazard doors, identical footprint repeated across several
+labeled floors) — genuinely not covered by anything in this folder, but no open-source GitHub repo with a
+committed example image in that style was found reachable from this sandbox. Good candidates to revisit if
+broader web access is available later: Tom Cartos and 2-Minute Tabletop's "Secret Research Facility" battle
+maps (itch.io, currently unreachable).
