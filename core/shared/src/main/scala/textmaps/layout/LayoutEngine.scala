@@ -32,26 +32,40 @@ case class RenderedCorridor(
 case class RenderedDoor(position: Vec2, doorType: DoorType, angle: Double)
 
 case class RenderedMap(
-  rooms:     List[RenderedRoom],
-  corridors: List[RenderedCorridor],
-  doors:     List[RenderedDoor],
-  minX:      Double,
-  minY:      Double,
-  width:     Double,
-  height:    Double,
-  mapType:   MapType = MapType.Dungeon,
+  rooms:      List[RenderedRoom],
+  corridors:  List[RenderedCorridor],
+  doors:      List[RenderedDoor],
+  minX:       Double,
+  minY:       Double,
+  width:      Double,
+  height:     Double,
+  mapType:    MapType    = MapType.Dungeon,
+  labelStyle: LabelStyle = LabelStyle.Legend,
 )
 
 object LayoutEngine:
 
+  /** Dungeon maps default to a numbered legend; Building maps default to inline labels. */
+  def defaultLabelStyle(mapType: MapType): LabelStyle = mapType match
+    case MapType.Dungeon  => LabelStyle.Legend
+    case MapType.Building => LabelStyle.Inline
+
   def compute(map: DungeonMap): RenderedMap =
     map.source match
-      case DungeonMapSource.Manual(rooms, conns) => layout(rooms, conns, map.meta.seed, map.meta.mapType)
-      case DungeonMapSource.Generated(_, _, _)   =>
-        layout(List.empty, List.empty, None, map.meta.mapType)
+      case DungeonMapSource.Manual(rooms, conns) =>
+        layout(rooms, conns, map.meta.seed, map.meta.mapType, map.meta.labelStyle)
+      case DungeonMapSource.Generated(_, _, _) =>
+        layout(List.empty, List.empty, None, map.meta.mapType, map.meta.labelStyle)
 
-  def layout(rooms: List[Room], conns: List[Connection], seed: Option[Long], mapType: MapType = MapType.Dungeon): RenderedMap =
-    if rooms.isEmpty then emptyMap
+  def layout(
+    rooms:      List[Room],
+    conns:      List[Connection],
+    seed:       Option[Long],
+    mapType:    MapType             = MapType.Dungeon,
+    labelStyle: Option[LabelStyle]  = None,
+  ): RenderedMap =
+    val resolvedLabelStyle = labelStyle.getOrElse(defaultLabelStyle(mapType))
+    if rooms.isEmpty then emptyMap.copy(mapType = mapType, labelStyle = resolvedLabelStyle)
     else
       val centers   = bfsLayout(rooms, conns)
       val rendered  = rooms.map(r => renderRoom(r, centers(r.id)))
@@ -61,14 +75,15 @@ object LayoutEngine:
       val allX = rendered.flatMap(r => List(r.x - MARGIN_PX, r.x + r.w + MARGIN_PX))
       val allY = rendered.flatMap(r => List(r.y - MARGIN_PX, r.y + r.h + MARGIN_PX))
       RenderedMap(
-        rooms     = rendered,
-        corridors = corridors,
-        doors     = doors,
-        minX      = allX.min,
-        minY      = allY.min,
-        width     = allX.max - allX.min,
-        height    = allY.max - allY.min,
-        mapType   = mapType,
+        rooms      = rendered,
+        corridors  = corridors,
+        doors      = doors,
+        minX       = allX.min,
+        minY       = allY.min,
+        width      = allX.max - allX.min,
+        height     = allY.max - allY.min,
+        mapType    = mapType,
+        labelStyle = resolvedLabelStyle,
       )
 
   // ── BFS tree placement ──────────────────────────────────────────────────

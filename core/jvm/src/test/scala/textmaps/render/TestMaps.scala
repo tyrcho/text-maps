@@ -119,18 +119,42 @@ object TestMaps:
   val wallFeatures: RenderedMap = LayoutEngine.layout(
     List(
       Room("barracks", RoomSize(5, 4), Some("Barracks"),
+        // Order matches DslParser.parseRoomFeatures' fixed emission order
+        // (arrow-slit before bed) so this fixture matches its DSL companion byte-for-byte.
         features = List(
+          RoomFeature.ArrowSlit(WallSide.East),
           RoomFeature.Bed(WallSide.North),
           RoomFeature.Bed(WallSide.South),
-          RoomFeature.ArrowSlit(WallSide.East),
         )),
       Room("hall", RoomSize(5, 4), Some("Hall"),
+        // Order matches DslParser.parseRoomFeatures' fixed emission order
+        // (illusory-wall, then fireplace, then curtain).
         features = List(
+          RoomFeature.IllusoryWall(WallSide.South),
           RoomFeature.Fireplace(WallSide.North),
           RoomFeature.Curtain(WallSide.West),
-          RoomFeature.IllusoryWall(WallSide.South),
         )),
     ),
     List(Connection("barracks", "hall", DoorType.Open)),
     None,
+  )
+
+  val caveRoom: RenderedMap = LayoutEngine.layout(
+    List(
+      Room("entrance", RoomSize(4, 3), Some("Entrance")),
+      Room("cavern",   RoomSize(6, 5), Some("Cavern"), shape = RoomShape.Cave),
+    ),
+    List(Connection("entrance", "cavern", DoorType.Open)),
+    None,
+  )
+
+  val dungeonInlineLabels: RenderedMap = LayoutEngine.layout(
+    List(
+      Room("entrance", RoomSize(4, 4), Some("Entry")),
+      Room("hall",     RoomSize(6, 4), Some("Hall")),
+    ),
+    List(Connection("entrance", "hall", DoorType.Open)),
+    None,
+    MapType.Dungeon,
+    Some(LabelStyle.Inline),
   )

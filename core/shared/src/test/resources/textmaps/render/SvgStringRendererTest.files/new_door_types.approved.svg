@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg"
-     viewBox="-125 -125 811 250"
-     width="811" height="250">
+     viewBox="-125 -125 811 350"
+     width="811" height="350">
 <defs>
   <pattern id="hatch" width="6" height="6"
            patternTransform="rotate(45 0 0)" patternUnits="userSpaceOnUse">
@@ -127,8 +127,8 @@
           fill="none" stroke="#333" stroke-width="1.2"/>
   </symbol>
 </defs>
-<rect x="-125" y="-125" width="811" height="250" fill="white"/>
-<rect x="-125" y="-125" width="811" height="250" fill="url(#hatch)"/>
+<rect x="-125" y="-125" width="811" height="350" fill="white"/>
+<rect x="-125" y="-125" width="811" height="350" fill="url(#hatch)"/>
 <rect x="42" y="-15" width="103" height="30" fill="white"/>
 <rect x="229" y="-15" width="103" height="30" fill="white"/>
 <rect x="416" y="-15" width="103" height="30" fill="white"/>
@@ -167,11 +167,12 @@
 <use href="#door-doorway" x="217" y="-15" width="30" height="30" transform="rotate(90,232,0)"/>
 <use href="#door-portcullis" x="404" y="-15" width="30" height="30" transform="rotate(90,419,0)"/>
 <text x="0" y="-32" text-anchor="middle" dominant-baseline="auto" fill="#333" font-size="9" font-family="sans-serif" font-weight="bold">1</text>
-<text x="0" y="57" text-anchor="middle" dominant-baseline="auto" fill="#555" font-size="8" font-family="serif" font-style="italic">A</text>
 <text x="187" y="-32" text-anchor="middle" dominant-baseline="auto" fill="#333" font-size="9" font-family="sans-serif" font-weight="bold">2</text>
-<text x="187" y="57" text-anchor="middle" dominant-baseline="auto" fill="#555" font-size="8" font-family="serif" font-style="italic">B</text>
 <text x="374" y="-32" text-anchor="middle" dominant-baseline="auto" fill="#333" font-size="9" font-family="sans-serif" font-weight="bold">3</text>
-<text x="374" y="57" text-anchor="middle" dominant-baseline="auto" fill="#555" font-size="8" font-family="serif" font-style="italic">C</text>
 <text x="561" y="-32" text-anchor="middle" dominant-baseline="auto" fill="#333" font-size="9" font-family="sans-serif" font-weight="bold">4</text>
-<text x="561" y="57" text-anchor="middle" dominant-baseline="auto" fill="#555" font-size="8" font-family="serif" font-style="italic">D</text>
+<text x="-65" y="85" fill="#333" font-size="10" font-family="sans-serif" font-weight="bold">Legend</text>
+<text x="-65" y="99" fill="#555" font-size="9" font-family="serif" font-style="italic">1 - A</text>
+<text x="-65" y="113" fill="#555" font-size="9" font-family="serif" font-style="italic">2 - B</text>
+<text x="-65" y="127" fill="#555" font-size="9" font-family="serif" font-style="italic">3 - C</text>
+<text x="-65" y="141" fill="#555" font-size="9" font-family="serif" font-style="italic">4 - D</text>
 </svg>

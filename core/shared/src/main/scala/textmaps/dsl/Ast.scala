@@ -14,7 +14,11 @@ enum DoorType:
   case Portcullis // iron gate / grating
 
 enum RoomShape:
-  case Rectangular, Circular
+  case Rectangular, Circular, Cave
+
+enum LabelStyle:
+  case Legend  // numbered rooms + a legend box listing "N - label" below the map
+  case Inline  // no numbers; label text centred inside each room
 
 enum WallSide:
   case North, South, East, West
@@ -71,10 +75,11 @@ case class Connection(
 )
 
 case class MapMeta(
-  name:    Option[String] = None,
-  seed:    Option[Long]   = None,
-  style:   Option[String] = None,
-  mapType: MapType        = MapType.Dungeon,
+  name:       Option[String]    = None,
+  seed:       Option[Long]      = None,
+  style:      Option[String]    = None,
+  mapType:    MapType           = MapType.Dungeon,
+  labelStyle: Option[LabelStyle] = None, // None = use the per-MapType default (Dungeon -> Legend, Building -> Inline)
 )
 
 enum DungeonMapSource:

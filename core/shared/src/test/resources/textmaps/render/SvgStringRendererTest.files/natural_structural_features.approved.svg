@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg"
-     viewBox="-170 -140 832 280"
-     width="832" height="280">
+     viewBox="-170 -140 832 366"
+     width="832" height="366">
 <defs>
   <pattern id="hatch" width="6" height="6"
            patternTransform="rotate(45 0 0)" patternUnits="userSpaceOnUse">
@@ -127,8 +127,8 @@
           fill="none" stroke="#333" stroke-width="1.2"/>
   </symbol>
 </defs>
-<rect x="-170" y="-140" width="832" height="280" fill="white"/>
-<rect x="-170" y="-140" width="832" height="280" fill="url(#hatch)"/>
+<rect x="-170" y="-140" width="832" height="366" fill="white"/>
+<rect x="-170" y="-140" width="832" height="366" fill="url(#hatch)"/>
 <rect x="87" y="-15" width="105" height="30" fill="white"/>
 <rect x="336" y="-15" width="99" height="30" fill="white"/>
 <rect x="-90" y="-60" width="180" height="120" fill="white"/>
@@ -173,9 +173,10 @@
 <use href="#door-open" x="75" y="-15" width="30" height="30" transform="rotate(90,90,0)"/>
 <use href="#door-open" x="324" y="-15" width="30" height="30" transform="rotate(90,339,0)"/>
 <text x="0" y="-47" text-anchor="middle" dominant-baseline="auto" fill="#333" font-size="9" font-family="sans-serif" font-weight="bold">1</text>
-<text x="0" y="72" text-anchor="middle" dominant-baseline="auto" fill="#555" font-size="8" font-family="serif" font-style="italic">Cave</text>
 <text x="264" y="-47" text-anchor="middle" dominant-baseline="auto" fill="#333" font-size="9" font-family="sans-serif" font-weight="bold">2</text>
-<text x="264" y="72" text-anchor="middle" dominant-baseline="auto" fill="#555" font-size="8" font-family="serif" font-style="italic">Hall</text>
 <text x="507" y="-32" text-anchor="middle" dominant-baseline="auto" fill="#333" font-size="9" font-family="sans-serif" font-weight="bold">3</text>
-<text x="507" y="57" text-anchor="middle" dominant-baseline="auto" fill="#555" font-size="8" font-family="serif" font-style="italic">Stream</text>
+<text x="-110" y="100" fill="#333" font-size="10" font-family="sans-serif" font-weight="bold">Legend</text>
+<text x="-110" y="114" fill="#555" font-size="9" font-family="serif" font-style="italic">1 - Cave</text>
+<text x="-110" y="128" fill="#555" font-size="9" font-family="serif" font-style="italic">2 - Hall</text>
+<text x="-110" y="142" fill="#555" font-size="9" font-family="serif" font-style="italic">3 - Stream</text>
 </svg>

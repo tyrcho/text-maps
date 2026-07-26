@@ -10,6 +10,7 @@ class Rng(seed: Long):
 
   def nextInt(bound: Int): Int = ((nextLong() >>> 17) % bound.toLong).toInt.abs
 
-  def nextDouble(): Double = (nextLong() >>> 11).toDouble / (1L << 53).toDouble
+  // state is masked to 56 bits (see above); >>> 3 keeps the full 53 bits nextDouble needs.
+  def nextDouble(): Double = (nextLong() >>> 3).toDouble / (1L << 53).toDouble
 
   def nextDoubleIn(lo: Double, hi: Double): Double = lo + nextDouble() * (hi - lo)

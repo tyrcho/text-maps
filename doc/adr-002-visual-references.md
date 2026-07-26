@@ -2,12 +2,16 @@
 
 ## Context
 
-`doc/map-references/` holds 16 reference images (dungeon, medieval, modern building/house maps) gathered
+`doc/map-references/` holds 17 reference images (dungeon, medieval, modern building/house maps) gathered
 to ground future rendering-style decisions in real examples rather than working from memory alone. See
 `doc/map-references/SOURCES.md` for full attribution, including a licensing note: the dungeon/medieval
 images are official D&D 5e adventure art (copyrighted, reference-only), the modern images are from
-permissively-licensed open-source repos. This is a reference note, not a redesign — no rendering code
-changes accompany it.
+permissively-licensed open-source repos.
+
+**Update: three of the takeaways below are now implemented** (background differentiation, room label
+styles, and the cave room shape — see "Implemented" notes inline below). This ADR started as a
+reference-only note; it's now a mix of implemented decisions and remaining future work, kept in one place
+since the "why" for both draws on the same reference images.
 
 ## Takeaways per category
 
@@ -18,6 +22,11 @@ changes accompany it.
   legend off to the side, sparse interior detail (a few dots/marks per room rather than dense fill).
   `SvgStringRenderer`'s current dense diagonal cross-hatch is a stylistic choice, not the only valid one —
   these references argue for also considering a lighter "shadow-edge" fill as an alternative dungeon style.
+  **Implemented (partially):** `RoomShape.Cave` (DSL: `shape: cave`) draws a deterministic irregular blob
+  outline instead of a rectangle/circle, matching Wave Echo Cave / Cragmaw Hideout's organic room shapes.
+  The numbered-rooms-plus-legend convention is now the `Dungeon` default (`labels: legend`, see "Modern"
+  below) — a proper legend box below the map, not per-room text. The soft-shadow *fill* style (as opposed
+  to shape/labels) is still just the existing hatch — not attempted here.
 - `dungeon-5e-redbrand-hideout.webp` (a dungeon literally built under a town building) is a concrete
   reference for how `Dungeon` and `Building` styles might connect if this project ever supports mixed/nested
   maps — not on the current roadmap, but worth remembering.
@@ -33,19 +42,22 @@ changes accompany it.
 - Single-building examples (`medieval-5e-cragmaw-castle.webp`, `-castle-naerytar.webp`, `-hunting-lodge.webp`)
   show towers, courtyards, and thick fortification walls distinct from both the current `Dungeon` (rock
   hatching) and `Building` (thin walls) styles — a future "keep/manor" preset would need its own wall
-  treatment, not a straight reuse of either.
+  treatment, not a straight reuse of either. **Not implemented** — still future work; see Non-decisions.
 
 ### Modern buildings/houses
 
 - All 6 modern examples are thin-wall, rectilinear, multi-room floor plans with doors/windows marked on
   walls — this matches the current `Building` `MapType`'s thin-wall/multiple-exterior-exit design in
-  `Ast.scala`/`SvgStringRenderer.scala`. No structural mismatch found.
+  `Ast.scala`/`SvgStringRenderer.scala`. No structural mismatch found. **Implemented:** `SvgStringRenderer`
+  now actually branches on `MapType` (it never did before) — `Building` maps render a plain background,
+  `Dungeon` maps keep the hatch.
 - **In-room label placement is the strongest recurring signal across this whole reference set**, not just
   the modern category: `modern-floorplan-scan.jpg`, `modern-floorplan-designer.png`, and especially
   `modern-cubicasa5k-labeled-plan.png` (real-estate-style plan, room name centered inside each room, no
   external legend at all) all place the label *inside* the room shape rather than below it as
-  `SvgStringRenderer` currently does. Worth prioritizing as a future label-placement option over the other
-  more speculative ideas in this ADR.
+  `SvgStringRenderer` currently does. **Implemented:** new `LabelStyle` (`legend` | `inline`), DSL property
+  `labels:`. `Building` defaults to `inline` (label centred in the room, no number); `Dungeon` defaults to
+  `legend` (numbered rooms + a legend box, see "Dungeon" above). Either can be overridden explicitly per map.
 - A clean, modern **institutional/facility** floor plan style (icon-based legend, identical floor plan
   repeated across several labeled sectors/floors) was identified as a gap — nothing in this folder covers
   it, and no reachable open-source example was found. See the "Note on scope" in SOURCES.md for where to
@@ -54,5 +66,6 @@ changes accompany it.
 ## Non-decisions
 
 This ADR intentionally does not commit to implementing the city/town map type, a grid-square dungeon mode,
-or new label placement — those remain future work per the README. It only records what the gathered
-references suggest, for whoever picks that work up next.
+medieval fortification-wall styling (thick walls, towers, courtyards), or icon-based legend glyphs — those
+remain future work per the README and `doc/map-references/SOURCES.md`'s scope note. It only records what
+the gathered references suggest, for whoever picks that work up next.

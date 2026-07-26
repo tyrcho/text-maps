@@ -1,6 +1,7 @@
 package textmaps.render
 
-import textmaps.dsl.{DoorType, FeatureSize, RoomFeature, RoomShape, RoomSize, StairDir, WallSide}
+import textmaps.dsl.{DoorType, FeatureSize, LabelStyle, MapType, RoomFeature, RoomShape, RoomSize, StairDir, WallSide}
+import textmaps.generate.Rng
 import textmaps.layout.*
 
 /** Renders a RenderedMap as a self-contained SVG string.
@@ -25,13 +26,13 @@ object SvgStringRenderer:
     val vx  = (map.minX - pad).toInt
     val vy  = (map.minY - pad).toInt
     val vw  = (map.width  + pad * 2).toInt
-    val vh  = (map.height + pad * 2).toInt
+    val vh  = (map.height + pad * 2 + legendHeight(map)).toInt
     s"""|<?xml version="1.0" encoding="UTF-8"?>
         |<svg xmlns="http://www.w3.org/2000/svg"
         |     viewBox="$vx $vy $vw $vh"
         |     width="$vw" height="$vh">
         |${defs()}
-        |${background(vx, vy, vw, vh)}
+        |${background(vx, vy, vw, vh, map.mapType)}
         |${map.corridors.flatMap(corridorFloors).mkString("\n")}
         |${map.rooms.map(roomFloor).mkString("\n")}
         |${map.corridors.flatMap(corridorWalls).mkString("\n")}
@@ -39,7 +40,8 @@ object SvgStringRenderer:
         |${map.rooms.map(roomGrid).mkString("\n")}
         |${map.rooms.flatMap(roomFeatures).mkString("\n")}
         |${map.doors.map(door).mkString("\n")}
-        |${map.rooms.zipWithIndex.map { (rm, i) => roomLabel(rm, i + 1) }.mkString("\n")}
+        |${map.rooms.zipWithIndex.map { (rm, i) => roomLabel(rm, i + 1, map.labelStyle) }.mkString("\n")}
+        |${legendBox(map)}
         |</svg>""".stripMargin
 
   def renderInner(map: RenderedMap): String =
@@ -47,11 +49,11 @@ object SvgStringRenderer:
     val vx  = (map.minX - pad).toInt
     val vy  = (map.minY - pad).toInt
     val vw  = (map.width  + pad * 2).toInt
-    val vh  = (map.height + pad * 2).toInt
+    val vh  = (map.height + pad * 2 + legendHeight(map)).toInt
     val viewBoxAttr = s"$vx $vy $vw $vh"
     s"""|__VIEWBOX__${viewBoxAttr}__END__
         |${defs()}
-        |${background(vx, vy, vw, vh)}
+        |${background(vx, vy, vw, vh, map.mapType)}
         |${map.corridors.flatMap(corridorFloors).mkString("\n")}
         |${map.rooms.map(roomFloor).mkString("\n")}
         |${map.corridors.flatMap(corridorWalls).mkString("\n")}
@@ -59,7 +61,8 @@ object SvgStringRenderer:
         |${map.rooms.map(roomGrid).mkString("\n")}
         |${map.rooms.flatMap(roomFeatures).mkString("\n")}
         |${map.doors.map(door).mkString("\n")}
-        |${map.rooms.zipWithIndex.map { (rm, i) => roomLabel(rm, i + 1) }.mkString("\n")}""".stripMargin
+        |${map.rooms.zipWithIndex.map { (rm, i) => roomLabel(rm, i + 1, map.labelStyle) }.mkString("\n")}
+        |${legendBox(map)}""".stripMargin
 
   // ── <defs> ────────────────────────────────────────────────────────────
 
@@ -191,9 +194,15 @@ object SvgStringRenderer:
 
   // ── Background ────────────────────────────────────────────────────────
 
-  private def background(bx: Int, by: Int, bw: Int, bh: Int): String =
-    s"""|<rect x="$bx" y="$by" width="$bw" height="$bh" fill="white"/>
-        |<rect x="$bx" y="$by" width="$bw" height="$bh" fill="url(#hatch)"/>""".stripMargin
+  private def background(bx: Int, by: Int, bw: Int, bh: Int, mapType: MapType): String =
+    mapType match
+      case MapType.Dungeon =>
+        // Carved in rock: hatched stone fill behind the rooms.
+        s"""|<rect x="$bx" y="$by" width="$bw" height="$bh" fill="white"/>
+            |<rect x="$bx" y="$by" width="$bw" height="$bh" fill="url(#hatch)"/>""".stripMargin
+      case MapType.Building =>
+        // Constructed: plain background, matching real floor-plan references.
+        s"""<rect x="$bx" y="$by" width="$bw" height="$bh" fill="white"/>"""
 
   // ── Rooms ────────────────────────────────────────────────────────────
 
@@ -204,10 +213,13 @@ object SvgStringRenderer:
       val cx = (rm.x + rm.w / 2).toInt; val cy = (rm.y + rm.h / 2).toInt
       val r  = (math.min(rm.w, rm.h) / 2).toInt
       s"""<circle cx="$cx" cy="$cy" r="$r" fill="white"/>"""
+    case RoomShape.Cave =>
+      s"""<path d="${caveOutline(rm)}" fill="white"/>"""
 
   /** Grid lines anchored to this room's walls, not global space. */
   private def roomGrid(rm: RenderedRoom): String = rm.shape match
     case RoomShape.Circular => ""
+    case RoomShape.Cave     => ""
     case RoomShape.Rectangular =>
       val lines = collection.mutable.ListBuffer[String]()
       var vx = rm.x + GRID
@@ -227,17 +239,66 @@ object SvgStringRenderer:
       val cx = (rm.x + rm.w / 2).toInt; val cy = (rm.y + rm.h / 2).toInt
       val r  = (math.min(rm.w, rm.h) / 2).toInt
       s"""<circle cx="$cx" cy="$cy" r="$r" fill="none" stroke="#333" stroke-width="$WALL"/>"""
+    case RoomShape.Cave =>
+      s"""<path d="${caveOutline(rm)}" fill="none" stroke="#333" stroke-width="$WALL"/>"""
 
-  /** Room number (bold, inside) + label text (italic, below room). */
-  private def roomLabel(rm: RenderedRoom, num: Int): String =
+  private val CAVE_POINTS = 10
+
+  /** Deterministic irregular blob outline (soft, rounded — not a jagged polygon),
+   *  seeded from the room id so the same room always renders the same shape.
+   *  Both the radius and the angle of each point are jittered — radius jitter alone
+   *  (at a subtle range) reads as a wobbly ellipse rather than a distinct cave shape. */
+  private def caveOutline(rm: RenderedRoom): String =
+    val center  = Vec2(rm.x + rm.w / 2, rm.y + rm.h / 2)
+    val rx      = rm.w / 2 * 0.9
+    val ry      = rm.h / 2 * 0.9
+    val rng     = Rng(rm.id.hashCode.toLong)
+    val angleJitter = (2 * math.Pi / CAVE_POINTS) * 0.4
+    val pts = (0 until CAVE_POINTS).map { i =>
+      val baseAngle = 2 * math.Pi * i / CAVE_POINTS
+      val angle     = baseAngle + rng.nextDoubleIn(-angleJitter, angleJitter)
+      val jitter    = rng.nextDoubleIn(0.55, 1.35)
+      center + Vec2(rx * jitter * math.cos(angle), ry * jitter * math.sin(angle))
+    }
+    val mids  = pts.indices.map(i => (pts(i) + pts((i + 1) % pts.length)) * 0.5)
+    val start = mids.last
+    val segments = pts.indices.map { i =>
+      val p = pts(i); val m = mids(i)
+      f"Q ${p.x}%.1f,${p.y}%.1f ${m.x}%.1f,${m.y}%.1f"
+    }.mkString(" ")
+    f"M ${start.x}%.1f,${start.y}%.1f $segments Z"
+
+  /** Legend style: bold room number inside the room, no text below (see legendBox).
+   *  Inline style: no number, label centred in the room. */
+  private def roomLabel(rm: RenderedRoom, num: Int, labelStyle: LabelStyle): String =
     val cx = (rm.x + rm.w / 2).toInt
-    // Number at top-centre of room interior
-    val ny = (rm.y + FONT_SZ + 4).toInt
-    val numEl = s"""<text x="$cx" y="$ny" text-anchor="middle" dominant-baseline="auto" fill="#333" font-size="$FONT_SZ" font-family="sans-serif" font-weight="bold">$num</text>"""
-    // Label just below the room's bottom wall
-    val ly = (rm.y + rm.h + FONT_SZ + 3).toInt
-    val labelEl = s"""<text x="$cx" y="$ly" text-anchor="middle" dominant-baseline="auto" fill="#555" font-size="${FONT_SZ - 1}" font-family="serif" font-style="italic">${escapeXml(rm.label)}</text>"""
-    s"$numEl\n$labelEl"
+    labelStyle match
+      case LabelStyle.Legend =>
+        val ny = (rm.y + FONT_SZ + 4).toInt
+        s"""<text x="$cx" y="$ny" text-anchor="middle" dominant-baseline="auto" fill="#333" font-size="$FONT_SZ" font-family="sans-serif" font-weight="bold">$num</text>"""
+      case LabelStyle.Inline =>
+        val cy = (rm.y + rm.h / 2 + FONT_SZ * 0.35).toInt
+        s"""<text x="$cx" y="$cy" text-anchor="middle" dominant-baseline="auto" fill="#333" font-size="$FONT_SZ" font-family="sans-serif">${escapeXml(rm.label)}</text>"""
+
+  /** Extra viewBox height needed for the legend box, or 0 if not applicable. */
+  private def legendHeight(map: RenderedMap): Double =
+    if map.labelStyle != LabelStyle.Legend || map.rooms.isEmpty then 0.0
+    else 20.0 + (FONT_SZ + 5) * (map.rooms.length + 1) + 10.0
+
+  /** "N - label" list below the map, keyed to the in-room numbers. Dyson Logos /
+   *  One Page Dungeon convention: a numbered legend instead of per-room text. */
+  private def legendBox(map: RenderedMap): String =
+    if map.labelStyle != LabelStyle.Legend || map.rooms.isEmpty then ""
+    else
+      val lineH   = FONT_SZ + 5
+      val x       = map.minX.toInt
+      val yTop    = (map.minY + map.height + 20).toInt
+      val heading = s"""<text x="$x" y="$yTop" fill="#333" font-size="${FONT_SZ + 1}" font-family="sans-serif" font-weight="bold">Legend</text>"""
+      val lines = map.rooms.zipWithIndex.map { (rm, i) =>
+        val y = yTop + lineH * (i + 1)
+        s"""<text x="$x" y="$y" fill="#555" font-size="$FONT_SZ" font-family="serif" font-style="italic">${i + 1} - ${escapeXml(rm.label)}</text>"""
+      }
+      (heading +: lines).mkString("\n")
 
   // ── Room features ────────────────────────────────────────────────────
 

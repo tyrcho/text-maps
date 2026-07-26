@@ -72,8 +72,9 @@ object DslParser:
       val (headerProps, rest) = afterHeader.span(l => l.startsWith(" ") || l.startsWith("\t") || l.isBlank)
       val metaProps = headerProps.flatMap(l => classifyLine(l).toOption.collect { case Line.Prop(k, v) => k -> v }).toMap
       val meta = baseMeta.copy(
-        seed  = metaProps.get("seed").flatMap(_.toLongOption),
-        style = metaProps.get("style"),
+        seed       = metaProps.get("seed").flatMap(_.toLongOption),
+        style      = metaProps.get("style"),
+        labelStyle = metaProps.get("labels").flatMap(parseLabelStyle),
       )
 
       parseStatements(rest).map { stmts =>
@@ -202,7 +203,13 @@ object DslParser:
   private def parseShape(s: String): Option[RoomShape] = s.toLowerCase match
     case "rectangular" => Some(RoomShape.Rectangular)
     case "circular"    => Some(RoomShape.Circular)
+    case "cave"        => Some(RoomShape.Cave)
     case _             => None
+
+  private def parseLabelStyle(s: String): Option[LabelStyle] = s.toLowerCase match
+    case "legend" => Some(LabelStyle.Legend)
+    case "inline" => Some(LabelStyle.Inline)
+    case _        => None
 
   private def parseDoor(s: String): Option[DoorType] = s.toLowerCase match
     case "open"       => Some(DoorType.Open)

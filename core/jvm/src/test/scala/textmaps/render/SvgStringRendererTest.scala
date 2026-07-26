@@ -29,3 +29,5 @@ class SvgStringRendererTest extends AnyFunSuite:
   test("movement features")               { svgApproval("movement_features",               TestMaps.movementFeatures)              }
   test("natural and structural features") { svgApproval("natural_structural_features",     TestMaps.naturalStructuralFeatures)     }
   test("wall features")                   { svgApproval("wall_features",                   TestMaps.wallFeatures)                  }
+  test("cave room")                       { svgApproval("cave_room",                        TestMaps.caveRoom)                      }
+  test("dungeon with inline labels")      { svgApproval("dungeon_inline_labels",            TestMaps.dungeonInlineLabels)           }

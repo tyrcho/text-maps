@@ -128,7 +128,6 @@
   </symbol>
 </defs>
 <rect x="-155" y="-140" width="499" height="280" fill="white"/>
-<rect x="-155" y="-140" width="499" height="280" fill="url(#hatch)"/>
 <rect x="72" y="-15" width="105" height="30" fill="white"/>
 <rect x="-75" y="-60" width="150" height="120" fill="white"/>
 <rect x="174" y="-45" width="90" height="90" fill="white"/>
@@ -149,8 +148,7 @@
 <line x1="174" y1="15" x2="264" y2="15" stroke="#d8d8d8" stroke-width="0.5"/>
 <use href="#feat-window" x="-15" y="-60" width="30" height="6" transform="rotate(180,0,-57)"/>
 <use href="#door-open" x="60" y="-15" width="30" height="30" transform="rotate(90,75,0)"/>
-<text x="0" y="-47" text-anchor="middle" dominant-baseline="auto" fill="#333" font-size="9" font-family="sans-serif" font-weight="bold">1</text>
-<text x="0" y="72" text-anchor="middle" dominant-baseline="auto" fill="#555" font-size="8" font-family="serif" font-style="italic">Hall</text>
-<text x="219" y="-32" text-anchor="middle" dominant-baseline="auto" fill="#333" font-size="9" font-family="sans-serif" font-weight="bold">2</text>
-<text x="219" y="57" text-anchor="middle" dominant-baseline="auto" fill="#555" font-size="8" font-family="serif" font-style="italic">Kitchen</text>
+<text x="0" y="3" text-anchor="middle" dominant-baseline="auto" fill="#333" font-size="9" font-family="sans-serif">Hall</text>
+<text x="219" y="3" text-anchor="middle" dominant-baseline="auto" fill="#333" font-size="9" font-family="sans-serif">Kitchen</text>
+
 </svg>

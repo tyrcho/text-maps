@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg"
-     viewBox="-155 -140 562 280"
-     width="562" height="280">
+     viewBox="-155 -140 562 352"
+     width="562" height="352">
 <defs>
   <pattern id="hatch" width="6" height="6"
            patternTransform="rotate(45 0 0)" patternUnits="userSpaceOnUse">
@@ -127,8 +127,8 @@
           fill="none" stroke="#333" stroke-width="1.2"/>
   </symbol>
 </defs>
-<rect x="-155" y="-140" width="562" height="280" fill="white"/>
-<rect x="-155" y="-140" width="562" height="280" fill="url(#hatch)"/>
+<rect x="-155" y="-140" width="562" height="352" fill="white"/>
+<rect x="-155" y="-140" width="562" height="352" fill="url(#hatch)"/>
 <rect x="72" y="-15" width="108" height="30" fill="white"/>
 <rect x="-75" y="-60" width="150" height="120" fill="white"/>
 <rect x="177" y="-60" width="150" height="120" fill="white"/>
@@ -150,15 +150,16 @@
 <line x1="177" y1="-30" x2="327" y2="-30" stroke="#d8d8d8" stroke-width="0.5"/>
 <line x1="177" y1="0" x2="327" y2="0" stroke="#d8d8d8" stroke-width="0.5"/>
 <line x1="177" y1="30" x2="327" y2="30" stroke="#d8d8d8" stroke-width="0.5"/>
+<use href="#feat-arrow-slit" x="69" y="-15" width="30" height="6" transform="rotate(90,72,0)"/>
 <use href="#feat-bed" x="-15" y="-60" width="30" height="24" transform="rotate(180,0,-48)"/>
 <use href="#feat-bed" x="-15" y="36" width="30" height="24"/>
-<use href="#feat-arrow-slit" x="69" y="-15" width="30" height="6" transform="rotate(90,72,0)"/>
+<use href="#feat-illusory-wall" x="237" y="56" width="30" height="4"/>
 <use href="#feat-fireplace" x="237" y="-60" width="30" height="20" transform="rotate(180,252,-50)"/>
 <use href="#feat-curtain" x="177" y="-15" width="30" height="16" transform="rotate(-90,185,0)"/>
-<use href="#feat-illusory-wall" x="237" y="56" width="30" height="4"/>
 <use href="#door-open" x="60" y="-15" width="30" height="30" transform="rotate(90,75,0)"/>
 <text x="0" y="-47" text-anchor="middle" dominant-baseline="auto" fill="#333" font-size="9" font-family="sans-serif" font-weight="bold">1</text>
-<text x="0" y="72" text-anchor="middle" dominant-baseline="auto" fill="#555" font-size="8" font-family="serif" font-style="italic">Barracks</text>
 <text x="252" y="-47" text-anchor="middle" dominant-baseline="auto" fill="#333" font-size="9" font-family="sans-serif" font-weight="bold">2</text>
-<text x="252" y="72" text-anchor="middle" dominant-baseline="auto" fill="#555" font-size="8" font-family="serif" font-style="italic">Hall</text>
+<text x="-95" y="100" fill="#333" font-size="10" font-family="sans-serif" font-weight="bold">Legend</text>
+<text x="-95" y="114" fill="#555" font-size="9" font-family="serif" font-style="italic">1 - Barracks</text>
+<text x="-95" y="128" fill="#555" font-size="9" font-family="serif" font-style="italic">2 - Hall</text>
 </svg>

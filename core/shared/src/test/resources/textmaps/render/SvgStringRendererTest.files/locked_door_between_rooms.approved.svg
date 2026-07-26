@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg"
-     viewBox="-125 -125 463 250"
-     width="463" height="250">
+     viewBox="-125 -125 463 322"
+     width="463" height="322">
 <defs>
   <pattern id="hatch" width="6" height="6"
            patternTransform="rotate(45 0 0)" patternUnits="userSpaceOnUse">
@@ -127,8 +127,8 @@
           fill="none" stroke="#333" stroke-width="1.2"/>
   </symbol>
 </defs>
-<rect x="-125" y="-125" width="463" height="250" fill="white"/>
-<rect x="-125" y="-125" width="463" height="250" fill="url(#hatch)"/>
+<rect x="-125" y="-125" width="463" height="322" fill="white"/>
+<rect x="-125" y="-125" width="463" height="322" fill="url(#hatch)"/>
 <rect x="42" y="-15" width="99" height="30" fill="white"/>
 <rect x="-45" y="-45" width="90" height="90" fill="white"/>
 <rect x="138" y="-45" width="120" height="90" fill="white"/>
@@ -148,7 +148,8 @@
 
 <use href="#door-locked" x="30" y="-15" width="30" height="30" transform="rotate(90,45,0)"/>
 <text x="0" y="-32" text-anchor="middle" dominant-baseline="auto" fill="#333" font-size="9" font-family="sans-serif" font-weight="bold">1</text>
-<text x="0" y="57" text-anchor="middle" dominant-baseline="auto" fill="#555" font-size="8" font-family="serif" font-style="italic">Guard</text>
 <text x="198" y="-32" text-anchor="middle" dominant-baseline="auto" fill="#333" font-size="9" font-family="sans-serif" font-weight="bold">2</text>
-<text x="198" y="57" text-anchor="middle" dominant-baseline="auto" fill="#555" font-size="8" font-family="serif" font-style="italic">Prison</text>
+<text x="-65" y="85" fill="#333" font-size="10" font-family="sans-serif" font-weight="bold">Legend</text>
+<text x="-65" y="99" fill="#555" font-size="9" font-family="serif" font-style="italic">1 - Guard</text>
+<text x="-65" y="113" fill="#555" font-size="9" font-family="serif" font-style="italic">2 - Prison</text>
 </svg>

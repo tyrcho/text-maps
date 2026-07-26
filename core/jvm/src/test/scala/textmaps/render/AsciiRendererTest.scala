@@ -29,3 +29,5 @@ class AsciiRendererTest extends AnyFunSuite:
   test("movement features")               { asciiApproval("movement_features",               TestMaps.movementFeatures)              }
   test("natural and structural features") { asciiApproval("natural_structural_features",     TestMaps.naturalStructuralFeatures)     }
   test("wall features")                   { asciiApproval("wall_features",                   TestMaps.wallFeatures)                  }
+  test("cave room")                       { asciiApproval("cave_room",                        TestMaps.caveRoom)                      }
+  test("dungeon with inline labels")      { asciiApproval("dungeon_inline_labels",            TestMaps.dungeonInlineLabels)           }
