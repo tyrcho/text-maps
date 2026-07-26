@@ -29,7 +29,14 @@ case class RenderedCorridor(
   rects:    List[CorridorRect],
 )
 
-case class RenderedDoor(position: Vec2, doorType: DoorType, angle: Double, width: Double = CORRIDOR_W)
+case class RenderedDoor(
+  position:     Vec2,
+  doorType:     DoorType,
+  angle:        Double,
+  width:        Double    = CORRIDOR_W,
+  swing:        DoorSwing = DoorSwing.Default,
+  intoRoomSign: Double    = 1.0, // +1/-1: which perpendicular direction (pre-rotation) points into this door's own room
+)
 
 case class RenderedMap(
   rooms:      List[RenderedRoom],
@@ -105,7 +112,13 @@ object LayoutEngine:
       val (cur, pos, _, _) = queue.dequeue()
       val neighbors = adj.getOrElse(cur, Nil).filterNot(placed.contains)
       neighbors.zipWithIndex.foreach { case (nb, i) =>
-        val angle     = angles(i % angles.length)
+        val conn  = connByPair.get((cur, nb))
+        val angle = conn.flatMap(_.direction).map { dir =>
+          // Direction is declared relative to the connection's own `from`; flip it
+          // when we're actually walking from `to` back towards `from`.
+          val forward = conn.exists(_.from == cur)
+          directionAngle(if forward then dir else oppositeSide(dir))
+        }.getOrElse(angles(i % angles.length))
         val curRoom   = roomsById(cur)
         val nbRoom    = roomsById(nb)
         val gap       = connByPair.get((cur, nb)).flatMap(_.corridor).map(_.height * UNIT_PX).getOrElse(CORRIDOR_PX)
@@ -128,6 +141,19 @@ object LayoutEngine:
         .updated(c.from, c.to :: acc.getOrElse(c.from, Nil))
         .updated(c.to, c.from :: acc.getOrElse(c.to, Nil))
     }
+
+  // Matches Vec2.polar's convention (SVG Y-down): East=0, South=90, West=180, North=270.
+  private def directionAngle(side: WallSide): Double = side match
+    case WallSide.East  => 0.0
+    case WallSide.South => 90.0
+    case WallSide.West  => 180.0
+    case WallSide.North => 270.0
+
+  private def oppositeSide(side: WallSide): WallSide = side match
+    case WallSide.North => WallSide.South
+    case WallSide.South => WallSide.North
+    case WallSide.East  => WallSide.West
+    case WallSide.West  => WallSide.East
 
   private def roomHalfDiag(r: Room): Double =
     math.sqrt(math.pow(r.size.width * UNIT_PX / 2, 2) + math.pow(r.size.height * UNIT_PX / 2, 2))
@@ -211,8 +237,8 @@ object LayoutEngine:
     RenderedCorridor(c.from, c.to, c.door, rects.toList)
 
   /** Two doors per connection — one at each room's wall opening, independently
-   *  typed (`door` for the `from` end, `doorTo` for the `to` end) and correctly
-   *  angled for whichever wall (E/W vs N/S) each end actually sits on. */
+   *  typed and swung (`door`/`swing` for the `from` end, `doorTo`/`swingTo` for the
+   *  `to` end) and correctly angled for whichever wall (E/W vs N/S) each end sits on. */
   private def renderDoors(c: Connection, byId: Map[String, RenderedRoom]): List[RenderedDoor] =
     val a    = byId(c.from)
     val b    = byId(c.to)
@@ -220,37 +246,44 @@ object LayoutEngine:
     val cyA  = a.y + a.h / 2
     val cxB  = b.x + b.w / 2
     val cyB  = b.y + b.h / 2
-    val width  = c.corridor.map(_.width * UNIT_PX).getOrElse(CORRIDOR_W)
-    val doorTo = c.doorTo.getOrElse(c.door)
+    val width   = c.corridor.map(_.width * UNIT_PX).getOrElse(CORRIDOR_W)
+    val doorTo  = c.doorTo.getOrElse(c.door)
+    val swingTo = c.swingTo.getOrElse(c.swing)
 
     val heightDiff = math.abs(cyB - cyA)
     val widthDiff  = math.abs(cxB - cxA)
 
     if heightDiff <= width then
-      // Straight horizontal: both doors sit on E/W walls
+      // Straight horizontal: both doors sit on E/W walls; swing is along X.
       val midY   = (cyA + cyB) / 2
       val exitX  = if cxB >= cxA then a.x + a.w else a.x
       val entryX = if cxB >= cxA then b.x else b.x + b.w
+      val intoA  = if cxB >= cxA then -1.0 else 1.0
+      val intoB  = -intoA
       List(
-        RenderedDoor(Vec2(exitX, midY),  c.door, 90.0, width),
-        RenderedDoor(Vec2(entryX, midY), doorTo, 90.0, width),
+        RenderedDoor(Vec2(exitX, midY),  c.door, 90.0, width, c.swing, intoA),
+        RenderedDoor(Vec2(entryX, midY), doorTo, 90.0, width, swingTo, intoB),
       )
     else if widthDiff <= width then
-      // Straight vertical: both doors sit on N/S walls
+      // Straight vertical: both doors sit on N/S walls; swing is along Y.
       val midX   = (cxA + cxB) / 2
       val exitY  = if cyB >= cyA then a.y + a.h else a.y
       val entryY = if cyB >= cyA then b.y else b.y + b.h
+      val intoA  = if cyB >= cyA then -1.0 else 1.0
+      val intoB  = -intoA
       List(
-        RenderedDoor(Vec2(midX, exitY),  c.door, 0.0, width),
-        RenderedDoor(Vec2(midX, entryY), doorTo, 0.0, width),
+        RenderedDoor(Vec2(midX, exitY),  c.door, 0.0, width, c.swing, intoA),
+        RenderedDoor(Vec2(midX, entryY), doorTo, 0.0, width, swingTo, intoB),
       )
     else
-      // L-shaped: A's leg is horizontal (E/W wall), B's leg is vertical (N/S wall)
+      // L-shaped: A's leg is horizontal (E/W wall, swing along X), B's leg is vertical (N/S wall, swing along Y)
       val exitX  = if cxB >= cxA then a.x + a.w else a.x
       val entryY = if cyB >= cyA then b.y else b.y + b.h
+      val intoA  = if cxB >= cxA then -1.0 else 1.0
+      val intoB  = if cyB >= cyA then 1.0 else -1.0
       List(
-        RenderedDoor(Vec2(exitX, cyA), c.door, 90.0, width),
-        RenderedDoor(Vec2(cxB, entryY), doorTo, 0.0, width),
+        RenderedDoor(Vec2(exitX, cyA),   c.door, 90.0, width, c.swing, intoA),
+        RenderedDoor(Vec2(cxB, entryY),  doorTo, 0.0,  width, swingTo, intoB),
       )
 
   private val emptyMap = RenderedMap(Nil, Nil, Nil, 0, 0, 400, 300)

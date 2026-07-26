@@ -109,11 +109,14 @@ object DslParser:
         case Right(Line.ConnDecl(from, to)) =>
           val props = consumeProps(it)
           stmts += ConnStmt(Connection(
-            from     = from,
-            to       = to,
-            door     = props.get("door").flatMap(parseDoor).getOrElse(DoorType.Open),
-            corridor = props.get("corridor").flatMap(parseSize(_).toOption),
-            doorTo   = props.get("door-to").flatMap(parseDoor),
+            from      = from,
+            to        = to,
+            door      = props.get("door").flatMap(parseDoor).getOrElse(DoorType.Open),
+            corridor  = props.get("corridor").flatMap(parseSize(_).toOption),
+            doorTo    = props.get("door-to").flatMap(parseDoor),
+            swing     = props.get("swing").flatMap(parseSwing).getOrElse(DoorSwing.Default),
+            swingTo   = props.get("swing-to").flatMap(parseSwing),
+            direction = props.get("direction").flatMap(parseDirection),
           ))
         case Right(Line.GenerateDecl(n, style, seed)) =>
           stmts += GenStmt(DungeonMapSource.Generated(n, style, seed))
@@ -149,24 +152,27 @@ object DslParser:
     sides("window")(RoomFeature.Window(_))
     sides("arrow-slit")(RoomFeature.ArrowSlit(_))
     sides("illusory-wall")(RoomFeature.IllusoryWall(_))
-    sides("exit")(RoomFeature.Exit(_))
 
     // Furniture / fixtures
     sides("fireplace")(RoomFeature.Fireplace(_))
     sides("bed")(RoomFeature.Bed(_))
     sides("curtain")(RoomFeature.Curtain(_))
 
-    // Sized features — presence of the key triggers the feature; value sets size
-    def sized(key: String)(f: FeatureSize => RoomFeature): Unit =
-      props.get(key).foreach(v => buf += f(parseFeatureSize(v)))
+    // Sized, positionable features — presence of the key triggers the feature;
+    // value sets size; an optional `<key>-at` companion property sets position.
+    def sized(key: String)(f: (FeatureSize, FeaturePosition) => RoomFeature): Unit =
+      props.get(key).foreach { v =>
+        val position = props.get(s"$key-at").map(parseFeaturePosition).getOrElse(FeaturePosition.Auto)
+        buf += f(parseFeatureSize(v), position)
+      }
 
-    sized("pillar")(RoomFeature.Pillar(_))
-    sized("statue")(RoomFeature.Statue(_))
-    sized("stalactite")(RoomFeature.Stalactite(_))
-    sized("stalagmite")(RoomFeature.Stalagmite(_))
-    sized("crevasse")(RoomFeature.Crevasse(_))
-    sized("pool")(RoomFeature.Pool(_))
-    sized("stream")(RoomFeature.Stream(_))
+    sized("pillar")(RoomFeature.Pillar(_, _))
+    sized("statue")(RoomFeature.Statue(_, _))
+    sized("stalactite")(RoomFeature.Stalactite(_, _))
+    sized("stalagmite")(RoomFeature.Stalagmite(_, _))
+    sized("crevasse")(RoomFeature.Crevasse(_, _))
+    sized("pool")(RoomFeature.Pool(_, _))
+    sized("stream")(RoomFeature.Stream(_, _))
 
     buf.result()
 
@@ -178,6 +184,20 @@ object DslParser:
           case Array(w, h) => FeatureSize(w.strip().toIntOption.getOrElse(1), h.strip().toIntOption.getOrElse(1))
           case _           => FeatureSize.default
       case n => FeatureSize.square(n.toIntOption.getOrElse(1))
+
+  /** `north`/`south`/`east`/`west` (approximate bias) or `col,row` (precise grid-cell
+   *  coordinates, e.g. `2,3`). Anything unparseable falls back to Auto. */
+  private def parseFeaturePosition(v: String): FeaturePosition =
+    val s = v.strip()
+    parseWallSide(s) match
+      case Some(side) => FeaturePosition.Side(side)
+      case None =>
+        s.split(",", 2) match
+          case Array(c, r) =>
+            (c.strip().toIntOption, r.strip().toIntOption) match
+              case (Some(col), Some(row)) => FeaturePosition.At(col, row)
+              case _                      => FeaturePosition.Auto
+          case _ => FeaturePosition.Auto
 
   private def parseWallSide(s: String): Option[WallSide] = s.toLowerCase match
     case "north" | "n" => Some(WallSide.North)
@@ -213,14 +233,26 @@ object DslParser:
     case _        => None
 
   private def parseDoor(s: String): Option[DoorType] = s.toLowerCase match
-    case "open"       => Some(DoorType.Open)
-    case "locked"     => Some(DoorType.Locked)
-    case "secret"     => Some(DoorType.Secret)
-    case "barred"     => Some(DoorType.Barred)
-    case "double"     => Some(DoorType.Double)
-    case "doorway"    => Some(DoorType.Doorway)
-    case "portcullis" => Some(DoorType.Portcullis)
-    case _            => None
+    case "open"   => Some(DoorType.Open)
+    case "closed" => Some(DoorType.Closed)
+    case "locked" => Some(DoorType.Locked)
+    case "secret" => Some(DoorType.Secret)
+    case _        => None
+
+  private def parseSwing(s: String): Option[DoorSwing] = s.toLowerCase match
+    case "default"          => Some(DoorSwing.Default)
+    case "inside"  | "in"   => Some(DoorSwing.Inside)
+    case "outside" | "out"  => Some(DoorSwing.Outside)
+    case _                  => None
+
+  /** Accepts both compass (north/south/east/west, n/s/e/w) and screen-relative
+   *  (up/down/left/right, u/d/l/r) spellings for the same four directions. */
+  private def parseDirection(s: String): Option[WallSide] = s.toLowerCase match
+    case "north" | "n" | "up"    | "u" => Some(WallSide.North)
+    case "south" | "s" | "down"  | "d" => Some(WallSide.South)
+    case "east"  | "e" | "right" | "r" => Some(WallSide.East)
+    case "west"  | "w" | "left"  | "l" => Some(WallSide.West)
+    case _                              => None
 
   private def parseKvs(tokens: List[String]): Map[String, String] =
     tokens.flatMap { t =>

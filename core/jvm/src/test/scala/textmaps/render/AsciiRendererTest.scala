@@ -24,8 +24,8 @@ class AsciiRendererTest extends AnyFunSuite:
   test("single room")                     { asciiApproval("single_room",                     TestMaps.singleRoom)                    }
   test("empty map")                       { asciiApproval("empty_map",                       TestMaps.emptyMap)                      }
   test("dungeon room with stairs")        { asciiApproval("dungeon_room_with_stairs_and_windows", TestMaps.dungeonRoomWithStairsAndWindows) }
-  test("building with exterior exits")    { asciiApproval("building_with_exterior_exits",    TestMaps.buildingWithExteriorExits)     }
-  test("new door types")                  { asciiApproval("new_door_types",                  TestMaps.newDoorTypes)                  }
+  test("building with directional doors") { asciiApproval("building_directional_doors",      TestMaps.buildingWithDirectionalDoors)  }
+  test("door types and swing")            { asciiApproval("door_types_and_swing",            TestMaps.doorTypesAndSwing)             }
   test("movement features")               { asciiApproval("movement_features",               TestMaps.movementFeatures)              }
   test("natural and structural features") { asciiApproval("natural_structural_features",     TestMaps.naturalStructuralFeatures)     }
   test("wall features")                   { asciiApproval("wall_features",                   TestMaps.wallFeatures)                  }

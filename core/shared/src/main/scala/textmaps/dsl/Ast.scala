@@ -5,13 +5,16 @@ enum MapType:
   case Building  // constructed — thin 1-char walls, multiple exterior exits
 
 enum DoorType:
-  case Open       // standard unlocked door
-  case Locked     // locked door
-  case Secret     // secret/concealed door
-  case Barred     // barred door
-  case Double     // double door (two panels)
-  case Doorway    // open doorway (no door, just an opening)
-  case Portcullis // iron gate / grating
+  case Open   // unlocked, shown open (just a gap) unless swing is set
+  case Closed // unlocked, shown shut (flush leaf across the gap) unless swing is set
+  case Locked // locked door
+  case Secret // secret/concealed door — always the blend-into-wall look, ignores swing
+
+/** Orthogonal to DoorType: whether/which way the door swings, drawn as an
+ *  architectural leaf + quarter-arc. Default = today's flat glyph, no arc.
+ *  Ignored entirely for DoorType.Secret. */
+enum DoorSwing:
+  case Default, Inside, Outside
 
 enum RoomShape:
   case Rectangular, Circular, Cave
@@ -33,6 +36,18 @@ object FeatureSize:
   val default: FeatureSize = FeatureSize()
   def square(n: Int): FeatureSize = FeatureSize(n, n)
 
+/** Where a free-standing (non-wall-mounted) feature sits within its room.
+ *  `Auto` is today's behaviour (centred / ceiling- or floor-anchored / full-width,
+ *  depending on the feature). DSL syntax on the `<feature>-at:` companion property:
+ *  `north`/`south`/`east`/`west` (approximate bias) or `2,3` (precise grid-cell coords,
+ *  in GRID units from the room's own top-left interior corner). */
+enum FeaturePosition:
+  case Auto
+  case Side(side: WallSide)
+  case At(col: Int, row: Int)
+object FeaturePosition:
+  val auto: FeaturePosition = Auto
+
 enum RoomFeature:
   // Vertical movement
   case Stairs(dir: StairDir)             // standard staircase
@@ -42,20 +57,19 @@ enum RoomFeature:
   case Window(side: WallSide)            // window (light/sight, not traversable)
   case ArrowSlit(side: WallSide)         // narrow defensive slit
   case IllusoryWall(side: WallSide)      // wall that appears solid but isn't
-  case Exit(side: WallSide)              // exterior exit (to street, surface, outdoors)
   // Furniture / fixtures
   case Fireplace(side: WallSide)         // fireplace against a wall
   case Bed(side: WallSide)               // bed against a wall
   case Curtain(side: WallSide)           // hanging curtain across a wall
-  // Structural — default 1 square, can be resized
-  case Pillar(size: FeatureSize = FeatureSize.default)
-  case Statue(size: FeatureSize = FeatureSize.default)
-  // Natural features — default 1 square, can be resized
-  case Stalactite(size: FeatureSize = FeatureSize.default)
-  case Stalagmite(size: FeatureSize = FeatureSize.default)
-  case Crevasse(size: FeatureSize = FeatureSize.default)
-  case Pool(size: FeatureSize = FeatureSize.default)
-  case Stream(size: FeatureSize = FeatureSize.default)
+  // Structural — default 1 square, can be resized and positioned
+  case Pillar(size: FeatureSize = FeatureSize.default, position: FeaturePosition = FeaturePosition.Auto)
+  case Statue(size: FeatureSize = FeatureSize.default, position: FeaturePosition = FeaturePosition.Auto)
+  // Natural features — default 1 square, can be resized and positioned
+  case Stalactite(size: FeatureSize = FeatureSize.default, position: FeaturePosition = FeaturePosition.Auto)
+  case Stalagmite(size: FeatureSize = FeatureSize.default, position: FeaturePosition = FeaturePosition.Auto)
+  case Crevasse(size: FeatureSize = FeatureSize.default, position: FeaturePosition = FeaturePosition.Auto)
+  case Pool(size: FeatureSize = FeatureSize.default, position: FeaturePosition = FeaturePosition.Auto)
+  case Stream(size: FeatureSize = FeatureSize.default, position: FeaturePosition = FeaturePosition.Auto)
 
 case class RoomSize(width: Int, height: Int)
 
@@ -68,11 +82,14 @@ case class Room(
 )
 
 case class Connection(
-  from:     String,
-  to:       String,
-  door:     DoorType         = DoorType.Open,
-  corridor: Option[RoomSize] = None,
-  doorTo:   Option[DoorType] = None, // None = same as `door` (the door at the `to`-room end of the connection)
+  from:      String,
+  to:        String,
+  door:      DoorType          = DoorType.Open,
+  corridor:  Option[RoomSize]  = None,
+  doorTo:    Option[DoorType]  = None,       // None = same as `door` (the door at the `to`-room end)
+  swing:     DoorSwing         = DoorSwing.Default,
+  swingTo:   Option[DoorSwing] = None,       // None = same as `swing` (the door at the `to`-room end)
+  direction: Option[WallSide]  = None,       // explicit placement direction from `from` towards `to`; None = auto-placed
 )
 
 case class MapMeta(

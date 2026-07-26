@@ -24,8 +24,8 @@ class SvgStringRendererTest extends AnyFunSuite:
   test("single room")                     { svgApproval("single_room",                     TestMaps.singleRoom)                    }
   test("empty map")                       { svgApproval("empty_map",                       TestMaps.emptyMap)                      }
   test("dungeon room with stairs")        { svgApproval("dungeon_room_with_stairs_and_windows", TestMaps.dungeonRoomWithStairsAndWindows) }
-  test("building with exterior exits")    { svgApproval("building_with_exterior_exits",    TestMaps.buildingWithExteriorExits)     }
-  test("new door types")                  { svgApproval("new_door_types",                  TestMaps.newDoorTypes)                  }
+  test("building with directional doors") { svgApproval("building_directional_doors",      TestMaps.buildingWithDirectionalDoors)  }
+  test("door types and swing")            { svgApproval("door_types_and_swing",            TestMaps.doorTypesAndSwing)             }
   test("movement features")               { svgApproval("movement_features",               TestMaps.movementFeatures)              }
   test("natural and structural features") { svgApproval("natural_structural_features",     TestMaps.naturalStructuralFeatures)     }
   test("wall features")                   { svgApproval("wall_features",                   TestMaps.wallFeatures)                  }

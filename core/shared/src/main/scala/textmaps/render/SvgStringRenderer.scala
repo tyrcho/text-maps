@@ -1,6 +1,6 @@
 package textmaps.render
 
-import textmaps.dsl.{DoorType, FeatureSize, LabelStyle, MapType, RoomFeature, RoomShape, RoomSize, StairDir, WallSide}
+import textmaps.dsl.{DoorSwing, DoorType, FeaturePosition, FeatureSize, LabelStyle, MapType, RoomFeature, RoomShape, RoomSize, StairDir, WallSide}
 import textmaps.generate.Rng
 import textmaps.layout.*
 
@@ -9,10 +9,13 @@ import textmaps.layout.*
  *  Visual style: Dyson Logos / One Page Dungeon
  *  - Dense diagonal cross-hatching fills all rock/exterior areas
  *  - White floor rectangles for rooms and corridors
- *  - Floor grid anchored to each room's walls (not global coordinates)
- *  - Dark ink wall strokes; corridors have no grid
- *  - Stairs: hatched box with direction arrow
+ *  - Floor grid anchored to each shape's own top-left (not global coordinates),
+ *    for rooms and corridors alike
+ *  - Dark ink wall strokes
+ *  - Stairs: box with tapering step bars
  *  - Windows: small opening gap on the wall
+ *  - Doors: flat gap glyph by default; an architectural leaf + swing arc when
+ *    `swing` is Inside/Outside
  *  - Room number inside (bold, centred); room name below the room
  */
 object SvgStringRenderer:
@@ -38,6 +41,7 @@ object SvgStringRenderer:
         |${map.corridors.flatMap(corridorWalls).mkString("\n")}
         |${map.rooms.map(roomWalls).mkString("\n")}
         |${map.rooms.map(roomGrid).mkString("\n")}
+        |${map.corridors.flatMap(corridorGrid).mkString("\n")}
         |${map.rooms.flatMap(roomFeatures).mkString("\n")}
         |${map.doors.map(door).mkString("\n")}
         |${map.rooms.zipWithIndex.map { (rm, i) => roomLabel(rm, i + 1, map.labelStyle) }.mkString("\n")}
@@ -59,6 +63,7 @@ object SvgStringRenderer:
         |${map.corridors.flatMap(corridorWalls).mkString("\n")}
         |${map.rooms.map(roomWalls).mkString("\n")}
         |${map.rooms.map(roomGrid).mkString("\n")}
+        |${map.corridors.flatMap(corridorGrid).mkString("\n")}
         |${map.rooms.flatMap(roomFeatures).mkString("\n")}
         |${map.doors.map(door).mkString("\n")}
         |${map.rooms.zipWithIndex.map { (rm, i) => roomLabel(rm, i + 1, map.labelStyle) }.mkString("\n")}
@@ -78,6 +83,10 @@ object SvgStringRenderer:
     <rect x="0"  y="11" width="4"  height="8" fill="#333"/>
     <rect x="26" y="11" width="4"  height="8" fill="#333"/>
   </symbol>
+  <symbol id="door-closed" viewBox="0 0 30 30">
+    <rect x="0" y="12" width="30" height="6" fill="white"/>
+    <rect x="2" y="13" width="26" height="4" fill="#333"/>
+  </symbol>
   <symbol id="door-locked" viewBox="0 0 30 30">
     <rect x="0" y="12" width="30" height="6" fill="white"/>
     <rect x="2" y="11" width="26" height="8" fill="#333"/>
@@ -86,32 +95,6 @@ object SvgStringRenderer:
   <symbol id="door-secret" viewBox="0 0 30 30">
     <line x1="0" y1="15" x2="30" y2="15"
           stroke="#888" stroke-width="1.2" stroke-dasharray="6,6"/>
-  </symbol>
-  <symbol id="door-barred" viewBox="0 0 30 30">
-    <rect x="0"  y="12" width="30" height="6" fill="white"/>
-    <rect x="2"  y="11" width="26" height="8" fill="#555"/>
-    <line x1="8"  y1="11" x2="8"  y2="19" stroke="white" stroke-width="2"/>
-    <line x1="15" y1="11" x2="15" y2="19" stroke="white" stroke-width="2"/>
-    <line x1="22" y1="11" x2="22" y2="19" stroke="white" stroke-width="2"/>
-  </symbol>
-  <symbol id="door-double" viewBox="0 0 30 30">
-    <rect x="0"  y="12" width="30" height="6" fill="white"/>
-    <rect x="0"  y="11" width="3"  height="8" fill="#333"/>
-    <rect x="27" y="11" width="3"  height="8" fill="#333"/>
-    <line x1="15" y1="11" x2="15" y2="19" stroke="#333" stroke-width="1"/>
-    <circle cx="11" cy="15" r="1.5" fill="#333"/>
-    <circle cx="19" cy="15" r="1.5" fill="#333"/>
-  </symbol>
-  <symbol id="door-doorway" viewBox="0 0 30 30">
-    <rect x="0" y="12" width="30" height="6" fill="white"/>
-  </symbol>
-  <symbol id="door-portcullis" viewBox="0 0 30 30">
-    <rect x="0"  y="12" width="30" height="6" fill="white"/>
-    <rect x="0"  y="11" width="4"  height="8" fill="#333"/>
-    <rect x="26" y="11" width="4"  height="8" fill="#333"/>
-    <line x1="9"  y1="11" x2="9"  y2="19" stroke="#333" stroke-width="1.2"/>
-    <line x1="15" y1="11" x2="15" y2="19" stroke="#333" stroke-width="1.2"/>
-    <line x1="21" y1="11" x2="21" y2="19" stroke="#333" stroke-width="1.2"/>
   </symbol>
 
   <!-- ── Room feature symbols (viewBox 0 0 30 30, one grid cell) ── -->
@@ -169,10 +152,6 @@ object SvgStringRenderer:
   <symbol id="feat-arrow-slit" viewBox="0 0 30 6">
     <rect x="0"  y="0" width="30" height="6" fill="white"/>
     <rect x="12" y="1" width="6"  height="4" fill="#555"/>
-  </symbol>
-  <symbol id="feat-exit" viewBox="0 0 30 6">
-    <rect x="0"  y="0" width="30" height="6" fill="white"/>
-    <polygon points="12,1 18,1 15,5" fill="#333"/>
   </symbol>
   <symbol id="feat-illusory-wall" viewBox="0 0 30 4">
     <line x1="0" y1="2" x2="30" y2="2"
@@ -308,30 +287,29 @@ object SvgStringRenderer:
 
   private def roomFeatures(rm: RenderedRoom): List[String] =
     rm.features.flatMap {
-      case RoomFeature.Stairs(dir)        => List(stairHatch(rm, dir, spiral = false))
+      case RoomFeature.Stairs(_)          => List(stairHatch(rm))
       case RoomFeature.SpiralStairs(dir)  => List(spiralStairs(rm, dir))
       case RoomFeature.Ladder(dir)        => List(centeredSymbol(rm, "feat-ladder", dir))
-      case RoomFeature.Pillar(size)     => List(sizedCentered(rm, "feat-pillar",     size))
-      case RoomFeature.Statue(size)     => List(sizedCentered(rm, "feat-statue",     size))
-      case RoomFeature.Pool(size)       => List(sizedCentered(rm, "feat-pool",       size))
-      case RoomFeature.Crevasse(size)   => List(sizedCentered(rm, "feat-crevasse",   size, slimH = true))
-      case RoomFeature.Stream(size)     => List(sizedStream(rm, size))
-      case RoomFeature.Stalactite(size) => List(sizedCeiling(rm, "feat-stalactite", size))
-      case RoomFeature.Stalagmite(size) => List(sizedFloor(rm,  "feat-stalagmite",  size))
+      case RoomFeature.Pillar(size, pos)     => List(sizedCentered(rm, "feat-pillar",     size, position = pos))
+      case RoomFeature.Statue(size, pos)     => List(sizedCentered(rm, "feat-statue",     size, position = pos))
+      case RoomFeature.Pool(size, pos)       => List(sizedCentered(rm, "feat-pool",       size, position = pos))
+      case RoomFeature.Crevasse(size, pos)   => List(sizedCentered(rm, "feat-crevasse",   size, slimH = true, position = pos))
+      case RoomFeature.Stream(size, pos)     => List(sizedStream(rm, size, pos))
+      case RoomFeature.Stalactite(size, pos) => List(sizedCeiling(rm, "feat-stalactite", size, pos))
+      case RoomFeature.Stalagmite(size, pos) => List(sizedFloor(rm,  "feat-stalagmite",  size, pos))
       // Wall features — use `<use>` placed on the wall
       case RoomFeature.Window(side)       => List(wallUse(rm, side, "feat-window",      30, 6))
       case RoomFeature.ArrowSlit(side)    => List(wallUse(rm, side, "feat-arrow-slit",  30, 6))
-      case RoomFeature.Exit(side)         => List(wallUse(rm, side, "feat-exit",        30, 6))
       case RoomFeature.IllusoryWall(side) => List(wallUse(rm, side, "feat-illusory-wall", 30, 4))
       case RoomFeature.Fireplace(side)    => List(wallUse(rm, side, "feat-fireplace",   30, 20))
       case RoomFeature.Bed(side)          => List(wallUse(rm, side, "feat-bed",         30, 24))
       case RoomFeature.Curtain(side)      => List(wallUse(rm, side, "feat-curtain",     30, 16))
     }
 
-  /** Hatched stair box with direction arrow, centred in the room. */
   /** Bordered box with tapering horizontal step bars (narrow near the top, wide
-   *  near the bottom) — "steps receding into the distance", plus a direction arrow. */
-  private def stairHatch(rm: RenderedRoom, dir: StairDir, spiral: Boolean): String =
+   *  near the bottom) — "steps receding into the distance". No direction arrow;
+   *  Up/Down aren't visually distinguished for this glyph. */
+  private def stairHatch(rm: RenderedRoom): String =
     val bw = GRID; val bh = GRID
     val bx = (rm.x + (rm.w - bw) / 2).toInt
     val by = (rm.y + (rm.h - bh) / 2).toInt
@@ -345,11 +323,7 @@ object SvgStringRenderer:
       val halfW     = bw * widthFrac / 2
       f"""<line x1="${cx - halfW}%.1f" y1="$y%.1f" x2="${cx + halfW}%.1f" y2="$y%.1f" stroke="#333" stroke-width="1.4"/>"""
     }.mkString("\n")
-    val ax = bx + bw / 2
-    val arrow = dir match
-      case StairDir.Up   => s"""<polygon points="$ax,${by+4} ${ax-5},${by+bh-4} ${ax+5},${by+bh-4}" fill="#333"/>"""
-      case StairDir.Down => s"""<polygon points="$ax,${by+bh-4} ${ax-5},${by+4} ${ax+5},${by+4}" fill="#333"/>"""
-    s"$box\n$bars\n$arrow"
+    s"$box\n$bars"
 
   /** Spiral staircase: circular arrow in a box. */
   private def spiralStairs(rm: RenderedRoom, dir: StairDir): String =
@@ -369,37 +343,66 @@ object SvgStringRenderer:
 
   // ── Feature sizing (explicit FeatureSize, min = 1 grid square) ──────────
 
-  /** Pool, pillar, statue, crevasse: centred, sized by FeatureSize.
+  private val FEATURE_MARGIN = 4.0
+
+  /** Resolve a free-standing feature's top-left x/y from its FeaturePosition,
+   *  falling back to (autoX, autoY) for Auto. `Side` biases toward that edge of
+   *  the room's interior; `At` places it at explicit GRID-unit cell coordinates. */
+  private def resolvePosition(rm: RenderedRoom, sw: Double, sh: Double, position: FeaturePosition, autoX: Double, autoY: Double): (Double, Double) =
+    position match
+      case FeaturePosition.Auto => (autoX, autoY)
+      case FeaturePosition.Side(side) =>
+        side match
+          case WallSide.North => (autoX, rm.y + FEATURE_MARGIN)
+          case WallSide.South => (autoX, rm.y + rm.h - sh - FEATURE_MARGIN)
+          case WallSide.East  => (rm.x + rm.w - sw - FEATURE_MARGIN, autoY)
+          case WallSide.West  => (rm.x + FEATURE_MARGIN, autoY)
+      case FeaturePosition.At(col, row) =>
+        (rm.x + col * GRID, rm.y + row * GRID)
+
+  /** Pool, pillar, statue, crevasse: centred by default, sized by FeatureSize.
    *  slimH=true fixes height at 1 GRID (crevasse is a horizontal band). */
-  private def sizedCentered(rm: RenderedRoom, id: String, size: FeatureSize, slimH: Boolean = false): String =
+  private def sizedCentered(rm: RenderedRoom, id: String, size: FeatureSize, slimH: Boolean = false, position: FeaturePosition = FeaturePosition.Auto): String =
     val sw = size.w * GRID
     val sh = if slimH then GRID else size.h * GRID
-    val x  = (rm.x + (rm.w - sw) / 2).toInt
-    val y  = (rm.y + (rm.h - sh) / 2).toInt
-    s"""<use href="#$id" x="$x" y="$y" width="$sw" height="$sh"/>"""
+    val autoX = rm.x + (rm.w - sw) / 2
+    val autoY = rm.y + (rm.h - sh) / 2
+    val (x, y) = resolvePosition(rm, sw, sh, position, autoX, autoY)
+    s"""<use href="#$id" x="${x.toInt}" y="${y.toInt}" width="$sw" height="$sh"/>"""
 
-  /** Stalactite: centred horizontally, anchored to ceiling. */
-  private def sizedCeiling(rm: RenderedRoom, id: String, size: FeatureSize): String =
+  /** Stalactite: centred horizontally, anchored to ceiling by default. */
+  private def sizedCeiling(rm: RenderedRoom, id: String, size: FeatureSize, position: FeaturePosition = FeaturePosition.Auto): String =
     val sw = size.w * GRID
     val sh = size.h * GRID
-    val x  = (rm.x + (rm.w - sw) / 2).toInt
-    val y  = rm.y.toInt
-    s"""<use href="#$id" x="$x" y="$y" width="$sw" height="$sh"/>"""
+    val autoX = rm.x + (rm.w - sw) / 2
+    val autoY = rm.y
+    val (x, y) = resolvePosition(rm, sw, sh, position, autoX, autoY)
+    s"""<use href="#$id" x="${x.toInt}" y="${y.toInt}" width="$sw" height="$sh"/>"""
 
-  /** Stalagmite: centred horizontally, anchored to floor. */
-  private def sizedFloor(rm: RenderedRoom, id: String, size: FeatureSize): String =
+  /** Stalagmite: centred horizontally, anchored to floor by default. */
+  private def sizedFloor(rm: RenderedRoom, id: String, size: FeatureSize, position: FeaturePosition = FeaturePosition.Auto): String =
     val sw = size.w * GRID
     val sh = size.h * GRID
-    val x  = (rm.x + (rm.w - sw) / 2).toInt
-    val y  = (rm.y + rm.h - sh).toInt
-    s"""<use href="#$id" x="$x" y="$y" width="$sw" height="$sh"/>"""
+    val autoX = rm.x + (rm.w - sw) / 2
+    val autoY = rm.y + rm.h - sh
+    val (x, y) = resolvePosition(rm, sw, sh, position, autoX, autoY)
+    s"""<use href="#$id" x="${x.toInt}" y="${y.toInt}" width="$sw" height="$sh"/>"""
 
-  /** Stream: always spans full room width; size.h controls band height. */
-  private def sizedStream(rm: RenderedRoom, size: FeatureSize): String =
+  /** Stream: always spans full room width; size.h controls band height.
+   *  Position only affects the vertical placement of the band (north/south bias
+   *  or an explicit row); east/west and column have no effect on a full-width feature. */
+  private def sizedStream(rm: RenderedRoom, size: FeatureSize, position: FeaturePosition = FeaturePosition.Auto): String =
     val sw  = rm.w.toInt
     val sh  = size.h * GRID
     val x   = rm.x.toInt
-    val y1  = (rm.y + (rm.h - sh) / 2).toInt
+    val autoY1 = rm.y + (rm.h - sh) / 2
+    val y1 = (position match
+      case FeaturePosition.Auto                         => autoY1
+      case FeaturePosition.Side(WallSide.North)          => rm.y + FEATURE_MARGIN
+      case FeaturePosition.Side(WallSide.South)          => rm.y + rm.h - sh - FEATURE_MARGIN
+      case FeaturePosition.Side(_)                       => autoY1
+      case FeaturePosition.At(_, row)                    => rm.y + row * GRID
+    ).toInt
     val y2  = y1 + sh / 2
     val mx  = (rm.x + rm.w / 2).toInt
     val amp = math.min(sh / 4, 12)
@@ -453,6 +456,21 @@ object SvgStringRenderer:
       s"""<rect x="${r.x.toInt}" y="${r.y.toInt}" width="${r.w.toInt}" height="${r.h.toInt}" fill="white"/>"""
     }
 
+  /** Grid lines anchored to each corridor rect's own top-left — same treatment as roomGrid. */
+  private def corridorGrid(c: RenderedCorridor): List[String] =
+    c.rects.flatMap { r =>
+      val lines = collection.mutable.ListBuffer[String]()
+      var vx = r.x + GRID
+      while vx < r.x + r.w do
+        lines += s"""<line x1="${vx.toInt}" y1="${r.y.toInt}" x2="${vx.toInt}" y2="${(r.y + r.h).toInt}" stroke="#d8d8d8" stroke-width="0.5"/>"""
+        vx += GRID
+      var hy = r.y + GRID
+      while hy < r.y + r.h do
+        lines += s"""<line x1="${r.x.toInt}" y1="${hy.toInt}" x2="${(r.x + r.w).toInt}" y2="${hy.toInt}" stroke="#d8d8d8" stroke-width="0.5"/>"""
+        hy += GRID
+      lines.toList
+    }
+
   private def corridorWalls(c: RenderedCorridor): List[String] =
     c.rects.flatMap { r =>
       if r.isHorizontal then
@@ -471,21 +489,44 @@ object SvgStringRenderer:
 
   private def door(d: RenderedDoor): String =
     val symbolId = d.doorType match
-      case DoorType.Open       => "door-open"
-      case DoorType.Locked     => "door-locked"
-      case DoorType.Secret     => "door-secret"
-      case DoorType.Barred     => "door-barred"
-      case DoorType.Double     => "door-double"
-      case DoorType.Doorway    => "door-doorway"
-      case DoorType.Portcullis => "door-portcullis"
-    val dw = d.width.toInt
-    val ux = (d.position.x - dw / 2).toInt
-    val uy = (d.position.y - 15).toInt
-    val px = d.position.x.toInt
-    val py = d.position.y.toInt
-    // preserveAspectRatio="none": stretch the (square) symbol to the corridor's actual width
-    // so the door gap fully spans the passage instead of being letterboxed at 30px.
-    s"""<use href="#$symbolId" x="$ux" y="$uy" width="$dw" height="30" preserveAspectRatio="none" transform="rotate(${d.angle.toInt},$px,$py)"/>"""
+      case DoorType.Open   => "door-open"
+      case DoorType.Closed => "door-closed"
+      case DoorType.Locked => "door-locked"
+      case DoorType.Secret => "door-secret"
+    // Secret doors always keep the flat blend-into-wall look — showing a swing
+    // arc would defeat the point of a hidden door.
+    if d.doorType == DoorType.Secret || d.swing == DoorSwing.Default then
+      val dw = d.width.toInt
+      val ux = (d.position.x - dw / 2).toInt
+      val uy = (d.position.y - 15).toInt
+      val px = d.position.x.toInt
+      val py = d.position.y.toInt
+      // preserveAspectRatio="none": stretch the (square) symbol to the corridor's actual width
+      // so the door gap fully spans the passage instead of being letterboxed at 30px.
+      s"""<use href="#$symbolId" x="$ux" y="$uy" width="$dw" height="30" preserveAspectRatio="none" transform="rotate(${d.angle.toInt},$px,$py)"/>"""
+    else
+      doorSwingArc(d)
+
+  /** Architectural door symbol: a leaf line + quarter-circle swing arc, swinging
+   *  into or away from this door's own room. Computed directly in world
+   *  coordinates from the door's position/width/angle/intoRoomSign — no
+   *  rotation-frame math needed, unlike the flat `<use>`-based symbols above. */
+  private def doorSwingArc(d: RenderedDoor): String =
+    val half     = d.width / 2
+    val vertical = d.angle == 90.0 // wall is vertical (E/W wall); gap runs along Y, leaf swings along X
+    val hinge = if vertical then Vec2(d.position.x, d.position.y - half) else Vec2(d.position.x - half, d.position.y)
+    val jamb2 = if vertical then Vec2(d.position.x, d.position.y + half) else Vec2(d.position.x + half, d.position.y)
+    val dirSign = if d.swing == DoorSwing.Inside then d.intoRoomSign else -d.intoRoomSign
+    val leafEnd = if vertical then Vec2(hinge.x + dirSign * d.width, hinge.y) else Vec2(hinge.x, hinge.y + dirSign * d.width)
+    val cross   = (leafEnd.x - hinge.x) * (jamb2.y - hinge.y) - (leafEnd.y - hinge.y) * (jamb2.x - hinge.x)
+    val sweep   = if cross > 0 then 1 else 0
+
+    val gap =
+      if vertical then f"""<rect x="${d.position.x - 2}%.1f" y="${d.position.y - half}%.1f" width="4" height="${d.width}%.1f" fill="white"/>"""
+      else f"""<rect x="${d.position.x - half}%.1f" y="${d.position.y - 2}%.1f" width="${d.width}%.1f" height="4" fill="white"/>"""
+    val leaf = f"""<line x1="${hinge.x}%.1f" y1="${hinge.y}%.1f" x2="${leafEnd.x}%.1f" y2="${leafEnd.y}%.1f" stroke="#333" stroke-width="1.2"/>"""
+    val arc  = f"""<path d="M ${leafEnd.x}%.1f,${leafEnd.y}%.1f A ${d.width}%.1f,${d.width}%.1f 0 0,$sweep ${jamb2.x}%.1f,${jamb2.y}%.1f" fill="none" stroke="#333" stroke-width="0.8"/>"""
+    s"$gap\n$leaf\n$arc"
 
   private def escapeXml(s: String): String =
     s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace("\"", "&quot;")

@@ -80,16 +80,64 @@ class DslParserTest extends munit.FunSuite:
       """map building "The Inn"
         |room lobby 4x4
         |  label: "Lobby"
-        |  exit: south
         |  window: north, east
         |""".stripMargin
     DslParser.parse(input) match
       case Right(DungeonMap(meta, DungeonMapSource.Manual(rooms, _))) =>
         assertEquals(meta.mapType, MapType.Building)
         assertEquals(rooms.head.features.count { case RoomFeature.Window(_) => true; case _ => false }, 2)
-        assert(rooms.head.features.contains(RoomFeature.Exit(WallSide.South)))
         assert(rooms.head.features.contains(RoomFeature.Window(WallSide.North)))
         assert(rooms.head.features.contains(RoomFeature.Window(WallSide.East)))
+      case other => fail(s"unexpected: $other")
+
+  test("parses door-to, swing, swing-to and direction on a connection"):
+    val input =
+      """map dungeon
+        |room a 3x3
+        |room b 3x3
+        |connect a -> b
+        |  direction: north
+        |  door: locked
+        |  door-to: open
+        |  swing: inside
+        |  swing-to: outside
+        |""".stripMargin
+    DslParser.parse(input) match
+      case Right(DungeonMap(_, DungeonMapSource.Manual(_, conns))) =>
+        val c = conns.head
+        assertEquals(c.direction, Some(WallSide.North))
+        assertEquals(c.door, DoorType.Locked)
+        assertEquals(c.doorTo, Some(DoorType.Open))
+        assertEquals(c.swing, DoorSwing.Inside)
+        assertEquals(c.swingTo, Some(DoorSwing.Outside))
+      case other => fail(s"unexpected: $other")
+
+  test("parses direction aliases (udlr)"):
+    val input =
+      """map dungeon
+        |room a 3x3
+        |room b 3x3
+        |connect a -> b
+        |  direction: r
+        |""".stripMargin
+    DslParser.parse(input) match
+      case Right(DungeonMap(_, DungeonMapSource.Manual(_, conns))) =>
+        assertEquals(conns.head.direction, Some(WallSide.East))
+      case other => fail(s"unexpected: $other")
+
+  test("parses feature position (approximate and precise)"):
+    val input =
+      """map dungeon
+        |room cave 6x5
+        |  pillar: 2
+        |  pillar-at: north
+        |  statue:
+        |  statue-at: 2,3
+        |""".stripMargin
+    DslParser.parse(input) match
+      case Right(DungeonMap(_, DungeonMapSource.Manual(rooms, _))) =>
+        assert(rooms.head.features.contains(RoomFeature.Pillar(FeatureSize.square(2), FeaturePosition.Side(WallSide.North))))
+        assert(rooms.head.features.contains(RoomFeature.Statue(FeatureSize.default, FeaturePosition.At(2, 3))))
       case other => fail(s"unexpected: $other")
 
   test("parses stairs feature"):

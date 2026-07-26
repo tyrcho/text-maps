@@ -48,16 +48,35 @@ connect great_hall -> vault
   door: secret
 
 connect vault -> cavern
+  direction: south
   corridor: 1x3
   door: locked
-  door-to: barred
+  swing: inside
+  door-to: closed
+  swing-to: outside
 ```
 
-**Connections:** `corridor: WxH` sets the passage's width (W, replaces the 1-unit default) and the minimum
-straight-line distance to leave between the two rooms (H); `door:` sets the door at the `from`-room end,
-`door-to:` optionally sets an independent door at the `to`-room end (defaults to matching `door:` if omitted).
+**Connections:** `direction: north|south|east|west` (aliases `n/s/e/w`, or screen-relative `up/down/left/right`
+/ `u/d/l/r`) explicitly places the `to`-room in that direction from the `from`-room, overriding the
+automatic layout for that connection; omit it to let the layout engine place the room automatically (the
+default). `corridor: WxH` sets the passage's width (W, replaces the 1-unit default) and the minimum
+straight-line distance to leave between the two rooms (H). `door:` sets the door at the `from`-room end,
+`door-to:` optionally sets an independent door at the `to`-room end (defaults to matching `door:` if
+omitted). `swing:`/`swing-to:` (independent per end, same pattern) control whether that door is drawn with
+an architectural swing arc: `default` (a plain gap, no arc) | `inside` (swings into that door's own room) |
+`outside` (swings away from it, into the passage). Swing has no effect on `secret` doors, which always keep
+the flat blend-into-wall look.
+
+**Door types:** `open` (default) | `closed` | `locked` | `secret`
 
 **Room shapes:** `rectangular` (default) | `circular` | `cave` (irregular, hand-drawn-looking outline)
+
+**Room features can be positioned** with an optional `<feature>-at:` companion property, e.g.
+`pillar: 2` + `pillar-at: north` (approximate — biased toward that side of the room) or
+`statue-at: 2,1` (precise — grid-cell coordinates from the room's own top-left interior corner). Applies to
+the free-standing features: `pillar`, `statue`, `stalactite`, `stalagmite`, `crevasse`, `pool`, `stream`.
+Omit it to keep each feature's default placement (centred, or ceiling/floor-anchored for
+stalactite/stalagmite).
 
 **Label styles** (header property `labels:`): `legend` (numbered rooms + a "N - label" legend box below the
 map — default for `map dungeon`) | `inline` (no numbers; label centred inside each room — default for
@@ -68,8 +87,6 @@ map — default for `map dungeon`) | `inline` (no numbers; label centred inside 
 map dungeon
 generate dungeon rooms:10 seed:42
 ```
-
-**Door types:** `open` (default) | `locked` | `secret` | `barred`
 
 **Share:** click the Share button — the DSL is LZ-compressed into the URL fragment.
 
@@ -84,9 +101,9 @@ generate dungeon rooms:10 seed:42
 
 **DSL parsing** (`core/dsl/DslParser.scala`): line-oriented parser. Declarations at column 0, properties indented. No parser combinator library.
 
-**Layout engine** (`core/layout/LayoutEngine.scala`): BFS tree placement starting from the room named `entrance`. Corridors are computed as L-shaped rectangle segments (H + V legs) starting at room edges, creating visual doorway openings through wall borders. Each connection renders two independently-typed, correctly-angled doors — one where the corridor meets each room's wall.
+**Layout engine** (`core/layout/LayoutEngine.scala`): BFS tree placement starting from the room named `entrance`, cycling through preset angles for each room unless a connection specifies an explicit `direction:`, which forces that placement instead. Corridors are computed as L-shaped rectangle segments (H + V legs) starting at room edges, creating visual doorway openings through wall borders. Each connection renders two independently-typed, independently-swung, correctly-angled doors — one where the corridor meets each room's wall.
 
-**SVG rendering** (`core/render/SvgStringRenderer.scala`): Dyson Logos / One Page Dungeon style — dense diagonal cross-hatching fills the stone areas of `Dungeon` maps; `Building` maps get a plain background instead, matching real floor-plan references. White floor shapes punch through (rectangular, circular, or an irregular hand-drawn-looking "cave" outline); subtle 30px grid overlaid on rectangular floors; dark ink wall strokes. Room labels are either numbered (bold number inside the room, keyed to a legend box below the map — `labels: legend`, the `Dungeon` default) or inline (label text centred in the room, no numbers — `labels: inline`, the `Building` default). Pure string generation, works on both JS and Native.
+**SVG rendering** (`core/render/SvgStringRenderer.scala`): Dyson Logos / One Page Dungeon style — dense diagonal cross-hatching fills the stone areas of `Dungeon` maps; `Building` maps get a plain background instead, matching real floor-plan references. White floor shapes punch through (rectangular, circular, or an irregular hand-drawn-looking "cave" outline); a light grid is overlaid on rectangular floors *and* corridors alike, anchored to each shape's own top-left corner. Dark ink wall strokes. Doors are a plain gap by default, or an architectural leaf-and-arc symbol when `swing:` is set. Stairs are a bordered box with tapering horizontal step bars. Room labels are either numbered (bold number inside the room, keyed to a legend box below the map — `labels: legend`, the `Dungeon` default) or inline (label text centred in the room, no numbers — `labels: inline`, the `Building` default). Pure string generation, works on both JS and Native.
 
 **Procedural generator** (`core/generate/DungeonGenerator.scala`): BSP (Binary Space Partitioning). Recursively splits a canvas, places a room in each leaf, connects siblings. Produces `DungeonMapSource.Manual` — same rendering path as hand-authored maps.
 

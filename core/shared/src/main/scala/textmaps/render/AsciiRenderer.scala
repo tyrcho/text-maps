@@ -5,17 +5,19 @@ import textmaps.layout.*
 
 /** Renders a RenderedMap as ASCII art.
  *
- *  Used as an intermediate representation for approval tests.
+ *  Used as an intermediate representation for approval tests. Coarser than the
+ *  SVG renderer by design: door swing and free-standing feature positioning
+ *  (FeaturePosition) have no ASCII equivalent and are ignored here.
  *
  *  Visual conventions (shared):
  *    +   room corner
  *    -   horizontal room wall
  *    |   vertical room wall
  *        space — room or corridor floor
- *    .   open door  (also: exterior exit)
+ *    .   open door
+ *    C   closed door
  *    L   locked door
  *    ?   secret door
- *    =   barred door
  *    w   window (on wall)
  *    <   stairs up
  *    >   stairs down
@@ -94,43 +96,43 @@ object AsciiRenderer:
     val charsPerGrid = 30 / PX_PER_CHAR  // GRID px / px-per-char = 3 chars per square
     for r <- cRooms do
       r.features.foreach {
-        case RoomFeature.Stream(size) =>
+        case RoomFeature.Stream(size, _) =>
           val rows = math.max(1, size.h * charsPerGrid)
           val startRow = r.cy + (r.ch - rows) / 2
           for row <- startRow until startRow + rows; x <- r.cx until r.cx + r.cw do set(x, row, '~')
 
-        case RoomFeature.Stalactite(size) =>
+        case RoomFeature.Stalactite(size, _) =>
           val cols = math.min(size.w * charsPerGrid, r.cw)
           val rows = math.min(size.h * charsPerGrid, r.ch)
           val startCol = r.cx + (r.cw - cols) / 2
           for row <- r.cy until r.cy + rows; x <- startCol until startCol + cols do set(x, row, 'v')
 
-        case RoomFeature.Stalagmite(size) =>
+        case RoomFeature.Stalagmite(size, _) =>
           val cols = math.min(size.w * charsPerGrid, r.cw)
           val rows = math.min(size.h * charsPerGrid, r.ch)
           val startCol = r.cx + (r.cw - cols) / 2
           for row <- (r.cy + r.ch - rows) until r.cy + r.ch; x <- startCol until startCol + cols do set(x, row, '^')
 
-        case RoomFeature.Pool(size) =>
+        case RoomFeature.Pool(size, _) =>
           val cols = math.min(size.w * charsPerGrid, r.cw)
           val rows = math.min(size.h * charsPerGrid, r.ch)
           val startCol = r.cx + (r.cw - cols) / 2
           val startRow = r.cy + (r.ch - rows) / 2
           for row <- startRow until startRow + rows; x <- startCol until startCol + cols do set(x, row, '~')
 
-        case RoomFeature.Crevasse(size) =>
+        case RoomFeature.Crevasse(size, _) =>
           val rows = math.max(1, size.h * charsPerGrid)
           val startRow = r.cy + (r.ch - rows) / 2
           for row <- startRow until startRow + rows; x <- r.cx until r.cx + r.cw do
             set(x, row, if (row - startRow) % 2 == 0 then '/' else '\\')
 
-        case RoomFeature.Pillar(size) =>
+        case RoomFeature.Pillar(size, _) =>
           val cols = math.min(size.w * charsPerGrid, r.cw)
           val rows = math.min(size.h * charsPerGrid, r.ch)
           val cx = r.cx + (r.cw - cols) / 2; val cy = r.cy + (r.ch - rows) / 2
           for row <- cy until cy + rows; x <- cx until cx + cols do set(x, row, 'O')
 
-        case RoomFeature.Statue(size) =>
+        case RoomFeature.Statue(size, _) =>
           val cols = math.min(size.w * charsPerGrid, r.cw)
           val rows = math.min(size.h * charsPerGrid, r.ch)
           val cx = r.cx + (r.cw - cols) / 2; val cy = r.cy + (r.ch - rows) / 2
@@ -161,13 +163,10 @@ object AsciiRenderer:
     //    as map.corridors, so pair them up two-at-a-time.
     val roomById = cRooms.map(r => r.id -> r).toMap
     def glyphOf(door: textmaps.layout.RenderedDoor): Char = door.doorType match
-      case DoorType.Open       => '.'
-      case DoorType.Locked     => 'L'
-      case DoorType.Secret     => '?'
-      case DoorType.Barred     => '='
-      case DoorType.Double     => 'D'
-      case DoorType.Doorway    => ' '  // open passage — no glyph, wall stays open
-      case DoorType.Portcullis => '#'
+      case DoorType.Open   => '.'
+      case DoorType.Closed => 'C'
+      case DoorType.Locked => 'L'
+      case DoorType.Secret => '?'
     for (corr, doorPair) <- map.corridors.zip(map.doors.grouped(2).toList) do
       val fromDoor = doorPair.head
       val toDoor   = doorPair.lastOption.getOrElse(fromDoor)
@@ -198,7 +197,6 @@ object AsciiRenderer:
         case RoomFeature.Window(side)       => val (x,y) = wallPos(r,side); set(x,y,'w')
         case RoomFeature.ArrowSlit(side)    => val (x,y) = wallPos(r,side); set(x,y,'>')
         case RoomFeature.IllusoryWall(side) => val (x,y) = wallPos(r,side); set(x,y,'!')
-        case RoomFeature.Exit(side)         => val (x,y) = wallPos(r,side); set(x,y,'.')
         case RoomFeature.Fireplace(side)    => val (x,y) = wallPos(r,side); set(x,y,'f')
         case RoomFeature.Curtain(side)      => val (x,y) = wallPos(r,side); set(x,y,'~')
         case RoomFeature.Bed(side)          =>

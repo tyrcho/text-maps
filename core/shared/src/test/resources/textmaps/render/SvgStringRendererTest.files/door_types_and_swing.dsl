@@ -13,10 +13,16 @@ room d 3x3
   label: "D"
 
 connect a -> b
-  door: double
+  direction: east
+  door: closed
+  swing: outside
 
 connect b -> c
-  door: doorway
+  direction: south
+  door: locked
+  swing: inside
 
 connect c -> d
-  door: portcullis
+  direction: west
+  door: secret
+  swing: inside

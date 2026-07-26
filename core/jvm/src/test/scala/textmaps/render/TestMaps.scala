@@ -47,8 +47,7 @@ object TestMaps:
 
   val dungeonRoomWithStairsAndWindows: RenderedMap = LayoutEngine.layout(
     List(
-      Room("entrance", RoomSize(4, 3), Some("Entry"),
-        features = List(RoomFeature.Exit(WallSide.West))),
+      Room("entrance", RoomSize(4, 3), Some("Entry")),
       Room("vault", RoomSize(3, 3), Some("Vault"),
         features = List(RoomFeature.Stairs(StairDir.Up), RoomFeature.Window(WallSide.North))),
     ),
@@ -56,24 +55,27 @@ object TestMaps:
     None,
   )
 
-  val buildingWithExteriorExits: RenderedMap = LayoutEngine.layout(
+  /** Explicit connection direction + independent per-end swing arcs, on a Building map. */
+  val buildingWithDirectionalDoors: RenderedMap = LayoutEngine.layout(
     List(
       Room("hall", RoomSize(5, 4), Some("Hall"),
-        // Order matches DslParser.parseRoomFeatures' fixed emission order (window before exit).
-        features = List(
-          RoomFeature.Window(WallSide.North),
-          RoomFeature.Exit(WallSide.West),
-          RoomFeature.Exit(WallSide.East),
-        )),
-      Room("kitchen", RoomSize(3, 3), Some("Kitchen"),
-        features = List(RoomFeature.Exit(WallSide.South))),
+        features = List(RoomFeature.Window(WallSide.North))),
+      Room("kitchen", RoomSize(3, 3), Some("Kitchen")),
     ),
-    List(Connection("hall", "kitchen", DoorType.Open, corridor = Some(RoomSize(1, 3)), doorTo = Some(DoorType.Locked))),
+    List(Connection(
+      "hall", "kitchen", DoorType.Open,
+      corridor = Some(RoomSize(1, 3)),
+      doorTo   = Some(DoorType.Locked),
+      swing    = DoorSwing.Outside,
+      swingTo  = Some(DoorSwing.Inside),
+      direction = Some(WallSide.East),
+    )),
     None,
     MapType.Building,
   )
 
-  val newDoorTypes: RenderedMap = LayoutEngine.layout(
+  /** The 4 door types plus swing arcs, chained through 3 explicit cardinal directions. */
+  val doorTypesAndSwing: RenderedMap = LayoutEngine.layout(
     List(
       Room("a", RoomSize(3, 3), Some("A")),
       Room("b", RoomSize(3, 3), Some("B")),
@@ -81,9 +83,9 @@ object TestMaps:
       Room("d", RoomSize(3, 3), Some("D")),
     ),
     List(
-      Connection("a", "b", DoorType.Double),
-      Connection("b", "c", DoorType.Doorway),
-      Connection("c", "d", DoorType.Portcullis),
+      Connection("a", "b", DoorType.Closed, swing = DoorSwing.Outside, direction = Some(WallSide.East)),
+      Connection("b", "c", DoorType.Locked, swing = DoorSwing.Inside,  direction = Some(WallSide.South)),
+      Connection("c", "d", DoorType.Secret, swing = DoorSwing.Inside,  direction = Some(WallSide.West)),
     ),
     None,
   )
@@ -101,12 +103,23 @@ object TestMaps:
     None,
   )
 
+  /** Also exercises feature positioning: Crevasse/Pillar use an approximate `-at:`
+   *  side bias, Statue uses a precise `-at:` grid-cell coordinate; Stalactite/
+   *  Stalagmite/Pool are left at their Auto defaults for comparison. */
   val naturalStructuralFeatures: RenderedMap = LayoutEngine.layout(
     List(
       Room("cave", RoomSize(6, 4), Some("Cave"),
-        features = List(RoomFeature.Stalactite(), RoomFeature.Stalagmite(), RoomFeature.Crevasse())),
+        features = List(
+          RoomFeature.Stalactite(),
+          RoomFeature.Stalagmite(),
+          RoomFeature.Crevasse(position = FeaturePosition.Side(WallSide.West)),
+        )),
       Room("hall", RoomSize(5, 4), Some("Hall"),
-        features = List(RoomFeature.Pillar(), RoomFeature.Statue(), RoomFeature.Pool())),
+        features = List(
+          RoomFeature.Pillar(position = FeaturePosition.Side(WallSide.North)),
+          RoomFeature.Statue(position = FeaturePosition.At(2, 1)),
+          RoomFeature.Pool(),
+        )),
       Room("stream_room", RoomSize(5, 3), Some("Stream"),
         features = List(RoomFeature.Stream())),
     ),
