@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg"
-     viewBox="-140 -125 700 336"
-     width="700" height="336">
+     viewBox="-140 -125 640 336"
+     width="640" height="336">
 <defs>
   <pattern id="hatch" width="6" height="6"
            patternTransform="rotate(45 0 0)" patternUnits="userSpaceOnUse">
@@ -45,56 +45,54 @@
     <rect x="22" y="1" width="8"  height="4" fill="#cce" stroke="#99c" stroke-width="0.5"/>
   </symbol>
 </defs>
-<rect x="-140" y="-125" width="700" height="336" fill="white"/>
+<rect x="-140" y="-125" width="640" height="336" fill="white"/>
 
-<rect x="57" y="-15" width="96" height="30" fill="white"/>
-<rect x="267" y="-15" width="96" height="30" fill="white"/>
-<line x1="57" y1="-15" x2="153" y2="-15" stroke="#333" stroke-width="1.5"/>
-<line x1="57" y1="15" x2="153" y2="15" stroke="#333" stroke-width="1.5"/>
-<line x1="267" y1="-15" x2="363" y2="-15" stroke="#333" stroke-width="1.5"/>
-<line x1="267" y1="15" x2="363" y2="15" stroke="#333" stroke-width="1.5"/>
+<rect x="57" y="-15" width="66" height="30" fill="white"/>
+<rect x="237" y="-15" width="66" height="30" fill="white"/>
+<line x1="57" y1="-15" x2="123" y2="-15" stroke="#333" stroke-width="1.5"/>
+<line x1="57" y1="15" x2="123" y2="15" stroke="#333" stroke-width="1.5"/>
+<line x1="237" y1="-15" x2="303" y2="-15" stroke="#333" stroke-width="1.5"/>
+<line x1="237" y1="15" x2="303" y2="15" stroke="#333" stroke-width="1.5"/>
 <line x1="87" y1="-15" x2="87" y2="15" stroke="#d8d8d8" stroke-width="0.5"/>
 <line x1="117" y1="-15" x2="117" y2="15" stroke="#d8d8d8" stroke-width="0.5"/>
-<line x1="147" y1="-15" x2="147" y2="15" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="267" y1="-15" x2="267" y2="15" stroke="#d8d8d8" stroke-width="0.5"/>
 <line x1="297" y1="-15" x2="297" y2="15" stroke="#d8d8d8" stroke-width="0.5"/>
-<line x1="327" y1="-15" x2="327" y2="15" stroke="#d8d8d8" stroke-width="0.5"/>
-<line x1="357" y1="-15" x2="357" y2="15" stroke="#d8d8d8" stroke-width="0.5"/>
 <rect x="-60" y="-45" width="120" height="90" fill="white"/>
-<rect x="150" y="-45" width="120" height="90" fill="white"/>
-<rect x="360" y="-45" width="120" height="90" fill="white"/>
+<rect x="120" y="-45" width="120" height="90" fill="white"/>
+<rect x="300" y="-45" width="120" height="90" fill="white"/>
 <rect x="-60" y="-45" width="120" height="90" fill="none" stroke="#333" stroke-width="1.5"/>
-<rect x="150" y="-45" width="120" height="90" fill="none" stroke="#333" stroke-width="1.5"/>
-<rect x="360" y="-45" width="120" height="90" fill="none" stroke="#333" stroke-width="1.5"/>
+<rect x="120" y="-45" width="120" height="90" fill="none" stroke="#333" stroke-width="1.5"/>
+<rect x="300" y="-45" width="120" height="90" fill="none" stroke="#333" stroke-width="1.5"/>
 <line x1="-30" y1="-45" x2="-30" y2="45" stroke="#d8d8d8" stroke-width="0.5"/>
 <line x1="0" y1="-45" x2="0" y2="45" stroke="#d8d8d8" stroke-width="0.5"/>
 <line x1="30" y1="-45" x2="30" y2="45" stroke="#d8d8d8" stroke-width="0.5"/>
 <line x1="-60" y1="-15" x2="60" y2="-15" stroke="#d8d8d8" stroke-width="0.5"/>
 <line x1="-60" y1="15" x2="60" y2="15" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="150" y1="-45" x2="150" y2="45" stroke="#d8d8d8" stroke-width="0.5"/>
 <line x1="180" y1="-45" x2="180" y2="45" stroke="#d8d8d8" stroke-width="0.5"/>
 <line x1="210" y1="-45" x2="210" y2="45" stroke="#d8d8d8" stroke-width="0.5"/>
-<line x1="240" y1="-45" x2="240" y2="45" stroke="#d8d8d8" stroke-width="0.5"/>
-<line x1="150" y1="-15" x2="270" y2="-15" stroke="#d8d8d8" stroke-width="0.5"/>
-<line x1="150" y1="15" x2="270" y2="15" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="120" y1="-15" x2="240" y2="-15" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="120" y1="15" x2="240" y2="15" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="330" y1="-45" x2="330" y2="45" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="360" y1="-45" x2="360" y2="45" stroke="#d8d8d8" stroke-width="0.5"/>
 <line x1="390" y1="-45" x2="390" y2="45" stroke="#d8d8d8" stroke-width="0.5"/>
-<line x1="420" y1="-45" x2="420" y2="45" stroke="#d8d8d8" stroke-width="0.5"/>
-<line x1="450" y1="-45" x2="450" y2="45" stroke="#d8d8d8" stroke-width="0.5"/>
-<line x1="360" y1="-15" x2="480" y2="-15" stroke="#d8d8d8" stroke-width="0.5"/>
-<line x1="360" y1="15" x2="480" y2="15" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="300" y1="-15" x2="420" y2="-15" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="300" y1="15" x2="420" y2="15" stroke="#d8d8d8" stroke-width="0.5"/>
 <rect x="-15" y="-15" width="30" height="30" fill="white" stroke="#333" stroke-width="0.8"/>
 <path d="M 0,-10 A 10,10 0 1,0 -10,0" fill="none" stroke="#333" stroke-width="1.2"/>
 <path d="M -10,0 A 5,5 0 1,0 0,-5" fill="none" stroke="#333" stroke-width="0.8"/>
 <polygon points="-10,0 -13,5 -7,5" fill="#333"/>
-<use href="#feat-ladder" x="195" y="-15" width="30" height="30"/>
-<polygon points="210,11 206,19 214,19" fill="#333"/>
-<use href="#feat-ladder" x="405" y="-15" width="30" height="30"/>
-<polygon points="420,19 416,11 424,11" fill="#333"/>
+<use href="#feat-ladder" x="165" y="-15" width="30" height="30"/>
+<polygon points="180,11 176,19 184,19" fill="#333"/>
+<use href="#feat-ladder" x="345" y="-15" width="30" height="30"/>
+<polygon points="360,19 356,11 364,11" fill="#333"/>
 <use href="#door-open" x="45" y="-15" width="30" height="30" preserveAspectRatio="none" transform="rotate(90,60,0)"/>
-<use href="#door-open" x="135" y="-15" width="30" height="30" preserveAspectRatio="none" transform="rotate(90,150,0)"/>
-<use href="#door-open" x="255" y="-15" width="30" height="30" preserveAspectRatio="none" transform="rotate(90,270,0)"/>
-<use href="#door-open" x="345" y="-15" width="30" height="30" preserveAspectRatio="none" transform="rotate(90,360,0)"/>
+<use href="#door-open" x="105" y="-15" width="30" height="30" preserveAspectRatio="none" transform="rotate(90,120,0)"/>
+<use href="#door-open" x="225" y="-15" width="30" height="30" preserveAspectRatio="none" transform="rotate(90,240,0)"/>
+<use href="#door-open" x="285" y="-15" width="30" height="30" preserveAspectRatio="none" transform="rotate(90,300,0)"/>
 <text x="0" y="-32" text-anchor="middle" dominant-baseline="auto" fill="#333" font-size="9" font-family="sans-serif" font-weight="bold">1</text>
-<text x="210" y="-32" text-anchor="middle" dominant-baseline="auto" fill="#333" font-size="9" font-family="sans-serif" font-weight="bold">2</text>
-<text x="420" y="-32" text-anchor="middle" dominant-baseline="auto" fill="#333" font-size="9" font-family="sans-serif" font-weight="bold">3</text>
+<text x="180" y="-32" text-anchor="middle" dominant-baseline="auto" fill="#333" font-size="9" font-family="sans-serif" font-weight="bold">2</text>
+<text x="360" y="-32" text-anchor="middle" dominant-baseline="auto" fill="#333" font-size="9" font-family="sans-serif" font-weight="bold">3</text>
 <text x="-80" y="85" fill="#333" font-size="10" font-family="sans-serif" font-weight="bold">Legend</text>
 <text x="-80" y="99" fill="#555" font-size="9" font-family="serif" font-style="italic">1 - Top</text>
 <text x="-80" y="113" fill="#555" font-size="9" font-family="serif" font-style="italic">2 - Middle</text>

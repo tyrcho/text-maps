@@ -100,29 +100,42 @@ room bedroom_12 6x5
   gi.bed: north,south
   stairs: up west
 
+# Most of the reference's connections are directly adjoining rooms sharing a wall with just a doorway
+# cut into it, not a corridor stretch — `corridor: 1x0` requests exactly that (width 1, zero placement
+# gap), now that the distance formula is axis-aware instead of always inflated by each room's diagonal.
+# The two chasm crossings below keep a real gap since those represent actual bridges over open terrain.
+
 connect entrance -> hall_3a
   door: open
+  corridor: 1x0
 
 connect hall_3a -> hall_3b
   door: locked
+  corridor: 1x0
 
 connect hall_3b -> crypt_4
   door: open
+  corridor: 1x0
 
 connect crypt_4 -> racks_5
   door: open
+  corridor: 1x0
 
 connect racks_5 -> small_6
   door: open
+  corridor: 1x0
 
 connect entrance -> barracks_2
   door: open
+  corridor: 1x0
 
 connect barracks_2 -> storage_10
   door: secret
+  corridor: 1x0
 
 connect storage_10 -> bedroom_9
   door: open
+  corridor: 1x0
 
 connect storage_10 -> chasm_8
   door: open
@@ -134,9 +147,11 @@ connect chasm_8 -> bedroom_12
 
 connect bedroom_12 -> storage_7
   door: secret
+  corridor: 1x0
 
 connect storage_7 -> workshop_11
   door: open
+  corridor: 1x0
 
 # The deliberate "extra" loop edge: both storage_7 and small_6 are already placed via the two
 # tree paths above (entrance -> barracks_2 -> ... -> chasm_8 -> bedroom_12 -> storage_7, versus

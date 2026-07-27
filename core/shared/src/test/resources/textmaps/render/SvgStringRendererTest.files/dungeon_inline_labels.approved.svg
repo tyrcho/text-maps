@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg"
-     viewBox="-140 -140 563 280"
-     width="563" height="280">
+     viewBox="-140 -140 520 280"
+     width="520" height="280">
 <defs>
   <pattern id="hatch" width="6" height="6"
            patternTransform="rotate(45 0 0)" patternUnits="userSpaceOnUse">
@@ -45,37 +45,36 @@
     <rect x="22" y="1" width="8"  height="4" fill="#cce" stroke="#99c" stroke-width="0.5"/>
   </symbol>
 </defs>
-<rect x="-140" y="-140" width="563" height="280" fill="white"/>
+<rect x="-140" y="-140" width="520" height="280" fill="white"/>
 
-<rect x="57" y="-15" width="109" height="30" fill="white"/>
-<line x1="57" y1="-15" x2="166" y2="-15" stroke="#333" stroke-width="1.5"/>
-<line x1="57" y1="15" x2="166" y2="15" stroke="#333" stroke-width="1.5"/>
+<rect x="57" y="-15" width="66" height="30" fill="white"/>
+<line x1="57" y1="-15" x2="123" y2="-15" stroke="#333" stroke-width="1.5"/>
+<line x1="57" y1="15" x2="123" y2="15" stroke="#333" stroke-width="1.5"/>
 <line x1="87" y1="-15" x2="87" y2="15" stroke="#d8d8d8" stroke-width="0.5"/>
 <line x1="117" y1="-15" x2="117" y2="15" stroke="#d8d8d8" stroke-width="0.5"/>
-<line x1="147" y1="-15" x2="147" y2="15" stroke="#d8d8d8" stroke-width="0.5"/>
 <rect x="-60" y="-60" width="120" height="120" fill="white"/>
-<rect x="163" y="-60" width="180" height="120" fill="white"/>
+<rect x="120" y="-60" width="180" height="120" fill="white"/>
 <rect x="-60" y="-60" width="120" height="120" fill="none" stroke="#333" stroke-width="1.5"/>
-<rect x="163" y="-60" width="180" height="120" fill="none" stroke="#333" stroke-width="1.5"/>
+<rect x="120" y="-60" width="180" height="120" fill="none" stroke="#333" stroke-width="1.5"/>
 <line x1="-30" y1="-60" x2="-30" y2="60" stroke="#d8d8d8" stroke-width="0.5"/>
 <line x1="0" y1="-60" x2="0" y2="60" stroke="#d8d8d8" stroke-width="0.5"/>
 <line x1="30" y1="-60" x2="30" y2="60" stroke="#d8d8d8" stroke-width="0.5"/>
 <line x1="-60" y1="-30" x2="60" y2="-30" stroke="#d8d8d8" stroke-width="0.5"/>
 <line x1="-60" y1="0" x2="60" y2="0" stroke="#d8d8d8" stroke-width="0.5"/>
 <line x1="-60" y1="30" x2="60" y2="30" stroke="#d8d8d8" stroke-width="0.5"/>
-<line x1="193" y1="-60" x2="193" y2="60" stroke="#d8d8d8" stroke-width="0.5"/>
-<line x1="223" y1="-60" x2="223" y2="60" stroke="#d8d8d8" stroke-width="0.5"/>
-<line x1="253" y1="-60" x2="253" y2="60" stroke="#d8d8d8" stroke-width="0.5"/>
-<line x1="283" y1="-60" x2="283" y2="60" stroke="#d8d8d8" stroke-width="0.5"/>
-<line x1="313" y1="-60" x2="313" y2="60" stroke="#d8d8d8" stroke-width="0.5"/>
-<line x1="163" y1="-30" x2="343" y2="-30" stroke="#d8d8d8" stroke-width="0.5"/>
-<line x1="163" y1="0" x2="343" y2="0" stroke="#d8d8d8" stroke-width="0.5"/>
-<line x1="163" y1="30" x2="343" y2="30" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="150" y1="-60" x2="150" y2="60" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="180" y1="-60" x2="180" y2="60" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="210" y1="-60" x2="210" y2="60" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="240" y1="-60" x2="240" y2="60" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="270" y1="-60" x2="270" y2="60" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="120" y1="-30" x2="300" y2="-30" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="120" y1="0" x2="300" y2="0" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="120" y1="30" x2="300" y2="30" stroke="#d8d8d8" stroke-width="0.5"/>
 
 <use href="#door-open" x="45" y="-15" width="30" height="30" preserveAspectRatio="none" transform="rotate(90,60,0)"/>
-<use href="#door-open" x="148" y="-15" width="30" height="30" preserveAspectRatio="none" transform="rotate(90,163,0)"/>
+<use href="#door-open" x="105" y="-15" width="30" height="30" preserveAspectRatio="none" transform="rotate(90,120,0)"/>
 <text x="0" y="3" text-anchor="middle" dominant-baseline="auto" fill="#333" font-size="9" font-family="sans-serif">Entry</text>
-<text x="253" y="3" text-anchor="middle" dominant-baseline="auto" fill="#333" font-size="9" font-family="sans-serif">Hall</text>
+<text x="210" y="3" text-anchor="middle" dominant-baseline="auto" fill="#333" font-size="9" font-family="sans-serif">Hall</text>
 
 
 </svg>

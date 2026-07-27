@@ -97,12 +97,25 @@ since the "why" for both draws on the same reference images.
      put those two rooms, not deliberate bridge placement.
   6. **No icon-based/glyph legend** — confirmed blocker for reproducing the reference's separate symbol key
      (Bars, Bridge, Bunk Bed, Locked Door, Rack, Secret Door, Sarcophagus, Table); already future work below.
-  7. **Minimum room-to-room gap is diagonal-based, not wall-aligned** (`roomHalfDiag`,
-     `LayoutEngine.scala:162-163`, sums each room's full corner-to-center diagonal regardless of which axis
-     the connection runs along) — so the reference's flush, party-wall-adjacent room clusters can't be fully
-     reproduced; there's always a visible corridor stub between rooms, even at the smallest `corridor:`
-     size. The rendered reproduction reads as a loose chain of rooms rather than the reference's compact
-     footprint, mostly because of this.
+  7. **Minimum room-to-room gap is diagonal-based, not wall-aligned.** ~~`roomHalfDiag` sums each room's
+     full corner-to-center diagonal regardless of which axis the connection runs along, so the reference's
+     flush, party-wall-adjacent room clusters can't be fully reproduced — there's always a visible corridor
+     stub between rooms, even at the smallest `corridor:` size.~~ **Implemented:** new `roomHalfExtent`
+     (`LayoutEngine.scala`) returns the exact half-width/half-height for the four cardinal placement angles
+     instead of the always-larger diagonal, so `corridor: Wx0` on an axis-aligned connection now places two
+     rooms genuinely flush, sharing a wall with just a doorway — no corridor floor rect gets drawn at all
+     (the existing `hLen > 1`/`vLen > 1` guards in `computeCorridorRects` already skip near-zero-length
+     segments). Off-axis (default 45°-stepped fan-out) placements keep the conservative diagonal margin,
+     since there's no single exact edge-distance for an arbitrary rectangle at an arbitrary angle. This also
+     required fixing `overlapsAny`, which previously approximated "does the candidate overlap an
+     already-placed room" using only the *other* room's size plus a fixed margin — accurate enough when
+     every distance was diagonal-inflated regardless of angle, but it flagged genuinely flush placements as
+     false-positive collisions once `roomHalfExtent` started producing exact touching distances; it's now a
+     proper AABB test using both rooms' actual sizes, and touching (not less than) no longer counts as
+     overlap. The Redbrand reproduction now uses `corridor: 1x0` on its directly-adjoining connections
+     (keeping a real gap only on the two chasm/bridge crossings) and the result is dramatically more
+     compact — a wrapped-around footprint instead of a sprawling chain, much closer to the reference's
+     actual shape. Locked in by a `LayoutEngineTest` case asserting exact wall-to-wall adjacency.
   Not attempted: compass rose, off-map distance/direction annotations ("100 feet to forest"), scale caption
   ("1 square = 5 feet") — decorative, not layout-affecting, lowest priority of what the exercise surfaced.
 - `dungeon-5e-stone-tooth-fortress.webp` and `-sunless-citadel.webp` are classic module maps with more

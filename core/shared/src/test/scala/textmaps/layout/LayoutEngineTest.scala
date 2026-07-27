@@ -72,3 +72,12 @@ class LayoutEngineTest extends munit.FunSuite:
       rect      <- corridor.rects
     do
       assert(!overlaps(rect, otherRoom), s"corridor ${corridor.fromRoom}->${corridor.toRoom} crosses room ${otherRoom.id}")
+
+  test("corridor: Wx0 places two rooms exactly flush, sharing a wall"):
+    val rooms = List(Room("a", RoomSize(6, 4)), Room("b", RoomSize(5, 4)))
+    val conns = List(Connection("a", "b", corridor = Some(RoomSize(1, 0)), direction = Some(WallSide.East)))
+    val map = DungeonMap(MapMeta(), DungeonMapSource.Manual(rooms, conns))
+    val rendered = LayoutEngine.compute(map)
+    val a = rendered.rooms.find(_.id == "a").get
+    val b = rendered.rooms.find(_.id == "b").get
+    assertEqualsDouble(b.x, a.x + a.w, 0.01, "b's left wall should sit exactly on a's right wall")

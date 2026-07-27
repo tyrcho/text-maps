@@ -139,7 +139,7 @@ object LayoutEngine:
         val nbRoom         = roomsById(nb)
         val corridorWidth  = conn.flatMap(_.corridor).map(_.width * UNIT_PX).getOrElse(CORRIDOR_W)
         val gap            = conn.flatMap(_.corridor).map(_.height * UNIT_PX).getOrElse(CORRIDOR_PX)
-        val dist           = roomHalfDiag(curRoom) + roomHalfDiag(nbRoom) + gap
+        val dist           = roomHalfExtent(curRoom, angle) + roomHalfExtent(nbRoom, angle) + gap
         (nb, angle, nbRoom, corridorWidth, dist)
       }
       withAngles.sortBy(_._5).foreach { case (nb, angle, nbRoom, corridorWidth, dist) =>
@@ -177,6 +177,20 @@ object LayoutEngine:
   private def roomHalfDiag(r: Room): Double =
     math.sqrt(math.pow(r.size.width * UNIT_PX / 2, 2) + math.pow(r.size.height * UNIT_PX / 2, 2))
 
+  /** Distance from a room's centre to its own edge along a given placement angle. For the four cardinal
+   *  directions this is the exact half-width/half-height, not the (always-larger, for any non-square
+   *  room) corner-to-centre diagonal `roomHalfDiag` used to use for every angle — so an axis-aligned
+   *  neighbor placed with a zero-height `corridor:` can actually end up flush against this room's wall,
+   *  sharing it with just a doorway, instead of always keeping a residual gap no `corridor:` value could
+   *  close. Off-axis (the default 45°-stepped fan-out) angles keep the conservative diagonal-based
+   *  margin, since there's no single edge-distance that's exact for an arbitrary rectangle at an
+   *  arbitrary angle. */
+  private def roomHalfExtent(r: Room, angleDeg: Double): Double =
+    val norm = ((angleDeg % 360) + 360) % 360
+    if norm == 0.0 || norm == 180.0 then r.size.width * UNIT_PX / 2
+    else if norm == 90.0 || norm == 270.0 then r.size.height * UNIT_PX / 2
+    else roomHalfDiag(r)
+
   // Tried in order at nb's full placement distance from cur, not as small fixed-size nudges: a room
   // blocking the straight path to nb can sit far enough away that a small Cartesian nudge changes
   // nothing (the corridor's leg through cur's own row/column is unaffected by tiny offsets), so this
@@ -205,16 +219,25 @@ object LayoutEngine:
   ): Vec2 =
     ANGLE_JITTER_DELTAS
       .map(delta => origin + Vec2.polar(angle + delta, dist))
-      .find(cand => !overlapsAny(cand, placed, roomsById) && !corridorCrossesOtherRoom(cur, origin, nb, cand, corridorWidth, placed, roomsById))
+      .find(cand => !overlapsAny(nb, cand, placed, roomsById) && !corridorCrossesOtherRoom(cur, origin, nb, cand, corridorWidth, placed, roomsById))
       .getOrElse(origin + Vec2.polar(angle, dist))
 
-  private def overlapsAny(pos: Vec2, placed: Map[String, Vec2], roomsById: Map[String, Room]): Boolean =
+  /** Exact axis-aligned-bounding-box overlap test (centre-distance form): two rectangles merely
+   *  touching — `dx` equal to the sum of their half-widths, not less than it — do not count as
+   *  overlapping, so a room placed exactly flush against another (sharing a wall, `roomHalfExtent` +
+   *  `corridor: Wx0`) is accepted rather than treated as a collision. Knows `room`'s own size, unlike
+   *  the old version, which approximated using only the *other*, already-placed room's width/height plus
+   *  a fixed margin — a fine stand-in when every distance was inflated by `roomHalfDiag` regardless of
+   *  angle, but wrong once `roomHalfExtent` makes cardinal distances exact. */
+  private def overlapsAny(room: Room, pos: Vec2, placed: Map[String, Vec2], roomsById: Map[String, Room]): Boolean =
+    val w = room.size.width  * UNIT_PX
+    val h = room.size.height * UNIT_PX
     placed.exists { case (id, center) =>
       val r  = roomsById(id)
       val dx = math.abs(pos.x - center.x)
       val dy = math.abs(pos.y - center.y)
-      dx < (r.size.width  * UNIT_PX + CORRIDOR_PX * 0.5) &&
-      dy < (r.size.height * UNIT_PX + CORRIDOR_PX * 0.5)
+      dx < (w + r.size.width  * UNIT_PX) / 2 &&
+      dy < (h + r.size.height * UNIT_PX) / 2
     }
 
   /** Would the corridor connecting cur (already at curPos) to nb (candidate nbPos) pass through any

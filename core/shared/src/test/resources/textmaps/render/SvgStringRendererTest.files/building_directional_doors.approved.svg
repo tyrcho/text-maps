@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg"
-     viewBox="-155 -140 529 280"
-     width="529" height="280">
+     viewBox="-155 -140 490 280"
+     width="490" height="280">
 <defs>
   <pattern id="hatch" width="6" height="6"
            patternTransform="rotate(45 0 0)" patternUnits="userSpaceOnUse">
@@ -45,19 +45,18 @@
     <rect x="22" y="1" width="8"  height="4" fill="#cce" stroke="#99c" stroke-width="0.5"/>
   </symbol>
 </defs>
-<rect x="-155" y="-140" width="529" height="280" fill="white"/>
+<rect x="-155" y="-140" width="490" height="280" fill="white"/>
 
-<rect x="72" y="-15" width="135" height="30" fill="white"/>
-<line x1="72" y1="-15" x2="207" y2="-15" stroke="#333" stroke-width="1.5"/>
-<line x1="72" y1="15" x2="207" y2="15" stroke="#333" stroke-width="1.5"/>
+<rect x="72" y="-15" width="96" height="30" fill="white"/>
+<line x1="72" y1="-15" x2="168" y2="-15" stroke="#333" stroke-width="1.5"/>
+<line x1="72" y1="15" x2="168" y2="15" stroke="#333" stroke-width="1.5"/>
 <line x1="102" y1="-15" x2="102" y2="15" stroke="#d8d8d8" stroke-width="0.5"/>
 <line x1="132" y1="-15" x2="132" y2="15" stroke="#d8d8d8" stroke-width="0.5"/>
 <line x1="162" y1="-15" x2="162" y2="15" stroke="#d8d8d8" stroke-width="0.5"/>
-<line x1="192" y1="-15" x2="192" y2="15" stroke="#d8d8d8" stroke-width="0.5"/>
 <rect x="-75" y="-60" width="150" height="120" fill="white"/>
-<rect x="204" y="-45" width="90" height="90" fill="white"/>
+<rect x="165" y="-45" width="90" height="90" fill="white"/>
 <rect x="-75" y="-60" width="150" height="120" fill="none" stroke="#333" stroke-width="1.5"/>
-<rect x="204" y="-45" width="90" height="90" fill="none" stroke="#333" stroke-width="1.5"/>
+<rect x="165" y="-45" width="90" height="90" fill="none" stroke="#333" stroke-width="1.5"/>
 <line x1="-45" y1="-60" x2="-45" y2="60" stroke="#d8d8d8" stroke-width="0.5"/>
 <line x1="-15" y1="-60" x2="-15" y2="60" stroke="#d8d8d8" stroke-width="0.5"/>
 <line x1="15" y1="-60" x2="15" y2="60" stroke="#d8d8d8" stroke-width="0.5"/>
@@ -65,19 +64,19 @@
 <line x1="-75" y1="-30" x2="75" y2="-30" stroke="#d8d8d8" stroke-width="0.5"/>
 <line x1="-75" y1="0" x2="75" y2="0" stroke="#d8d8d8" stroke-width="0.5"/>
 <line x1="-75" y1="30" x2="75" y2="30" stroke="#d8d8d8" stroke-width="0.5"/>
-<line x1="234" y1="-45" x2="234" y2="45" stroke="#d8d8d8" stroke-width="0.5"/>
-<line x1="264" y1="-45" x2="264" y2="45" stroke="#d8d8d8" stroke-width="0.5"/>
-<line x1="204" y1="-15" x2="294" y2="-15" stroke="#d8d8d8" stroke-width="0.5"/>
-<line x1="204" y1="15" x2="294" y2="15" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="195" y1="-45" x2="195" y2="45" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="225" y1="-45" x2="225" y2="45" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="165" y1="-15" x2="255" y2="-15" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="165" y1="15" x2="255" y2="15" stroke="#d8d8d8" stroke-width="0.5"/>
 <use href="#feat-window" x="-15" y="-60" width="30" height="6" transform="rotate(180,0,-57)"/>
 <rect x="73.0" y="-15.0" width="4" height="30.0" fill="white"/>
 <line x1="75.0" y1="-15.0" x2="96.2" y2="6.2" stroke="#333" stroke-width="1.2"/>
 <path d="M 96.2,6.2 A 30.0,30.0 0 0,1 75.0,15.0" fill="none" stroke="#333" stroke-width="0.8"/>
-<rect x="202.7" y="-15.0" width="4" height="30.0" fill="white"/>
-<line x1="204.7" y1="-15.0" x2="225.9" y2="6.2" stroke="#333" stroke-width="1.2"/>
-<path d="M 225.9,6.2 A 30.0,30.0 0 0,1 204.7,15.0" fill="none" stroke="#333" stroke-width="0.8"/>
+<rect x="163.0" y="-15.0" width="4" height="30.0" fill="white"/>
+<line x1="165.0" y1="-15.0" x2="186.2" y2="6.2" stroke="#333" stroke-width="1.2"/>
+<path d="M 186.2,6.2 A 30.0,30.0 0 0,1 165.0,15.0" fill="none" stroke="#333" stroke-width="0.8"/>
 <text x="0" y="3" text-anchor="middle" dominant-baseline="auto" fill="#333" font-size="9" font-family="sans-serif">Hall</text>
-<text x="249" y="3" text-anchor="middle" dominant-baseline="auto" fill="#333" font-size="9" font-family="sans-serif">Kitchen</text>
+<text x="210" y="3" text-anchor="middle" dominant-baseline="auto" fill="#333" font-size="9" font-family="sans-serif">Kitchen</text>
 
 
 </svg>

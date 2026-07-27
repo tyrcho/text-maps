@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg"
-     viewBox="-140 -155 562 382"
-     width="562" height="382">
+     viewBox="-140 -155 520 382"
+     width="520" height="382">
 <defs>
   <pattern id="hatch" width="6" height="6"
            patternTransform="rotate(45 0 0)" patternUnits="userSpaceOnUse">
@@ -45,18 +45,17 @@
     <rect x="22" y="1" width="8"  height="4" fill="#cce" stroke="#99c" stroke-width="0.5"/>
   </symbol>
 </defs>
-<rect x="-140" y="-155" width="562" height="382" fill="white"/>
+<rect x="-140" y="-155" width="520" height="382" fill="white"/>
 
-<rect x="57" y="-15" width="108" height="30" fill="white"/>
-<line x1="57" y1="-15" x2="165" y2="-15" stroke="#333" stroke-width="1.5"/>
-<line x1="57" y1="15" x2="165" y2="15" stroke="#333" stroke-width="1.5"/>
+<rect x="57" y="-15" width="66" height="30" fill="white"/>
+<line x1="57" y1="-15" x2="123" y2="-15" stroke="#333" stroke-width="1.5"/>
+<line x1="57" y1="15" x2="123" y2="15" stroke="#333" stroke-width="1.5"/>
 <line x1="87" y1="-15" x2="87" y2="15" stroke="#d8d8d8" stroke-width="0.5"/>
 <line x1="117" y1="-15" x2="117" y2="15" stroke="#d8d8d8" stroke-width="0.5"/>
-<line x1="147" y1="-15" x2="147" y2="15" stroke="#d8d8d8" stroke-width="0.5"/>
 <rect x="-60" y="-45" width="120" height="90" fill="white"/>
-<path d="M 321.0,-24.0 Q 309.2,-4.6 306.6,16.8 Q 304.0,38.2 287.8,51.7 Q 271.5,65.2 258.7,53.8 Q 245.9,42.5 207.2,36.9 Q 168.5,31.3 165.6,23.5 Q 162.7,15.7 167.0,-8.8 Q 171.3,-33.3 191.5,-46.3 Q 211.8,-59.2 259.7,-67.1 Q 307.6,-75.1 320.2,-59.2 Q 332.8,-43.3 321.0,-24.0 Z" fill="white"/>
+<path d="M 278.8,-24.0 Q 267.0,-4.6 264.4,16.8 Q 261.9,38.2 245.6,51.7 Q 229.3,65.2 216.5,53.8 Q 203.7,42.5 165.1,36.9 Q 126.4,31.3 123.5,23.5 Q 120.6,15.7 124.8,-8.8 Q 129.1,-33.3 149.4,-46.3 Q 169.6,-59.2 217.5,-67.1 Q 265.5,-75.1 278.1,-59.2 Q 290.7,-43.3 278.8,-24.0 Z" fill="white"/>
 <rect x="-60" y="-45" width="120" height="90" fill="none" stroke="#333" stroke-width="1.5"/>
-<path d="M 321.0,-24.0 Q 309.2,-4.6 306.6,16.8 Q 304.0,38.2 287.8,51.7 Q 271.5,65.2 258.7,53.8 Q 245.9,42.5 207.2,36.9 Q 168.5,31.3 165.6,23.5 Q 162.7,15.7 167.0,-8.8 Q 171.3,-33.3 191.5,-46.3 Q 211.8,-59.2 259.7,-67.1 Q 307.6,-75.1 320.2,-59.2 Q 332.8,-43.3 321.0,-24.0 Z" fill="none" stroke="#333" stroke-width="1.5"/>
+<path d="M 278.8,-24.0 Q 267.0,-4.6 264.4,16.8 Q 261.9,38.2 245.6,51.7 Q 229.3,65.2 216.5,53.8 Q 203.7,42.5 165.1,36.9 Q 126.4,31.3 123.5,23.5 Q 120.6,15.7 124.8,-8.8 Q 129.1,-33.3 149.4,-46.3 Q 169.6,-59.2 217.5,-67.1 Q 265.5,-75.1 278.1,-59.2 Q 290.7,-43.3 278.8,-24.0 Z" fill="none" stroke="#333" stroke-width="1.5"/>
 <line x1="-30" y1="-45" x2="-30" y2="45" stroke="#d8d8d8" stroke-width="0.5"/>
 <line x1="0" y1="-45" x2="0" y2="45" stroke="#d8d8d8" stroke-width="0.5"/>
 <line x1="30" y1="-45" x2="30" y2="45" stroke="#d8d8d8" stroke-width="0.5"/>
@@ -65,9 +64,9 @@
 
 
 <use href="#door-open" x="45" y="-15" width="30" height="30" preserveAspectRatio="none" transform="rotate(90,60,0)"/>
-<use href="#door-open" x="147" y="-15" width="30" height="30" preserveAspectRatio="none" transform="rotate(90,162,0)"/>
+<use href="#door-open" x="105" y="-15" width="30" height="30" preserveAspectRatio="none" transform="rotate(90,120,0)"/>
 <text x="0" y="-32" text-anchor="middle" dominant-baseline="auto" fill="#333" font-size="9" font-family="sans-serif" font-weight="bold">1</text>
-<text x="252" y="-62" text-anchor="middle" dominant-baseline="auto" fill="#333" font-size="9" font-family="sans-serif" font-weight="bold">2</text>
+<text x="210" y="-62" text-anchor="middle" dominant-baseline="auto" fill="#333" font-size="9" font-family="sans-serif" font-weight="bold">2</text>
 <text x="-80" y="115" fill="#333" font-size="10" font-family="sans-serif" font-weight="bold">Legend</text>
 <text x="-80" y="129" fill="#555" font-size="9" font-family="serif" font-style="italic">1 - Entrance</text>
 <text x="-80" y="143" fill="#555" font-size="9" font-family="serif" font-style="italic">2 - Cavern</text>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg"
-     viewBox="-125 -125 437 537"
-     width="437" height="537">
+     viewBox="-125 -125 400 500"
+     width="400" height="500">
 <defs>
   <pattern id="hatch" width="6" height="6"
            patternTransform="rotate(45 0 0)" patternUnits="userSpaceOnUse">
@@ -45,75 +45,72 @@
     <rect x="22" y="1" width="8"  height="4" fill="#cce" stroke="#99c" stroke-width="0.5"/>
   </symbol>
 </defs>
-<rect x="-125" y="-125" width="437" height="537" fill="white"/>
+<rect x="-125" y="-125" width="400" height="500" fill="white"/>
 
-<rect x="42" y="-15" width="103" height="30" fill="white"/>
-<rect x="172" y="42" width="30" height="103" fill="white"/>
-<rect x="42" y="172" width="103" height="30" fill="white"/>
-<line x1="42" y1="-15" x2="145" y2="-15" stroke="#333" stroke-width="1.5"/>
-<line x1="42" y1="15" x2="145" y2="15" stroke="#333" stroke-width="1.5"/>
-<line x1="172" y1="42" x2="172" y2="145" stroke="#333" stroke-width="1.5"/>
-<line x1="202" y1="42" x2="202" y2="145" stroke="#333" stroke-width="1.5"/>
-<line x1="42" y1="172" x2="145" y2="172" stroke="#333" stroke-width="1.5"/>
-<line x1="42" y1="202" x2="145" y2="202" stroke="#333" stroke-width="1.5"/>
+<rect x="42" y="-15" width="66" height="30" fill="white"/>
+<rect x="135" y="42" width="30" height="66" fill="white"/>
+<rect x="42" y="135" width="66" height="30" fill="white"/>
+<line x1="42" y1="-15" x2="108" y2="-15" stroke="#333" stroke-width="1.5"/>
+<line x1="42" y1="15" x2="108" y2="15" stroke="#333" stroke-width="1.5"/>
+<line x1="135" y1="42" x2="135" y2="108" stroke="#333" stroke-width="1.5"/>
+<line x1="165" y1="42" x2="165" y2="108" stroke="#333" stroke-width="1.5"/>
+<line x1="42" y1="135" x2="108" y2="135" stroke="#333" stroke-width="1.5"/>
+<line x1="42" y1="165" x2="108" y2="165" stroke="#333" stroke-width="1.5"/>
 <line x1="72" y1="-15" x2="72" y2="15" stroke="#d8d8d8" stroke-width="0.5"/>
 <line x1="102" y1="-15" x2="102" y2="15" stroke="#d8d8d8" stroke-width="0.5"/>
-<line x1="132" y1="-15" x2="132" y2="15" stroke="#d8d8d8" stroke-width="0.5"/>
-<line x1="172" y1="72" x2="202" y2="72" stroke="#d8d8d8" stroke-width="0.5"/>
-<line x1="172" y1="102" x2="202" y2="102" stroke="#d8d8d8" stroke-width="0.5"/>
-<line x1="172" y1="132" x2="202" y2="132" stroke="#d8d8d8" stroke-width="0.5"/>
-<line x1="72" y1="172" x2="72" y2="202" stroke="#d8d8d8" stroke-width="0.5"/>
-<line x1="102" y1="172" x2="102" y2="202" stroke="#d8d8d8" stroke-width="0.5"/>
-<line x1="132" y1="172" x2="132" y2="202" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="135" y1="72" x2="165" y2="72" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="135" y1="102" x2="165" y2="102" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="72" y1="135" x2="72" y2="165" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="102" y1="135" x2="102" y2="165" stroke="#d8d8d8" stroke-width="0.5"/>
 <rect x="-45" y="-45" width="90" height="90" fill="white"/>
-<rect x="142" y="-45" width="90" height="90" fill="white"/>
-<rect x="142" y="142" width="90" height="90" fill="white"/>
-<rect x="-45" y="142" width="90" height="90" fill="white"/>
+<rect x="105" y="-45" width="90" height="90" fill="white"/>
+<rect x="105" y="105" width="90" height="90" fill="white"/>
+<rect x="-45" y="105" width="90" height="90" fill="white"/>
 <rect x="-45" y="-45" width="90" height="90" fill="none" stroke="#333" stroke-width="1.5"/>
-<rect x="142" y="-45" width="90" height="90" fill="none" stroke="#333" stroke-width="1.5"/>
-<rect x="142" y="142" width="90" height="90" fill="none" stroke="#333" stroke-width="1.5"/>
-<rect x="-45" y="142" width="90" height="90" fill="none" stroke="#333" stroke-width="1.5"/>
+<rect x="105" y="-45" width="90" height="90" fill="none" stroke="#333" stroke-width="1.5"/>
+<rect x="105" y="105" width="90" height="90" fill="none" stroke="#333" stroke-width="1.5"/>
+<rect x="-45" y="105" width="90" height="90" fill="none" stroke="#333" stroke-width="1.5"/>
 <line x1="-15" y1="-45" x2="-15" y2="45" stroke="#d8d8d8" stroke-width="0.5"/>
 <line x1="15" y1="-45" x2="15" y2="45" stroke="#d8d8d8" stroke-width="0.5"/>
 <line x1="-45" y1="-15" x2="45" y2="-15" stroke="#d8d8d8" stroke-width="0.5"/>
 <line x1="-45" y1="15" x2="45" y2="15" stroke="#d8d8d8" stroke-width="0.5"/>
-<line x1="172" y1="-45" x2="172" y2="45" stroke="#d8d8d8" stroke-width="0.5"/>
-<line x1="202" y1="-45" x2="202" y2="45" stroke="#d8d8d8" stroke-width="0.5"/>
-<line x1="142" y1="-15" x2="232" y2="-15" stroke="#d8d8d8" stroke-width="0.5"/>
-<line x1="142" y1="15" x2="232" y2="15" stroke="#d8d8d8" stroke-width="0.5"/>
-<line x1="172" y1="142" x2="172" y2="232" stroke="#d8d8d8" stroke-width="0.5"/>
-<line x1="202" y1="142" x2="202" y2="232" stroke="#d8d8d8" stroke-width="0.5"/>
-<line x1="142" y1="172" x2="232" y2="172" stroke="#d8d8d8" stroke-width="0.5"/>
-<line x1="142" y1="202" x2="232" y2="202" stroke="#d8d8d8" stroke-width="0.5"/>
-<line x1="-15" y1="142" x2="-15" y2="232" stroke="#d8d8d8" stroke-width="0.5"/>
-<line x1="15" y1="142" x2="15" y2="232" stroke="#d8d8d8" stroke-width="0.5"/>
-<line x1="-45" y1="172" x2="45" y2="172" stroke="#d8d8d8" stroke-width="0.5"/>
-<line x1="-45" y1="202" x2="45" y2="202" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="135" y1="-45" x2="135" y2="45" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="165" y1="-45" x2="165" y2="45" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="105" y1="-15" x2="195" y2="-15" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="105" y1="15" x2="195" y2="15" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="135" y1="105" x2="135" y2="195" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="165" y1="105" x2="165" y2="195" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="105" y1="135" x2="195" y2="135" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="105" y1="165" x2="195" y2="165" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="-15" y1="105" x2="-15" y2="195" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="15" y1="105" x2="15" y2="195" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="-45" y1="135" x2="45" y2="135" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="-45" y1="165" x2="45" y2="165" stroke="#d8d8d8" stroke-width="0.5"/>
 
 <rect x="43.0" y="-15.0" width="4" height="30.0" fill="white"/>
 <line x1="45.0" y1="-15.0" x2="66.2" y2="6.2" stroke="#333" stroke-width="1.2"/>
 <path d="M 66.2,6.2 A 30.0,30.0 0 0,1 45.0,15.0" fill="none" stroke="#333" stroke-width="0.8"/>
-<rect x="140.3" y="-15.0" width="4" height="30.0" fill="white"/>
-<line x1="142.3" y1="-15.0" x2="121.1" y2="6.2" stroke="#333" stroke-width="1.2"/>
-<path d="M 121.1,6.2 A 30.0,30.0 0 0,0 142.3,15.0" fill="none" stroke="#333" stroke-width="0.8"/>
-<rect x="172.3" y="43.0" width="30.0" height="4" fill="white"/>
-<line x1="172.3" y1="45.0" x2="193.5" y2="23.8" stroke="#333" stroke-width="1.2"/>
-<path d="M 193.5,23.8 A 30.0,30.0 0 0,1 202.3,45.0" fill="none" stroke="#333" stroke-width="0.8"/>
-<rect x="172.3" y="140.3" width="30.0" height="4" fill="white"/>
-<line x1="172.3" y1="142.3" x2="193.5" y2="163.5" stroke="#333" stroke-width="1.2"/>
-<path d="M 193.5,163.5 A 30.0,30.0 0 0,0 202.3,142.3" fill="none" stroke="#333" stroke-width="0.8"/>
-<use href="#door-secret" x="127" y="172" width="30" height="30" preserveAspectRatio="none" transform="rotate(90,142,187)"/>
-<text x="142" y="166" text-anchor="middle" dominant-baseline="middle" fill="#888" font-size="8" font-family="sans-serif" font-weight="bold">S</text>
-<use href="#door-secret" x="30" y="172" width="30" height="30" preserveAspectRatio="none" transform="rotate(90,45,187)"/>
-<text x="45" y="166" text-anchor="middle" dominant-baseline="middle" fill="#888" font-size="8" font-family="sans-serif" font-weight="bold">S</text>
+<rect x="103.0" y="-15.0" width="4" height="30.0" fill="white"/>
+<line x1="105.0" y1="-15.0" x2="83.8" y2="6.2" stroke="#333" stroke-width="1.2"/>
+<path d="M 83.8,6.2 A 30.0,30.0 0 0,0 105.0,15.0" fill="none" stroke="#333" stroke-width="0.8"/>
+<rect x="135.0" y="43.0" width="30.0" height="4" fill="white"/>
+<line x1="135.0" y1="45.0" x2="156.2" y2="23.8" stroke="#333" stroke-width="1.2"/>
+<path d="M 156.2,23.8 A 30.0,30.0 0 0,1 165.0,45.0" fill="none" stroke="#333" stroke-width="0.8"/>
+<rect x="135.0" y="103.0" width="30.0" height="4" fill="white"/>
+<line x1="135.0" y1="105.0" x2="156.2" y2="126.2" stroke="#333" stroke-width="1.2"/>
+<path d="M 156.2,126.2 A 30.0,30.0 0 0,0 165.0,105.0" fill="none" stroke="#333" stroke-width="0.8"/>
+<use href="#door-secret" x="90" y="135" width="30" height="30" preserveAspectRatio="none" transform="rotate(90,105,150)"/>
+<text x="105" y="129" text-anchor="middle" dominant-baseline="middle" fill="#888" font-size="8" font-family="sans-serif" font-weight="bold">S</text>
+<use href="#door-secret" x="30" y="135" width="30" height="30" preserveAspectRatio="none" transform="rotate(90,45,150)"/>
+<text x="45" y="129" text-anchor="middle" dominant-baseline="middle" fill="#888" font-size="8" font-family="sans-serif" font-weight="bold">S</text>
 <text x="0" y="-32" text-anchor="middle" dominant-baseline="auto" fill="#333" font-size="9" font-family="sans-serif" font-weight="bold">1</text>
-<text x="187" y="-32" text-anchor="middle" dominant-baseline="auto" fill="#333" font-size="9" font-family="sans-serif" font-weight="bold">2</text>
-<text x="187" y="155" text-anchor="middle" dominant-baseline="auto" fill="#333" font-size="9" font-family="sans-serif" font-weight="bold">3</text>
-<text x="0" y="155" text-anchor="middle" dominant-baseline="auto" fill="#333" font-size="9" font-family="sans-serif" font-weight="bold">4</text>
-<text x="-65" y="272" fill="#333" font-size="10" font-family="sans-serif" font-weight="bold">Legend</text>
-<text x="-65" y="286" fill="#555" font-size="9" font-family="serif" font-style="italic">1 - A</text>
-<text x="-65" y="300" fill="#555" font-size="9" font-family="serif" font-style="italic">2 - B</text>
-<text x="-65" y="314" fill="#555" font-size="9" font-family="serif" font-style="italic">3 - C</text>
-<text x="-65" y="328" fill="#555" font-size="9" font-family="serif" font-style="italic">4 - D</text>
+<text x="150" y="-32" text-anchor="middle" dominant-baseline="auto" fill="#333" font-size="9" font-family="sans-serif" font-weight="bold">2</text>
+<text x="150" y="118" text-anchor="middle" dominant-baseline="auto" fill="#333" font-size="9" font-family="sans-serif" font-weight="bold">3</text>
+<text x="0" y="118" text-anchor="middle" dominant-baseline="auto" fill="#333" font-size="9" font-family="sans-serif" font-weight="bold">4</text>
+<text x="-65" y="235" fill="#333" font-size="10" font-family="sans-serif" font-weight="bold">Legend</text>
+<text x="-65" y="249" fill="#555" font-size="9" font-family="serif" font-style="italic">1 - A</text>
+<text x="-65" y="263" fill="#555" font-size="9" font-family="serif" font-style="italic">2 - B</text>
+<text x="-65" y="277" fill="#555" font-size="9" font-family="serif" font-style="italic">3 - C</text>
+<text x="-65" y="291" fill="#555" font-size="9" font-family="serif" font-style="italic">4 - D</text>
 
 </svg>
