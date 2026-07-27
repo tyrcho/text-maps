@@ -41,8 +41,14 @@ since the "why" for both draws on the same reference images.
 - `dungeon-dyson-willowstone-hall.png` (Dyson Logos, freely commercial-licensed — see SOURCES.md) is a
   concrete example of the "soft-shadow edge" alternative fill mentioned above: a light rock-hatch band right
   at the cave-wall boundary with a clean, mostly-white grid interior, rather than the dense diagonal
-  cross-hatch filling the whole room. Still not attempted in `SvgStringRenderer` — this is a better-licensed
-  reference for that same future option, not a new decision.
+  cross-hatch filling the whole non-room area. **Implemented:** new `BackgroundStyle` enum (DSL header
+  property `background:`) with three values — `plain` (flat white, and now the **default for every map
+  type**, replacing `Dungeon`'s old implicit dense-hatch default), `hatch` (that old dense cross-hatch,
+  kept as an explicit opt-in), and `shadow-edge` (this reference's halo: each room/corridor's own shape is
+  stroked with the hatch pattern *before* its white floor fill is drawn, so only the outward-facing half of
+  the stroke survives — a band hugging the wall that fades to plain white beyond it, with no new geometry
+  needed since it reuses each shape's existing outline). See `dungeon_hatch_background`/
+  `dungeon_shadow_edge_background` fixtures for both opt-in styles side by side.
 - `dungeon-opd-numbered-plan.png`, `dungeon-opd-callout-labels.png`, and `dungeon-opd-titled-callouts.png`
   (watabou's One Page Dungeon generator — the exact "One Page Dungeon" style already named in ADR-001, and
   specifically called out by the user as a liked style) show **two label conventions this project doesn't
@@ -70,8 +76,9 @@ since the "why" for both draws on the same reference images.
 - All 6 modern examples are thin-wall, rectilinear, multi-room floor plans with doors/windows marked on
   walls — this matches the current `Building` `MapType`'s thin-wall/multiple-exterior-exit design in
   `Ast.scala`/`SvgStringRenderer.scala`. No structural mismatch found. **Implemented:** `SvgStringRenderer`
-  now actually branches on `MapType` (it never did before) — `Building` maps render a plain background,
-  `Dungeon` maps keep the hatch.
+  now actually branches on background style (it never branched on anything before) — see "Dungeon" above;
+  this is no longer tied to `MapType` at all (background is now the independent `BackgroundStyle`
+  property, defaulting to plain for both `Dungeon` and `Building`).
 - **In-room label placement is the strongest recurring signal across this whole reference set**, not just
   the modern category: `modern-floorplan-scan.jpg`, `modern-floorplan-designer.png`, and especially
   `modern-cubicasa5k-labeled-plan.png` (real-estate-style plan, room name centered inside each room, no
@@ -113,3 +120,8 @@ reference now available, see "Modern buildings/houses" above), or the callout/le
 label styles surfaced by the One Page Dungeon references (see "Dungeon" above) — those remain future work
 per the README and `doc/map-references/SOURCES.md`'s scope note. It only records what the gathered
 references suggest, for whoever picks that work up next.
+
+**Update:** the soft-shadow-edge background fill *is* now implemented (`BackgroundStyle.ShadowEdge`, see
+"Dungeon" above) — no longer a non-decision. Its default-background change (Plain for every `MapType`,
+replacing `Dungeon`'s old implicit dense-hatch default) was a related but separate call the user made
+explicitly when scoping that work, not something this ADR's reference-gathering argued for on its own.

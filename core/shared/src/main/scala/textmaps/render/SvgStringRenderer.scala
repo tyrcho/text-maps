@@ -1,6 +1,6 @@
 package textmaps.render
 
-import textmaps.dsl.{DoorSwing, DoorType, FeaturePosition, FeatureSize, LabelStyle, MapType, RoomFeature, RoomShape, RoomSize, StairDir, WallSide}
+import textmaps.dsl.{BackgroundStyle, DoorSwing, DoorType, FeaturePosition, FeatureSize, LabelStyle, RoomFeature, RoomShape, RoomSize, StairDir, WallSide}
 import textmaps.generate.Rng
 import textmaps.icons.IconFetcher
 import textmaps.layout.*
@@ -8,7 +8,10 @@ import textmaps.layout.*
 /** Renders a RenderedMap as a self-contained SVG string.
  *
  *  Visual style: Dyson Logos / One Page Dungeon
- *  - Dense diagonal cross-hatching fills all rock/exterior areas
+ *  - Background is plain white by default (`BackgroundStyle.Plain`), regardless of MapType; opt into
+ *    `BackgroundStyle.Hatch` for dense diagonal cross-hatching across the whole rock/exterior area, or
+ *    `BackgroundStyle.ShadowEdge` for a hatch band hugging just each room/corridor's own boundary (a
+ *    soft halo, fading to plain white beyond it) — see the `background:` DSL header property
  *  - White floor rectangles for rooms and corridors
  *  - Floor grid anchored to each shape's own top-left (not global coordinates),
  *    for rooms and corridors alike
@@ -41,7 +44,8 @@ object SvgStringRenderer:
         |     viewBox="$vx $vy $vw $vh"
         |     width="$vw" height="$vh">
         |${defs()}
-        |${background(vx, vy, vw, vh, map.mapType)}
+        |${background(vx, vy, vw, vh, map.backgroundStyle)}
+        |${edgeHatchLayer(map)}
         |${map.corridors.flatMap(corridorFloors).mkString("\n")}
         |${map.rooms.map(roomFloor).mkString("\n")}
         |${map.corridors.flatMap(corridorWalls).mkString("\n")}
@@ -63,7 +67,8 @@ object SvgStringRenderer:
     val viewBoxAttr = s"$vx $vy $vw $vh"
     s"""|__VIEWBOX__${viewBoxAttr}__END__
         |${defs()}
-        |${background(vx, vy, vw, vh, map.mapType)}
+        |${background(vx, vy, vw, vh, map.backgroundStyle)}
+        |${edgeHatchLayer(map)}
         |${map.corridors.flatMap(corridorFloors).mkString("\n")}
         |${map.rooms.map(roomFloor).mkString("\n")}
         |${map.corridors.flatMap(corridorWalls).mkString("\n")}
@@ -123,15 +128,38 @@ object SvgStringRenderer:
 
   // ── Background ────────────────────────────────────────────────────────
 
-  private def background(bx: Int, by: Int, bw: Int, bh: Int, mapType: MapType): String =
-    mapType match
-      case MapType.Dungeon =>
+  private def background(bx: Int, by: Int, bw: Int, bh: Int, backgroundStyle: BackgroundStyle): String =
+    backgroundStyle match
+      case BackgroundStyle.Hatch =>
         // Carved in rock: hatched stone fill behind the rooms.
         s"""|<rect x="$bx" y="$by" width="$bw" height="$bh" fill="white"/>
             |<rect x="$bx" y="$by" width="$bw" height="$bh" fill="url(#hatch)"/>""".stripMargin
-      case MapType.Building =>
-        // Constructed: plain background, matching real floor-plan references.
+      case BackgroundStyle.Plain | BackgroundStyle.ShadowEdge =>
+        // Plain: flat background, matching real floor-plan references.
+        // ShadowEdge: also flat here — its hatch band is drawn per-room/per-corridor, see edgeHatchLayer.
         s"""<rect x="$bx" y="$by" width="$bw" height="$bh" fill="white"/>"""
+
+  /** ShadowEdge only: a hatch band straddling each room/corridor's own boundary, drawn *before* the
+   *  white floor fill so only the outward-facing half remains visible — a soft halo hugging the wall,
+   *  fading to plain white beyond it (rather than Hatch's full-canvas fill). No-op for other styles. */
+  private def edgeHatchLayer(map: RenderedMap): String =
+    if map.backgroundStyle != BackgroundStyle.ShadowEdge then ""
+    else (map.rooms.map(roomEdgeHatch) ++ map.corridors.flatMap(corridorEdgeHatch)).mkString("\n")
+
+  private def roomEdgeHatch(rm: RenderedRoom): String = rm.shape match
+    case RoomShape.Rectangular =>
+      s"""<rect x="${rm.x.toInt}" y="${rm.y.toInt}" width="${rm.w.toInt}" height="${rm.h.toInt}" fill="none" stroke="url(#hatch)" stroke-width="$GRID"/>"""
+    case RoomShape.Circular =>
+      val cx = (rm.x + rm.w / 2).toInt; val cy = (rm.y + rm.h / 2).toInt
+      val r  = (math.min(rm.w, rm.h) / 2).toInt
+      s"""<circle cx="$cx" cy="$cy" r="$r" fill="none" stroke="url(#hatch)" stroke-width="$GRID"/>"""
+    case RoomShape.Cave =>
+      s"""<path d="${caveOutline(rm)}" fill="none" stroke="url(#hatch)" stroke-width="$GRID"/>"""
+
+  private def corridorEdgeHatch(c: RenderedCorridor): List[String] =
+    c.rects.map { r =>
+      s"""<rect x="${r.x.toInt}" y="${r.y.toInt}" width="${r.w.toInt}" height="${r.h.toInt}" fill="none" stroke="url(#hatch)" stroke-width="$GRID"/>"""
+    }
 
   // ── Rooms ────────────────────────────────────────────────────────────
 

@@ -30,6 +30,8 @@ class DslFixtureRenderTest extends AnyFunSuite:
     "wall_features",
     "cave_room",
     "dungeon_inline_labels",
+    "dungeon_hatch_background",
+    "dungeon_shadow_edge_background",
   )
 
   for name <- names do

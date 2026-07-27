@@ -46,7 +46,7 @@
   </symbol>
 </defs>
 <rect x="-125" y="-125" width="437" height="537" fill="white"/>
-<rect x="-125" y="-125" width="437" height="537" fill="url(#hatch)"/>
+
 <rect x="42" y="-15" width="103" height="30" fill="white"/>
 <rect x="172" y="42" width="30" height="103" fill="white"/>
 <rect x="42" y="172" width="103" height="30" fill="white"/>

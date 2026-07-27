@@ -178,3 +178,29 @@ object TestMaps:
     MapType.Dungeon,
     Some(LabelStyle.Inline),
   )
+
+  /** Same room/corridor shape used by both background-style fixtures below, so the only difference
+   *  between their approved SVGs is the background rendering itself. */
+  private val backgroundDemoRooms = List(
+    Room("entrance", RoomSize(4, 3), Some("Entrance")),
+    Room("cavern",   RoomSize(6, 5), Some("Cavern"), shape = RoomShape.Cave),
+  )
+  private val backgroundDemoConns = List(Connection("entrance", "cavern", DoorType.Open))
+
+  val dungeonHatchBackground: RenderedMap = LayoutEngine.layout(
+    backgroundDemoRooms,
+    backgroundDemoConns,
+    None,
+    MapType.Dungeon,
+    None,
+    Some(BackgroundStyle.Hatch),
+  )
+
+  val dungeonShadowEdgeBackground: RenderedMap = LayoutEngine.layout(
+    backgroundDemoRooms,
+    backgroundDemoConns,
+    None,
+    MapType.Dungeon,
+    None,
+    Some(BackgroundStyle.ShadowEdge),
+  )

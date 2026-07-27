@@ -126,6 +126,17 @@ labeled with the icon name instead of breaking the rest of the map.
 map — default for `map dungeon`) | `inline` (no numbers; label centred inside each room — default for
 `map building`). Set explicitly to override the per-map-type default.
 
+**Background styles** (header property `background:`): `plain` (flat white — the default for every map
+type) | `hatch` (dense diagonal cross-hatching fills the whole rock/exterior area, the look of `Dungeon`
+maps before this property existed) | `shadow-edge` (a light hatch band hugging just each room/corridor's
+own boundary, fading to plain white beyond it — closer to hand-drawn dungeon references like Dyson Logos'
+maps than a uniform full-canvas hatch). Independent of `map dungeon`/`map building`; any map can pick any
+style, e.g.:
+```
+map dungeon
+  background: shadow-edge
+```
+
 **Procedural generation** (replaces manual room declarations):
 ```
 map dungeon
@@ -147,7 +158,7 @@ generate dungeon rooms:10 seed:42
 
 **Layout engine** (`core/layout/LayoutEngine.scala`): BFS tree placement starting from the room named `entrance`, cycling through preset angles for each room unless a connection specifies an explicit `direction:`, which forces that placement instead. Corridors are computed as L-shaped rectangle segments (H + V legs) starting at room edges, creating visual doorway openings through wall borders. Each connection renders two independently-typed, independently-swung, correctly-angled doors — one where the corridor meets each room's wall.
 
-**SVG rendering** (`core/render/SvgStringRenderer.scala`): Dyson Logos / One Page Dungeon style — dense diagonal cross-hatching fills the stone areas of `Dungeon` maps; `Building` maps get a plain background instead, matching real floor-plan references. White floor shapes punch through (rectangular, circular, or an irregular hand-drawn-looking "cave" outline); a light grid is overlaid on rectangular floors *and* corridors alike, anchored to each shape's own top-left corner. Dark ink wall strokes. Doors are a plain gap by default, or an architectural leaf-and-arc symbol when `swing:` is set; windows are the one other hardcoded direct-SVG wall symbol. Stairs are a bordered box with tapering horizontal step bars. Room labels are either numbered (bold number inside the room, keyed to a legend box below the map — `labels: legend`, the `Dungeon` default) or inline (label text centred in the room, no numbers — `labels: inline`, the `Building` default). Pure string generation, works on both JS and Native — except `RoomFeature.Icon` (every other room feature), which looks up icon SVG content through an injected `IconFetcher` (default: always-miss, so `render(map)` alone stays pure/deterministic).
+**SVG rendering** (`core/render/SvgStringRenderer.scala`): Dyson Logos / One Page Dungeon style — background is plain white by default regardless of map type (`background: plain`), with `hatch` (dense diagonal cross-hatching across the whole rock/exterior area) and `shadow-edge` (a hatch band hugging just each room/corridor's own boundary, drawn by stroking each shape's own outline before its white floor fill covers the inward half) as opt-in alternatives — see "Background styles" above. White floor shapes punch through (rectangular, circular, or an irregular hand-drawn-looking "cave" outline); a light grid is overlaid on rectangular floors *and* corridors alike, anchored to each shape's own top-left corner. Dark ink wall strokes. Doors are a plain gap by default, or an architectural leaf-and-arc symbol when `swing:` is set; windows are the one other hardcoded direct-SVG wall symbol. Stairs are a bordered box with tapering horizontal step bars. Room labels are either numbered (bold number inside the room, keyed to a legend box below the map — `labels: legend`, the `Dungeon` default) or inline (label text centred in the room, no numbers — `labels: inline`, the `Building` default). Pure string generation, works on both JS and Native — except `RoomFeature.Icon` (every other room feature), which looks up icon SVG content through an injected `IconFetcher` (default: always-miss, so `render(map)` alone stays pure/deterministic).
 
 **Icon fetching** (`core/shared/.../icons/IconFetcher.scala`): a small platform-agnostic `IconFetcher`/`IconCache` abstraction with a `CachingIconFetcher` decorator (cache-first, writes back on a live hit) and a lenient `IconSvgParser` (extracts `viewBox` + inner markup from an Iconify API response, `None` on anything unexpected). Concrete implementations are per-platform: `core/jvm/.../icons/JvmIconFetcher.scala` (`java.net.http.HttpClient` + a disk-file cache — also backs the JVM test suite's offline, deterministic icon cache under `core/jvm/src/test/resources/textmaps/icons-cache`), `core/native/.../icons/NativeIconFetcher.scala` (shells out to `curl`, since Scala Native has no HTTP client, caching to `~/.cache/text-maps/icons`), and `js/.../main/JsIconFetcher.scala` (synchronous XHR + `localStorage`, so the render pipeline can stay synchronous end-to-end in the browser too).
 

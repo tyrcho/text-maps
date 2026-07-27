@@ -46,8 +46,9 @@ case class RenderedMap(
   minY:       Double,
   width:      Double,
   height:     Double,
-  mapType:    MapType    = MapType.Dungeon,
-  labelStyle: LabelStyle = LabelStyle.Legend,
+  mapType:         MapType         = MapType.Dungeon,
+  labelStyle:      LabelStyle      = LabelStyle.Legend,
+  backgroundStyle: BackgroundStyle = BackgroundStyle.Plain,
 )
 
 object LayoutEngine:
@@ -60,19 +61,21 @@ object LayoutEngine:
   def compute(map: DungeonMap): RenderedMap =
     map.source match
       case DungeonMapSource.Manual(rooms, conns) =>
-        layout(rooms, conns, map.meta.seed, map.meta.mapType, map.meta.labelStyle)
+        layout(rooms, conns, map.meta.seed, map.meta.mapType, map.meta.labelStyle, map.meta.background)
       case DungeonMapSource.Generated(_, _, _) =>
-        layout(List.empty, List.empty, None, map.meta.mapType, map.meta.labelStyle)
+        layout(List.empty, List.empty, None, map.meta.mapType, map.meta.labelStyle, map.meta.background)
 
   def layout(
     rooms:      List[Room],
     conns:      List[Connection],
     seed:       Option[Long],
-    mapType:    MapType             = MapType.Dungeon,
-    labelStyle: Option[LabelStyle]  = None,
+    mapType:    MapType                  = MapType.Dungeon,
+    labelStyle: Option[LabelStyle]       = None,
+    background: Option[BackgroundStyle]  = None,
   ): RenderedMap =
     val resolvedLabelStyle = labelStyle.getOrElse(defaultLabelStyle(mapType))
-    if rooms.isEmpty then emptyMap.copy(mapType = mapType, labelStyle = resolvedLabelStyle)
+    val resolvedBackground = background.getOrElse(BackgroundStyle.Plain)
+    if rooms.isEmpty then emptyMap.copy(mapType = mapType, labelStyle = resolvedLabelStyle, backgroundStyle = resolvedBackground)
     else
       val centers   = bfsLayout(rooms, conns)
       val rendered  = rooms.map(r => renderRoom(r, centers(r.id)))
@@ -82,15 +85,16 @@ object LayoutEngine:
       val allX = rendered.flatMap(r => List(r.x - MARGIN_PX, r.x + r.w + MARGIN_PX))
       val allY = rendered.flatMap(r => List(r.y - MARGIN_PX, r.y + r.h + MARGIN_PX))
       RenderedMap(
-        rooms      = rendered,
-        corridors  = corridors,
-        doors      = doors,
-        minX       = allX.min,
-        minY       = allY.min,
-        width      = allX.max - allX.min,
-        height     = allY.max - allY.min,
-        mapType    = mapType,
-        labelStyle = resolvedLabelStyle,
+        rooms           = rendered,
+        corridors       = corridors,
+        doors           = doors,
+        minX            = allX.min,
+        minY            = allY.min,
+        width           = allX.max - allX.min,
+        height          = allY.max - allY.min,
+        mapType         = mapType,
+        labelStyle      = resolvedLabelStyle,
+        backgroundStyle = resolvedBackground,
       )
 
   // ── BFS tree placement ──────────────────────────────────────────────────

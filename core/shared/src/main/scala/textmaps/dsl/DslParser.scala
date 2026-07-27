@@ -88,6 +88,7 @@ object DslParser:
         seed       = metaProps.get("seed").flatMap(_.toLongOption),
         style      = metaProps.get("style"),
         labelStyle = metaProps.get("labels").flatMap(parseLabelStyle),
+        background = metaProps.get("background").flatMap(parseBackgroundStyle),
       )
 
       parseStatements(rest, imports).map { stmts =>
@@ -261,6 +262,12 @@ object DslParser:
     case "legend" => Some(LabelStyle.Legend)
     case "inline" => Some(LabelStyle.Inline)
     case _        => None
+
+  private def parseBackgroundStyle(s: String): Option[BackgroundStyle] = s.toLowerCase match
+    case "plain"       => Some(BackgroundStyle.Plain)
+    case "hatch"       => Some(BackgroundStyle.Hatch)
+    case "shadow-edge" => Some(BackgroundStyle.ShadowEdge)
+    case _             => None
 
   private def parseDoor(s: String): Option[DoorType] = s.toLowerCase match
     case "open"   => Some(DoorType.Open)

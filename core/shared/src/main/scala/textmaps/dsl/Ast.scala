@@ -23,6 +23,13 @@ enum LabelStyle:
   case Legend  // numbered rooms + a legend box listing "N - label" below the map
   case Inline  // no numbers; label text centred inside each room
 
+/** Background fill behind rooms/corridors. Independent of MapType — any map can pick any style.
+ *  Default (when unset) is Plain for every MapType. */
+enum BackgroundStyle:
+  case Plain      // flat white
+  case Hatch      // dense diagonal cross-hatch filling the whole non-room area
+  case ShadowEdge // light hatch band hugging just the room/corridor boundary, white beyond it
+
 enum WallSide:
   case North, South, East, West
 
@@ -92,6 +99,7 @@ case class MapMeta(
   style:      Option[String]    = None,
   mapType:    MapType           = MapType.Dungeon,
   labelStyle: Option[LabelStyle] = None, // None = use the per-MapType default (Dungeon -> Legend, Building -> Inline)
+  background: Option[BackgroundStyle] = None, // None = Plain, regardless of MapType
 )
 
 enum DungeonMapSource:
