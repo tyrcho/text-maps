@@ -2,11 +2,12 @@
 
 ## Context
 
-`doc/map-references/` holds 17 reference images (dungeon, medieval, modern building/house maps) gathered
-to ground future rendering-style decisions in real examples rather than working from memory alone. See
-`doc/map-references/SOURCES.md` for full attribution, including a licensing note: the dungeon/medieval
-images are official D&D 5e adventure art (copyrighted, reference-only), the modern images are from
-permissively-licensed open-source repos.
+`doc/map-references/` holds 23 reference images (dungeon, medieval, modern building/house, sci-fi facility
+maps) gathered to ground future rendering-style decisions in real examples rather than working from memory
+alone. See `doc/map-references/SOURCES.md` for full attribution, including licensing notes: the original
+WotC dungeon/medieval images are copyrighted, reference-only; the modern images are from permissively-
+licensed open-source repos; a later pass (once broader internet access was available) added freely-licensed
+Dyson Logos and watabou One Page Dungeon material plus a CC0 sci-fi facility icon set.
 
 **Update: three of the takeaways below are now implemented** (background differentiation, room label
 styles, and the cave room shape — see "Implemented" notes inline below). This ADR started as a
@@ -37,6 +38,22 @@ since the "why" for both draws on the same reference images.
   from a diagonal cross-hatch box to a bordered box with tapering horizontal step bars (narrow near the
   top, wide near the bottom — "steps receding into the distance"), directly from a reference icon the user
   shared, keeping the existing direction-arrow overlay.
+- `dungeon-dyson-willowstone-hall.png` (Dyson Logos, freely commercial-licensed — see SOURCES.md) is a
+  concrete example of the "soft-shadow edge" alternative fill mentioned above: a light rock-hatch band right
+  at the cave-wall boundary with a clean, mostly-white grid interior, rather than the dense diagonal
+  cross-hatch filling the whole room. Still not attempted in `SvgStringRenderer` — this is a better-licensed
+  reference for that same future option, not a new decision.
+- `dungeon-opd-numbered-plan.png`, `dungeon-opd-callout-labels.png`, and `dungeon-opd-titled-callouts.png`
+  (watabou's One Page Dungeon generator — the exact "One Page Dungeon" style already named in ADR-001, and
+  specifically called out by the user as a liked style) show **two label conventions this project doesn't
+  have yet**, distinct from the existing `legend`/`inline` `LabelStyle`s:
+  1. Large in-room numerals with no visible external legend or in-room name text (`dungeon-opd-numbered-plan.png`).
+  2. Callout boxes connected to specific map features by a leader line, used both for short tags
+     (`callout-labels`) and full read-aloud room text under a map title + one-line hook
+     (`titled-callouts`) — the latter is the complete "one-page dungeon" document convention (title, hook,
+     numbered boxed descriptions, map), not just a room-labeling choice.
+  Neither is implemented; recorded here as two additional `LabelStyle` candidates (`numbered-plain` and
+  `callout`) if this project ever wants closer parity with the reference style the user pointed to.
 
 ### Medieval
 
@@ -63,13 +80,20 @@ since the "why" for both draws on the same reference images.
   `labels:`. `Building` defaults to `inline` (label centred in the room, no number); `Dungeon` defaults to
   `legend` (numbered rooms + a legend box, see "Dungeon" above). Either can be overridden explicitly per map.
 - A clean, modern **institutional/facility** floor plan style (icon-based legend, identical floor plan
-  repeated across several labeled sectors/floors) was identified as a gap — nothing in this folder covers
-  it, and no reachable open-source example was found. See the "Note on scope" in SOURCES.md for where to
-  look if broader web access becomes available.
+  repeated across several labeled sectors/floors) was identified as a gap when only `github.com` was
+  reachable. **Now partially filled:** `scifi-facility-deckplan.png` and `scifi-facility-symbols.png`
+  (CC0, MarkGosbell — see SOURCES.md) show a grid-based sci-fi/modern facility with a genuine icon-based
+  symbol set (helipad, airlock, machinery, hazard/rubble fill) rather than text labels — this is the
+  "icon-based legend glyphs" future work item mentioned below made concrete, though implementing an
+  `IconLegend`-style feature set is still not attempted. Still no equivalent found for a *non-sci-fi*
+  (office/hospital/school) institutional style repeated across labeled floors — that half of the original
+  gap remains open.
 
 ## Non-decisions
 
 This ADR intentionally does not commit to implementing the city/town map type, a grid-square dungeon mode,
-medieval fortification-wall styling (thick walls, towers, courtyards), or icon-based legend glyphs — those
-remain future work per the README and `doc/map-references/SOURCES.md`'s scope note. It only records what
-the gathered references suggest, for whoever picks that work up next.
+medieval fortification-wall styling (thick walls, towers, courtyards), icon-based legend glyphs (concrete
+reference now available, see "Modern buildings/houses" above), or the callout/leader-line and plain-numeral
+label styles surfaced by the One Page Dungeon references (see "Dungeon" above) — those remain future work
+per the README and `doc/map-references/SOURCES.md`'s scope note. It only records what the gathered
+references suggest, for whoever picks that work up next.

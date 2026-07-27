@@ -43,16 +43,36 @@ projects on GitHub:
 | `modern-floorplan-designer.png` | Modern | [bugfishtm/floor-plan-designer](https://github.com/bugfishtm/floor-plan-designer) | Browser-based 2D floor plan designer screenshot |
 | `modern-cubicasa5k-labeled-plan.png` | Modern | [yunusskeete/floor-plan-datasets](https://github.com/yunusskeete/floor-plan-datasets) (sample from the [CubiCasa5k](https://github.com/CubiCasa/CubiCasa5k) dataset, real Finnish real-estate floor plans) | Plain black-line floor plan with room-name labels placed *inside* each room — closest match to real-estate/survey-style plans |
 
+## Dungeon maps — freely-licensed sources (added once general internet access was available)
+
+The entries below were added in a follow-up pass, once the sandbox could reach sites beyond
+`github.com`/`raw.githubusercontent.com`. Unlike the WotC set above, these carry licenses that actually
+permit this kind of reuse, so they're better long-term references even though the WotC set remains for its
+closer match to a "professional adventure module" look.
+
+| File | Category | Source | Description |
+|---|---|---|---|
+| `dungeon-dyson-willowstone-hall.png` | Dungeon | [Dyson's Dodecahedron — Willowstone Hall (5-Room Dungeon)](https://dysonlogos.blog/2023/07/12/willowstone-hall-5-room-dungeon/) | Hand-drawn dwarven-hall dungeon; one of Dyson Logos' maps released under the [free commercial license](https://dysonlogos.blog/about/copyright/) (use/remix/modify, attribution "Cartography by Dyson Logos") once monthly Patreon funding clears a threshold — genuinely reusable, not just reference-only |
+| `dungeon-opd-numbered-plan.png` | Dungeon | [One Page Dungeon by watabou](https://watabou.itch.io/one-page-dungeon) (itch.io preview image) | Clean multi-room complex with large in-room numerals (no external legend visible in this view) — a third room-label variant alongside this project's existing `legend` and `inline` `LabelStyle`s |
+| `dungeon-opd-callout-labels.png` | Dungeon | [One Page Dungeon by watabou](https://watabou.itch.io/one-page-dungeon) (itch.io preview image) | Colored parchment-style map where callout boxes with leader lines point at specific in-room features/text, rather than a numbered legend or in-room label |
+| `dungeon-opd-titled-callouts.png` | Dungeon | [One Page Dungeon by watabou](https://watabou.itch.io/one-page-dungeon) (itch.io preview image) | Same callout-with-leader-line convention, plus the genre convention this tool is named for: a map title, one-line italic hook, and numbered read-aloud room descriptions — the full "one-page dungeon" document layout, not just the map |
+| `scifi-facility-deckplan.png` | Modern/Sci-fi | [Classic Science Fiction Symbols by MarkGosbell](https://markgosbell.itch.io/classic-science-fiction-symbols) (itch.io preview image) | Full example spaceship/facility deck plan built from the symbol set below — grid, numbered/labeled rooms (`computer`, `com`), airlock and helipad markings, rubble/cargo icon fill |
+| `scifi-facility-symbols.png` | Modern/Sci-fi | [Classic Science Fiction Symbols by MarkGosbell](https://markgosbell.itch.io/classic-science-fiction-symbols) (itch.io preview image) | Icon/symbol sheet: helipad, airlock, machinery, rubble-fill, hazard patterns — **CC0**, "commissioned by Probabletrain for use in Dungeon Scrawl natively." Fills the "icon-based legend glyphs" gap previously flagged as unfound |
+
+Licensing notes: the `dungeon-opd-*` files are preview screenshots of watabou's itch.io page, itself
+copyrighted, but the page states generated maps may be "cop[ied], modif[ied], include[d] in your commercial
+rpg adventures etc." with attribution "appreciated, but not required" — so the *style* and *generated output*
+are free to draw on even though these specific screenshot images are kept reference-only like the WotC set.
+`scifi-facility-*` are CC0 per the itch.io page and can be treated as freely reusable, not just reference.
+
 ## Note on scope
 
-This sandbox's network egress policy only allows `github.com`/`raw.githubusercontent.com`; sites better
-suited to sourcing freely-licensed medieval/dungeon art (Dyson Logos' blog, Wikimedia Commons, itch.io) were
-unreachable, which is why the medieval/dungeon set above relies on a copyrighted-content mirror instead —
-flagged clearly above so it isn't mistaken for a freely-licensed asset.
+Earlier in this project the sandbox's network egress policy only allowed `github.com`/
+`raw.githubusercontent.com`, which is why the original medieval/dungeon set above relied on a
+copyrighted-content mirror. General internet access later became available and was used to add the
+freely-licensed dungeon and sci-fi-facility entries above.
 
-Also researched but not added: a clean, modern, rectilinear **institutional/sci-fi facility floor plan**
-style (icon-based legend for stairs/restrooms/hazard doors, identical footprint repeated across several
-labeled floors) — genuinely not covered by anything in this folder, but no open-source GitHub repo with a
-committed example image in that style was found reachable from this sandbox. Good candidates to revisit if
-broader web access is available later: Tom Cartos and 2-Minute Tabletop's "Secret Research Facility" battle
-maps (itch.io, currently unreachable).
+Still not covered: a **city/town-scale** map in a style distinct from the WotC `medieval-5e-phandalin-town`/
+`-greenest-town` examples (still the only town-scale references), and a genuine **medieval fortification**
+reference distinct from the WotC castle maps (thick walls, towers, courtyards — still future work per
+ADR-002's non-decisions).
