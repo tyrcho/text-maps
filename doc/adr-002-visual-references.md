@@ -88,6 +88,22 @@ since the "why" for both draws on the same reference images.
   `IconLegend`-style feature set is still not attempted. Still no equivalent found for a *non-sci-fi*
   (office/hospital/school) institutional style repeated across labeled floors — that half of the original
   gap remains open.
+- Seven more real-estate/floor-plan-tool samples (`modern-realestate-*`, `modern-roomsketcher-*`, see
+  SOURCES.md) confirm the room-fill-by-function pattern beyond CubiCasa's plain black-and-white: the German
+  real-estate examples color-fill each room by type (kitchen/bath/bedroom get different tints) *and* still
+  label with both a name and a size (m² or width×height) — a fuller variant of `inline` than currently
+  implemented, which centers a name only. **Not implemented** — `inline` labels currently carry no
+  dimension/area text.
+- The RoomSketcher hotel-lobby example (`modern-roomsketcher-hotel-lobby.jpg`) shows a labeling case this
+  project's room-based model doesn't cover at all: a single open floor with several *named zones* (Lobby,
+  Bar, Concierge, Storage, three Elevators, Stairs, Luggage Storage, two Bathrooms) that have no dividing
+  walls between most of them — closer to a floor-plan "zone" than a `Room`. Not something to build now, but
+  worth remembering if this project ever wants open-plan/mixed-use buildings.
+- The RoomSketcher hotel-suite example (`modern-roomsketcher-hotel-suite.jpg`) shows two mirror-symmetric
+  rooms sharing a party wall, each with its own connected ensuite — a same-scale sibling-rooms layout
+  distinct from the corridor-linked room chains the other `Building` references show. No structural gap
+  found (this project's room graph already supports arbitrary adjacency), just noted as a plausible fixture
+  shape for future test maps.
 
 ## Non-decisions
 
