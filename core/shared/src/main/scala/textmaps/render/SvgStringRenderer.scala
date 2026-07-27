@@ -2,7 +2,7 @@ package textmaps.render
 
 import textmaps.dsl.{BackgroundStyle, DoorSwing, DoorType, FeaturePosition, FeatureSize, LabelStyle, RoomFeature, RoomShape, RoomSize, StairDir, WallSide}
 import textmaps.generate.Rng
-import textmaps.icons.IconFetcher
+import textmaps.icons.{BuiltinIcons, IconFetcher}
 import textmaps.layout.*
 
 /** Renders a RenderedMap as a self-contained SVG string.
@@ -118,6 +118,26 @@ object SvgStringRenderer:
   </symbol>
 
   <!-- ── Room feature symbols (viewBox 0 0 30 30, one grid cell) ── -->
+  <!-- Stairs: tapering horizontal bars, "steps receding into the distance" (hand-drawn, in the spirit
+       of Iconify's memory:table-top-stairs-up/-down but original artwork). Narrow end points toward the
+       wall the flight leads to (via rotation on <use>); bar stroke weight fades with depth to show
+       Up vs Down without text or an arrow — bold = closer to the viewer's own floor level. -->
+  <symbol id="feat-stairs-up" viewBox="0 0 30 30">
+    <rect x="0.5" y="0.5" width="29" height="29" fill="white" stroke="#333" stroke-width="0.8"/>
+    <line x1="8.9" y1="5"  x2="21.2" y2="5"  stroke="#333" stroke-width="2.22"/>
+    <line x1="6.9" y1="10" x2="23.1" y2="10" stroke="#333" stroke-width="1.84"/>
+    <line x1="5.0" y1="15" x2="25.1" y2="15" stroke="#333" stroke-width="1.46"/>
+    <line x1="3.0" y1="20" x2="27.0" y2="20" stroke="#333" stroke-width="1.08"/>
+    <line x1="1.1" y1="25" x2="29.0" y2="25" stroke="#333" stroke-width="0.70"/>
+  </symbol>
+  <symbol id="feat-stairs-down" viewBox="0 0 30 30">
+    <rect x="0.5" y="0.5" width="29" height="29" fill="white" stroke="#333" stroke-width="0.8"/>
+    <line x1="8.9" y1="5"  x2="21.2" y2="5"  stroke="#333" stroke-width="1.08"/>
+    <line x1="6.9" y1="10" x2="23.1" y2="10" stroke="#333" stroke-width="1.46"/>
+    <line x1="5.0" y1="15" x2="25.1" y2="15" stroke="#333" stroke-width="1.84"/>
+    <line x1="3.0" y1="20" x2="27.0" y2="20" stroke="#333" stroke-width="2.22"/>
+    <line x1="1.1" y1="25" x2="29.0" y2="25" stroke="#333" stroke-width="2.60"/>
+  </symbol>
   <symbol id="feat-ladder" viewBox="0 0 30 30">
     <line x1="8"  y1="3"  x2="8"  y2="27" stroke="#333" stroke-width="1.5"/>
     <line x1="22" y1="3"  x2="22" y2="27" stroke="#333" stroke-width="1.5"/>
@@ -133,7 +153,17 @@ object SvgStringRenderer:
     <rect x="11" y="1" width="8"  height="4" fill="#cce" stroke="#99c" stroke-width="0.5"/>
     <rect x="22" y="1" width="8"  height="4" fill="#cce" stroke="#99c" stroke-width="0.5"/>
   </symbol>
+
+  <!-- ── Builtin furnishing icons — no `import` needed, see BuiltinIcons.scala ── -->
+$builtinSymbolDefs
 </defs>"""
+
+  /** One `<symbol>` per `BuiltinIcons.paths` entry, id'd `builtin-<name>` so `<name>: <value>` works as a
+   *  room feature with no `import` statement (see `DslParser.parseRoomFeatures`'s builtin-icon pass). */
+  private def builtinSymbolDefs: String =
+    BuiltinIcons.paths.toList.sortBy(_._1).map { (name, d) =>
+      s"""  <symbol id="builtin-$name" viewBox="${BuiltinIcons.viewBox}"><path fill="#333" d="$d"/></symbol>"""
+    }.mkString("\n")
 
   // ── Background ────────────────────────────────────────────────────────
 
@@ -360,54 +390,42 @@ object SvgStringRenderer:
 
   private def roomFeatures(rm: RenderedRoom, iconFetcher: IconFetcher): List[String] =
     rm.features.flatMap {
-      case RoomFeature.Stairs(dir, facing) => List(stairHatch(rm, dir, facing))
-      case RoomFeature.SpiralStairs(dir)  => List(spiralStairs(rm, dir))
-      case RoomFeature.Ladder(dir)        => List(centeredSymbol(rm, "feat-ladder", dir))
+      case RoomFeature.Stairs(dir, facing, pos) => List(stairSymbol(rm, dir, facing, pos))
+      case RoomFeature.SpiralStairs(dir, pos)   => List(spiralStairs(rm, dir, pos))
+      case RoomFeature.Ladder(dir, pos)         => List(centeredSymbol(rm, "feat-ladder", dir, pos))
       case RoomFeature.Icon(iconSet, iconName, size, pos) => List(iconFeature(rm, iconSet, iconName, size, pos, iconFetcher))
       // Window — the only wall opening still a `<use>`-placed direct SVG symbol.
       case RoomFeature.Window(side)       => List(wallUse(rm, side, "feat-window",      30, 6))
     }
 
-  /** Bordered box with tapering horizontal step bars (narrow near the top, wide
-   *  near the bottom) — "steps receding into the distance". Rotated so the narrow
-   *  end points toward `facing` (the wall the stairs lead toward). Bar stroke
-   *  weight encodes Up/Down: viewed from above, the step closer to the viewer's
-   *  own floor level is bolder, fading toward the step that's farther away —
-   *  bold at the wide/entry end and fading toward the wall for `Down` (the flight
-   *  drops away below), bold at the narrow/wall end and fading toward the entry
-   *  for `Up` (the flight rises toward the viewer). */
-  private def stairHatch(rm: RenderedRoom, dir: StairDir, facing: WallSide): String =
+  /** Straight stairs: the hand-drawn `feat-stairs-up`/`feat-stairs-down` symbol (see `defs()`),
+   *  positioned exactly like any Icon feature (`FeaturePosition`, default centred) and rotated so its
+   *  narrow/wall end points toward `facing` (the wall the flight leads toward). */
+  private def stairSymbol(rm: RenderedRoom, dir: StairDir, facing: WallSide, position: FeaturePosition): String =
     val bw = GRID; val bh = GRID
-    val bx = (rm.x + (rm.w - bw) / 2).toInt
-    val by = (rm.y + (rm.h - bh) / 2).toInt
-    val cx = bx + bw / 2.0
-    val cy = by + bh / 2.0
-    val box = s"""<rect x="$bx" y="$by" width="$bw" height="$bh" fill="white" stroke="#333" stroke-width="0.8"/>"""
-    val steps  = 5
-    val stepGap = bh.toDouble / (steps + 1)
-    val minStroke = 0.7
-    val maxStroke = 2.6
-    val bars = (1 to steps).map { i =>
-      val y         = by + stepGap * i
-      val widthFrac = 0.28 + 0.13 * i
-      val halfW     = bw * widthFrac / 2
-      val t         = i.toDouble / steps // 0 (near wall/facing) .. 1 (near entry)
-      val depthT    = if dir == StairDir.Down then t else 1 - t // 1 = closer to viewer, 0 = farther
-      val stroke    = minStroke + (maxStroke - minStroke) * depthT
-      f"""<line x1="${cx - halfW}%.1f" y1="$y%.1f" x2="${cx + halfW}%.1f" y2="$y%.1f" stroke="#333" stroke-width="$stroke%.2f"/>"""
-    }.mkString("\n")
+    val autoX = rm.x + (rm.w - bw) / 2
+    val autoY = rm.y + (rm.h - bh) / 2
+    val (x, y) = resolvePosition(rm, bw, bh, position, autoX, autoY)
+    val bx = x.toInt; val by = y.toInt
+    val cx = bx + bw / 2; val cy = by + bh / 2
+    val symbolId = dir match
+      case StairDir.Up   => "feat-stairs-up"
+      case StairDir.Down => "feat-stairs-down"
     val rotate = facing match
       case WallSide.North => 0
       case WallSide.East  => 90
       case WallSide.South => 180
       case WallSide.West  => 270
-    s"""<g transform="rotate($rotate,${cx.toInt},${cy.toInt})">$box\n$bars</g>"""
+    val transform = if rotate != 0 then s""" transform="rotate($rotate,$cx,$cy)"""" else ""
+    s"""<use href="#$symbolId" x="$bx" y="$by" width="$bw" height="$bh"$transform/>"""
 
-  /** Spiral staircase: circular arrow in a box. */
-  private def spiralStairs(rm: RenderedRoom, dir: StairDir): String =
+  /** Spiral staircase: circular arrow in a box, positioned exactly like any Icon feature. */
+  private def spiralStairs(rm: RenderedRoom, dir: StairDir, position: FeaturePosition): String =
     val bw = GRID; val bh = GRID
-    val bx = (rm.x + (rm.w - bw) / 2).toInt
-    val by = (rm.y + (rm.h - bh) / 2).toInt
+    val autoX = rm.x + (rm.w - bw) / 2
+    val autoY = rm.y + (rm.h - bh) / 2
+    val (x, y) = resolvePosition(rm, bw, bh, position, autoX, autoY)
+    val bx = x.toInt; val by = y.toInt
     val cx = bx + bw / 2; val cy = by + bh / 2
     val box = s"""<rect x="$bx" y="$by" width="$bw" height="$bh" fill="white" stroke="#333" stroke-width="0.8"/>"""
     // Outer arc (270°) + inner arc (180°) to suggest a spiral
@@ -438,13 +456,16 @@ object SvgStringRenderer:
       case FeaturePosition.At(col, row) =>
         (rm.x + col * GRID, rm.y + row * GRID)
 
-  /** A free-standing feature backed by an Iconify icon: centred by default,
-   *  sized by FeatureSize, positioned via FeaturePosition exactly like the
-   *  hardcoded structural/natural features this replaces. Embeds the fetched
-   *  icon as a nested `<svg>` (its own viewBox, scaled to the feature's box);
-   *  falls back to a dashed placeholder box + the icon's name when the icon
-   *  couldn't be fetched (offline, uncached, unknown name, ...) so a missing
-   *  icon degrades gracefully instead of silently rendering nothing. */
+  /** A free-standing feature backed by an icon: centred by default, sized by
+   *  FeatureSize, positioned via FeaturePosition exactly like the hardcoded
+   *  structural/natural features this replaces. A `BuiltinIcons.iconSetName`
+   *  icon uses the matching `<symbol>` already embedded in `defs()` (no
+   *  network, no `import` needed); any other `iconSet` is looked up via the
+   *  injected `IconFetcher` and embedded as a nested `<svg>` (its own
+   *  viewBox, scaled to the feature's box) — falling back to a dashed
+   *  placeholder box + the icon's name when it couldn't be fetched (offline,
+   *  uncached, unknown name, ...) so a missing icon degrades gracefully
+   *  instead of silently rendering nothing. */
   private def iconFeature(rm: RenderedRoom, iconSet: String, iconName: String, size: FeatureSize, position: FeaturePosition, iconFetcher: IconFetcher): String =
     val sw = size.w * GRID
     val sh = size.h * GRID
@@ -452,25 +473,30 @@ object SvgStringRenderer:
     val autoY = rm.y + (rm.h - sh) / 2
     val (x, y) = resolvePosition(rm, sw, sh, position, autoX, autoY)
     val bx = x.toInt; val by = y.toInt
-    iconFetcher.fetch(iconSet, iconName) match
-      case Some(icon) =>
-        s"""<svg x="$bx" y="$by" width="$sw" height="$sh" viewBox="${icon.viewBox}">${icon.body}</svg>"""
-      case None =>
-        val cx = bx + sw / 2; val cy = by + sh / 2
-        s"""<rect x="$bx" y="$by" width="$sw" height="$sh" fill="none" stroke="#999" stroke-width="0.8" stroke-dasharray="3,2"/>
+    if iconSet == BuiltinIcons.iconSetName then
+      s"""<use href="#builtin-$iconName" x="$bx" y="$by" width="$sw" height="$sh"/>"""
+    else
+      iconFetcher.fetch(iconSet, iconName) match
+        case Some(icon) =>
+          s"""<svg x="$bx" y="$by" width="$sw" height="$sh" viewBox="${icon.viewBox}">${icon.body}</svg>"""
+        case None =>
+          val cx = bx + sw / 2; val cy = by + sh / 2
+          s"""<rect x="$bx" y="$by" width="$sw" height="$sh" fill="none" stroke="#999" stroke-width="0.8" stroke-dasharray="3,2"/>
 <text x="$cx" y="$cy" text-anchor="middle" dominant-baseline="middle" fill="#999" font-size="6" font-family="sans-serif">${escapeXml(iconName)}</text>"""
 
-  /** A centred <use> of a GRID×GRID symbol (used by centeredSymbol for ladders). */
-  private def centeredUse(rm: RenderedRoom, id: String): String =
-    val x = (rm.x + (rm.w - GRID) / 2).toInt
-    val y = (rm.y + (rm.h - GRID) / 2).toInt
-    s"""<use href="#$id" x="$x" y="$y" width="$GRID" height="$GRID"/>"""
+  /** A GRID×GRID symbol positioned like any Icon feature (used by centeredSymbol for ladders). */
+  private def positionedUse(rm: RenderedRoom, id: String, position: FeaturePosition): (String, Double, Double) =
+    val autoX = rm.x + (rm.w - GRID) / 2
+    val autoY = rm.y + (rm.h - GRID) / 2
+    val (x, y) = resolvePosition(rm, GRID, GRID, position, autoX, autoY)
+    val bx = x.toInt; val by = y.toInt
+    (s"""<use href="#$id" x="$bx" y="$by" width="$GRID" height="$GRID"/>""", x, y)
 
-  /** Centred symbol with a direction arrow overlay (for ladders). */
-  private def centeredSymbol(rm: RenderedRoom, id: String, dir: StairDir): String =
-    val base = centeredUse(rm, id)
-    val ax = (rm.x + rm.w / 2).toInt
-    val ay = (rm.y + rm.h / 2 + GRID / 2 + 4).toInt
+  /** Positioned symbol with a direction arrow overlay (for ladders). */
+  private def centeredSymbol(rm: RenderedRoom, id: String, dir: StairDir, position: FeaturePosition): String =
+    val (base, x, y) = positionedUse(rm, id, position)
+    val ax = (x + GRID / 2).toInt
+    val ay = (y + GRID + 4).toInt
     val arrow = dir match
       case StairDir.Up   => s"""<polygon points="$ax,${ay-8} ${ax-4},$ay ${ax+4},$ay" fill="#333"/>"""
       case StairDir.Down => s"""<polygon points="$ax,${ay} ${ax-4},${ay-8} ${ax+4},${ay-8}" fill="#333"/>"""

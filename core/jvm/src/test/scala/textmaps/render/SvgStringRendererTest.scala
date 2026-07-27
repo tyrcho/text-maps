@@ -36,3 +36,4 @@ class SvgStringRendererTest extends AnyFunSuite:
   test("dungeon with shadow-edge background") { svgApproval("dungeon_shadow_edge_background", TestMaps.dungeonShadowEdgeBackground) }
   test("layout swings a room off its requested angle rather than let its corridor cross another room") { svgApproval("corridor_avoids_room", TestMaps.corridorAvoidsRoom) }
   test("room notes render as callout boxes with leader lines") { svgApproval("room_notes", TestMaps.roomNotes) }
+  test("builtin icons render with no import statement")        { svgApproval("builtin_icons", TestMaps.builtinIcons) }

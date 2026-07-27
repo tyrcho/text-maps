@@ -81,14 +81,24 @@ since the "why" for both draws on the same reference images.
      ...) keep today's last-wins behavior via a small `.one(key)` extension. The reproduction's
      sarcophagus/coffin and manacles/skeleton icon-substitution workarounds have been removed — it now uses
      the same icon twice, as the reference does.
-     **Newly found while re-verifying this fix on the reproduction:** the *renderer* side isn't fully
+     ~~**Newly found while re-verifying this fix on the reproduction:** the *renderer* side isn't fully
      solved. Unlike `RoomFeature.Icon` (which carries a `position: FeaturePosition`), `RoomFeature.Stairs`/
      `SpiralStairs`/`Ladder` have no position field — `stairHatch` (`SvgStringRenderer.scala:285-310`)
      always centers the glyph in the room regardless of `facing`. So the reproduction's entry hall now has
      two genuinely distinct `Stairs` features (`up west` and `down east`), but they render on top of each
      other at the same center point — the second simply hides the first. Not fixed here; would need a
      `position` field on those three cases plus DSL syntax to set it (today's `stairs: <dir> <facing>` has
-     no slot for one).
+     no slot for one).~~ **Implemented** (user request: "stairs should work as any icon"): `Stairs`/
+     `SpiralStairs`/`Ladder` all gained a `position: FeaturePosition = Auto` field, and `DslParser.parseStairs`/
+     `parseStairDirAndPosition` accept an optional trailing `col,row` or wall-side token (`stairs: up west
+     0,0`, `stairs: up 2,1` with facing left at its default, `spiral-stairs: up 1,1`, `ladder: down east`).
+     The renderer side was also reworked to match `Icon`'s own mechanism rather than just accepting the new
+     field: the old inline-computed `stairHatch` box was replaced with hand-drawn `feat-stairs-up`/
+     `feat-stairs-down` `<symbol>`s in `defs()` (same tapering-bars design, inspired by — but not fetched
+     from — Iconify's `memory:table-top-stairs-up`/`-down`), placed via the same `resolvePosition` helper
+     `iconFeature` already used. The reproduction's entry hall now places its two staircases at distinct
+     `col,row` positions and they render as two clearly separate glyphs (see `dungeon_room_with_stairs_and_windows`
+     fixture for the minimal regression case).
   5. **No support for cyclic layouts.** `bfsLayout` (`LayoutEngine.scala:102-140`) places each room exactly
      once via a spanning tree from `entrance`. The reproduction's last connection (`storage_7 -> small_6`)
      deliberately closes a loop — both rooms are already placed via separate tree paths by the time it's
@@ -154,6 +164,17 @@ since the "why" for both draws on the same reference images.
      side and stacked when more than one note shares a room+side; extends the viewBox as needed
      (`SvgStringRenderer.noteBoxes`/`noteCallouts`/`expandForNotes`) since callouts can protrude on any side,
      unlike the legend which only ever grows the map downward. See the `room_notes` fixture.
+- **Implemented (user request, not tied to a specific reference image):** a curated set of 19 common
+  furnishing icons (torch, chest, barrel, wooden-crate, ionic-column, sarcophagus, cauldron, campfire, cage,
+  anvil, bookshelf, key, well, stone-block, skull-crossed-bones, spider-web, beer-stein, battle-axe,
+  round-shield) now works with **no `import` statement at all** — `BuiltinIcons.scala` embeds each icon's
+  path data at compile time (source `.svg` files kept in `doc/icons/builtin/`, sourced from
+  [game-icons.net](https://game-icons.net) via Iconify, CC BY 3.0, see that folder's `SOURCES.md` for
+  attribution) and `SvgStringRenderer.defs()` emits one `<symbol id="builtin-<name>">` per entry;
+  `DslParser` recognizes a bare (non-`alias.`-prefixed) key matching one of these names and emits
+  `RoomFeature.Icon("builtin", <name>, ...)`, the same case class the general Iconify-import path uses, just
+  with a sentinel `iconSet` the renderer special-cases to skip `IconFetcher` entirely. Every other Iconify
+  icon still needs an explicit `import` — this only covers the common cases. See the `builtin_icons` fixture.
 
 ### Medieval
 

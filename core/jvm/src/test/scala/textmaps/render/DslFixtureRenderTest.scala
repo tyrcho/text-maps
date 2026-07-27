@@ -34,6 +34,7 @@ class DslFixtureRenderTest extends AnyFunSuite:
     "dungeon_shadow_edge_background",
     "corridor_avoids_room",
     "room_notes",
+    "builtin_icons",
   )
 
   for name <- names do

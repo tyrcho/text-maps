@@ -45,11 +45,18 @@ object TestMaps:
 
   val emptyMap: RenderedMap = LayoutEngine.layout(Nil, Nil, None)
 
+  /** Two staircases in one small room, at explicit distinct positions — the regression case for the
+   *  bug where Stairs/SpiralStairs/Ladder had no `position` field and always centred, so more than one
+   *  in a room silently overlapped. */
   val dungeonRoomWithStairsAndWindows: RenderedMap = LayoutEngine.layout(
     List(
       Room("entrance", RoomSize(4, 3), Some("Entry")),
       Room("vault", RoomSize(3, 3), Some("Vault"),
-        features = List(RoomFeature.Stairs(StairDir.Up, WallSide.West), RoomFeature.Window(WallSide.North))),
+        features = List(
+          RoomFeature.Stairs(StairDir.Up, WallSide.West, FeaturePosition.At(0, 0)),
+          RoomFeature.Stairs(StairDir.Down, WallSide.East, FeaturePosition.At(2, 0)),
+          RoomFeature.Window(WallSide.North),
+        )),
     ),
     List(Connection("entrance", "vault", DoorType.Locked)),
     None,
@@ -221,6 +228,28 @@ object TestMaps:
     MapType.Dungeon,
     None,
     Some(BackgroundStyle.ShadowEdge),
+  )
+
+  /** Curated `BuiltinIcons` used with no `import` statement at all. Feature order matches DslParser's
+   *  sorted-by-property-key order (bare key names, alphabetically) so this fixture stays byte-identical
+   *  to what parsing the equivalent `.dsl` file produces. */
+  val builtinIcons: RenderedMap = LayoutEngine.layout(
+    List(
+      Room("armory", RoomSize(6, 5), Some("Armory"),
+        features = List(
+          RoomFeature.Icon("builtin", "barrel", position = FeaturePosition.At(4, 3)),
+          RoomFeature.Icon("builtin", "chest", position = FeaturePosition.At(1, 1)),
+          RoomFeature.Icon("builtin", "sarcophagus"),
+          RoomFeature.Icon("builtin", "torch", position = FeaturePosition.Side(WallSide.North)),
+        )),
+      Room("storage", RoomSize(5, 4), Some("Storage"),
+        features = List(
+          RoomFeature.Icon("builtin", "cage", position = FeaturePosition.Side(WallSide.East)),
+          RoomFeature.Icon("builtin", "wooden-crate", position = FeaturePosition.At(1, 1)),
+        )),
+    ),
+    List(Connection("armory", "storage", DoorType.Open)),
+    None,
   )
 
   val roomNotes: RenderedMap = LayoutEngine.layout(

@@ -12,15 +12,13 @@ import icon-sets.iconify.design/game-icons as gi
 import icon-sets.iconify.design/mdi as mdi
 
 # 1. Entry hall — reference has a water pool and two separate staircases in a small side alcove.
-#    Both staircases now exist as distinct features (repeating stairs: on separate lines no longer
-#    collides in the parser) but still visually overlap: unlike Icon, RoomFeature.Stairs has no
-#    position field, so stairHatch always centers the glyph in the room regardless of facing — a
-#    newly-found render-side gap, not fixed here (see adr-002).
+#    Both staircases now exist as distinct, distinctly-positioned features: Stairs carries a
+#    `position` (same FeaturePosition as Icon) so the two no longer overlap at the room's centre.
 room entrance 8x6
   label: "Entry Hall"
   gi.pool-dive: 5,1
-  stairs: up west
-  stairs: down east
+  stairs: up west 0,0
+  stairs: down east 0,3
 
 # 2. Bedroom/storage — bunk beds on opposite walls work fine (the wall-side comma-list is the
 #    one supported multi-instance case); crates + barrels are two different icons so both

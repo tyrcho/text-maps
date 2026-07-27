@@ -268,6 +268,84 @@ class DslParserTest extends munit.FunSuite:
         assert(rooms.head.features.contains(RoomFeature.Stairs(StairDir.Down, WallSide.West)))
       case other => fail(s"unexpected: $other")
 
+  test("parses stairs feature with facing and a precise position"):
+    val input =
+      """map dungeon
+        |room vault 4x4
+        |  stairs: up west 0,0
+        |""".stripMargin
+    DslParser.parse(input) match
+      case Right(DungeonMap(_, DungeonMapSource.Manual(rooms, _, _))) =>
+        assert(rooms.head.features.contains(RoomFeature.Stairs(StairDir.Up, WallSide.West, FeaturePosition.At(0, 0))))
+      case other => fail(s"unexpected: $other")
+
+  test("parses stairs feature with a position and no explicit facing (facing stays default)"):
+    val input =
+      """map dungeon
+        |room vault 4x4
+        |  stairs: up 2,1
+        |""".stripMargin
+    DslParser.parse(input) match
+      case Right(DungeonMap(_, DungeonMapSource.Manual(rooms, _, _))) =>
+        assert(rooms.head.features.contains(RoomFeature.Stairs(StairDir.Up, WallSide.North, FeaturePosition.At(2, 1))))
+      case other => fail(s"unexpected: $other")
+
+  test("two stairs: lines with distinct positions no longer collide"):
+    val input =
+      """map dungeon
+        |room vault 4x4
+        |  stairs: up west 0,0
+        |  stairs: down east 2,2
+        |""".stripMargin
+    DslParser.parse(input) match
+      case Right(DungeonMap(_, DungeonMapSource.Manual(rooms, _, _))) =>
+        assertEquals(rooms.head.features, List(
+          RoomFeature.Stairs(StairDir.Up, WallSide.West, FeaturePosition.At(0, 0)),
+          RoomFeature.Stairs(StairDir.Down, WallSide.East, FeaturePosition.At(2, 2)),
+        ))
+      case other => fail(s"unexpected: $other")
+
+  test("spiral-stairs and ladder accept an optional position, same as stairs"):
+    val input =
+      """map dungeon
+        |room tower 4x4
+        |  spiral-stairs: up 1,1
+        |  ladder: down east
+        |""".stripMargin
+    DslParser.parse(input) match
+      case Right(DungeonMap(_, DungeonMapSource.Manual(rooms, _, _))) =>
+        assertEquals(rooms.head.features, List(
+          RoomFeature.SpiralStairs(StairDir.Up, FeaturePosition.At(1, 1)),
+          RoomFeature.Ladder(StairDir.Down, FeaturePosition.Side(WallSide.East)),
+        ))
+      case other => fail(s"unexpected: $other")
+
+  test("builtin icons (e.g. torch, chest) work with no import statement"):
+    val input =
+      """map dungeon
+        |room hall 5x4
+        |  torch: north
+        |  chest: 1,1
+        |""".stripMargin
+    DslParser.parse(input) match
+      case Right(DungeonMap(_, DungeonMapSource.Manual(rooms, _, _))) =>
+        assertEquals(rooms.head.features, List(
+          RoomFeature.Icon("builtin", "chest", position = FeaturePosition.At(1, 1)),
+          RoomFeature.Icon("builtin", "torch", position = FeaturePosition.Side(WallSide.North)),
+        ))
+      case other => fail(s"unexpected: $other")
+
+  test("an unrecognised bare key is ignored, not mistaken for a builtin icon"):
+    val input =
+      """map dungeon
+        |room hall 5x4
+        |  gizmo: north
+        |""".stripMargin
+    DslParser.parse(input) match
+      case Right(DungeonMap(_, DungeonMapSource.Manual(rooms, _, _))) =>
+        assertEquals(rooms.head.features, Nil)
+      case other => fail(s"unexpected: $other")
+
   test("ignores comments"):
     val input =
       """# This is a comment

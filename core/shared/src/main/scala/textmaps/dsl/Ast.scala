@@ -57,10 +57,11 @@ object FeaturePosition:
   val auto: FeaturePosition = Auto
 
 enum RoomFeature:
-  // Vertical movement
-  case Stairs(dir: StairDir, facing: WallSide = WallSide.North) // standard staircase; facing = wall it leads toward
-  case SpiralStairs(dir: StairDir)       // spiral staircase
-  case Ladder(dir: StairDir)             // ladder up or down
+  // Vertical movement — positioned the same way as Icon (`position: FeaturePosition`), so more than one
+  // in a room (e.g. two separate staircases) no longer has to overlap at the room's centre.
+  case Stairs(dir: StairDir, facing: WallSide = WallSide.North, position: FeaturePosition = FeaturePosition.Auto) // facing = wall the flight leads toward
+  case SpiralStairs(dir: StairDir, position: FeaturePosition = FeaturePosition.Auto)       // spiral staircase
+  case Ladder(dir: StairDir, position: FeaturePosition = FeaturePosition.Auto)             // ladder up or down
   // Wall opening — the only wall feature still a hardcoded direct SVG symbol
   // (alongside doors); every other wall furnishing is an Icon (see below).
   case Window(side: WallSide)

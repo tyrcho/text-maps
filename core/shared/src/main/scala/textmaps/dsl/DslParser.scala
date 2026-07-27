@@ -1,5 +1,7 @@
 package textmaps.dsl
 
+import textmaps.icons.BuiltinIcons
+
 /** Line-oriented DSL parser. Each top-level declaration starts at column 0;
  *  properties are indented with at least one space. `import <path> as <alias>`
  *  lines (anywhere in the document, before or after the `map` header) are
@@ -179,15 +181,27 @@ object DslParser:
     val buf = List.newBuilder[RoomFeature]
 
     // Vertical movement — repeatable: multiple `stairs:`/`spiral-stairs:`/`ladder:` lines in one room
-    // (e.g. two separate staircases) each produce their own feature instance.
-    props.getOrElse("stairs", Nil).flatMap(parseStairs).foreach { case (d, f) => buf += RoomFeature.Stairs(d, f) }
-    props.getOrElse("spiral-stairs", Nil).flatMap(parseStairDir).foreach(d => buf += RoomFeature.SpiralStairs(d))
-    props.getOrElse("ladder", Nil).flatMap(parseStairDir).foreach(d => buf += RoomFeature.Ladder(d))
+    // (e.g. two separate staircases) each produce their own feature instance, positioned like any Icon.
+    props.getOrElse("stairs", Nil).flatMap(parseStairs).foreach { case (d, f, p) => buf += RoomFeature.Stairs(d, f, p) }
+    props.getOrElse("spiral-stairs", Nil).flatMap(parseStairDirAndPosition).foreach { case (d, p) => buf += RoomFeature.SpiralStairs(d, p) }
+    props.getOrElse("ladder", Nil).flatMap(parseStairDirAndPosition).foreach { case (d, p) => buf += RoomFeature.Ladder(d, p) }
 
     // Window — the only wall opening still a hardcoded direct SVG symbol,
     // alongside doors; supports comma-separated sides on one line (e.g. `window: north,south`)
     // and repeated `window:` lines alike.
     props.getOrElse("window", Nil).foreach(_.split(",").flatMap(s => parseWallSide(s.strip())).foreach(s => buf += RoomFeature.Window(s)))
+
+    // A curated set of common furnishing icons (torch, chest, barrel, ...) is bundled directly into the
+    // renderer and usable with no `import` at all, keyed by their bare name (e.g. `torch:`). See
+    // `BuiltinIcons` for the full list and `doc/icons/builtin/SOURCES.md` for attribution. Same value
+    // vocabulary (size/position/comma-list-of-sides/repeated-key) as the imported-icon case below.
+    for
+      (key, values)     <- props.toList.sortBy(_._1)
+      if BuiltinIcons.paths.contains(key)
+      value             <- values
+      (size, position)  <- parseIconValue(value)
+    do
+      buf += RoomFeature.Icon(BuiltinIcons.iconSetName, key, size, position)
 
     // Every other room feature — free-standing structural/natural or a wall
     // furnishing (fireplace, bed, curtain, arrow slit, illusory wall, ...) — is
@@ -263,13 +277,43 @@ object DslParser:
     case "down" => Some(StairDir.Down)
     case _      => None
 
-  /** `up`/`down` alone (facing defaults to north), or `up north`/`down west` etc. —
-   *  a direction of travel plus which wall the stairs lead toward. */
-  private def parseStairs(s: String): Option[(StairDir, WallSide)] =
+  /** A free-standing feature's position, same vocabulary as `parseSizeOrPosition` but position-only
+   *  (stairs/spiral-stairs/ladder aren't resizable): a wall-side word biases toward that edge of the
+   *  room, `col,row` places it at precise grid-cell coordinates. */
+  private def parsePositionToken(s: String): Option[FeaturePosition] =
+    parseWallSide(s) match
+      case Some(side) => Some(FeaturePosition.Side(side))
+      case None =>
+        s.split(",", 2) match
+          case Array(c, r) if c.strip().toIntOption.isDefined && r.strip().toIntOption.isDefined =>
+            Some(FeaturePosition.At(c.strip().toInt, r.strip().toInt))
+          case _ => None
+
+  /** `up`/`down` alone (facing defaults to north, position to Auto/centred), `up west` (facing only),
+   *  `up west 2,1` (facing + position), or `up 2,1` (position only, facing stays default) — the
+   *  second token is treated as the facing wall if it parses as one, otherwise as a position, so
+   *  facing can be skipped without an explicit placeholder. */
+  private def parseStairs(s: String): Option[(StairDir, WallSide, FeaturePosition)] =
     s.strip().split("\\s+").toList match
-      case dir :: Nil         => parseStairDir(dir).map((_, WallSide.North))
-      case dir :: facing :: _ => for d <- parseStairDir(dir); f <- parseWallSide(facing) yield (d, f)
-      case _                  => None
+      case dir :: Nil => parseStairDir(dir).map((_, WallSide.North, FeaturePosition.Auto))
+      case dir :: second :: rest =>
+        parseStairDir(dir).map { d =>
+          parseWallSide(second) match
+            case Some(f) =>
+              val pos = rest.headOption.flatMap(parsePositionToken).getOrElse(FeaturePosition.Auto)
+              (d, f, pos)
+            case None =>
+              (d, WallSide.North, parsePositionToken(second).getOrElse(FeaturePosition.Auto))
+        }
+      case _ => None
+
+  /** `up`/`down` alone (position defaults to Auto/centred), or `up 2,1` — direction plus an optional
+   *  position (used by `spiral-stairs:`/`ladder:`, which have no facing concept). */
+  private def parseStairDirAndPosition(s: String): Option[(StairDir, FeaturePosition)] =
+    s.strip().split("\\s+").toList match
+      case dir :: Nil       => parseStairDir(dir).map((_, FeaturePosition.Auto))
+      case dir :: pos :: _  => parseStairDir(dir).map(d => (d, parsePositionToken(pos).getOrElse(FeaturePosition.Auto)))
+      case _                => None
 
   // ── Helpers ─────────────────────────────────────────────────────────────
 
