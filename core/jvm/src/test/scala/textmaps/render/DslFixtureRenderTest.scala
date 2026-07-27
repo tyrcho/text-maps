@@ -6,16 +6,15 @@ import textmaps.dsl.DslParser
 import textmaps.icons.TestIcons
 import textmaps.layout.LayoutEngine
 
-/** Parses each `.dsl` file next to the approved SVG/ASCII fixtures and asserts it
+/** Parses each `.dsl` file next to the approved SVG fixtures and asserts it
  *  reproduces the same approved output — keeps the DSL source from drifting out of
- *  sync with what the renderers actually produce. Coexists with the TestMaps-based
- *  tests, which exercise LayoutEngine/renderers directly without going through the
- *  DSL parser.
+ *  sync with what the renderer actually produces. Coexists with the TestMaps-based
+ *  tests, which exercise LayoutEngine/SvgStringRenderer directly without going
+ *  through the DSL parser.
  */
 class DslFixtureRenderTest extends AnyFunSuite:
 
-  private val svgDir   = Path.of("core/shared/src/test/resources/textmaps/render/SvgStringRendererTest.files")
-  private val asciiDir = Path.of("core/shared/src/test/resources/textmaps/render/AsciiRendererTest.files")
+  private val svgDir = Path.of("core/shared/src/test/resources/textmaps/render/SvgStringRendererTest.files")
 
   private val names = List(
     "two_connected_rooms",
@@ -34,7 +33,7 @@ class DslFixtureRenderTest extends AnyFunSuite:
   )
 
   for name <- names do
-    test(s"DSL fixture '$name' reproduces its approved SVG and ASCII output") {
+    test(s"DSL fixture '$name' reproduces its approved SVG output") {
       val dslText = Files.readString(svgDir.resolve(s"$name.dsl"))
       val parsed = DslParser.parse(dslText) match
         case Right(map) => map
@@ -43,7 +42,4 @@ class DslFixtureRenderTest extends AnyFunSuite:
 
       val expectedSvg = Files.readString(svgDir.resolve(s"$name.approved.svg"))
       assert(SvgStringRenderer.render(rendered, TestIcons.fetcher) == expectedSvg, s"SVG mismatch for '$name'")
-
-      val expectedAscii = Files.readString(asciiDir.resolve(s"$name.approved.txt"))
-      assert(AsciiRenderer.render(rendered) == expectedAscii, s"ASCII mismatch for '$name'")
     }

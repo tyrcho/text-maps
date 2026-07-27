@@ -54,18 +54,15 @@ enum RoomFeature:
   case Stairs(dir: StairDir, facing: WallSide = WallSide.North) // standard staircase; facing = wall it leads toward
   case SpiralStairs(dir: StairDir)       // spiral staircase
   case Ladder(dir: StairDir)             // ladder up or down
-  // Wall openings
-  case Window(side: WallSide)            // window (light/sight, not traversable)
-  case ArrowSlit(side: WallSide)         // narrow defensive slit
-  case IllusoryWall(side: WallSide)      // wall that appears solid but isn't
-  // Furniture / fixtures
-  case Fireplace(side: WallSide)         // fireplace against a wall
-  case Bed(side: WallSide)               // bed against a wall
-  case Curtain(side: WallSide)           // hanging curtain across a wall
-  // Free-standing, cell-positioned features — an icon from an imported Iconify
-  // icon set (DSL: `import <path> as <alias>`, then `<alias>.<icon-name>: <value>`),
-  // default 1 square, can be resized and positioned like the old hardcoded
-  // structural/natural features it replaces.
+  // Wall opening — the only wall feature still a hardcoded direct SVG symbol
+  // (alongside doors); every other wall furnishing is an Icon (see below).
+  case Window(side: WallSide)
+  // Any other room feature (free-standing structural/natural — pillar, statue,
+  // stalactite, ... — or a wall furnishing — fireplace, bed, curtain, arrow
+  // slit, illusory wall, ...): an icon from an imported Iconify icon set (DSL:
+  // `import <path> as <alias>`, then `<alias>.<icon-name>: <value>`), default 1
+  // square, resized/positioned the same way regardless of what it depicts —
+  // `position: FeaturePosition.Side` is used for wall furnishings.
   case Icon(iconSet: String, iconName: String, size: FeatureSize = FeatureSize.default, position: FeaturePosition = FeaturePosition.Auto)
 
 case class RoomSize(width: Int, height: Int)

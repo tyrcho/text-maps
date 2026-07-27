@@ -3,7 +3,7 @@ package textmaps.render
 import textmaps.dsl.*
 import textmaps.layout.{LayoutEngine, RenderedMap}
 
-/** Canonical map definitions shared between AsciiRendererTest and SvgStringRendererTest. */
+/** Canonical map definitions used by SvgStringRendererTest. */
 object TestMaps:
 
   val twoConnectedRooms: RenderedMap = LayoutEngine.layout(
@@ -135,23 +135,24 @@ object TestMaps:
     None,
   )
 
+  /** Wall furnishings (formerly hardcoded ArrowSlit/Bed/IllusoryWall/Fireplace/Curtain)
+   *  are now icons too — only Window stays a hardcoded direct SVG symbol. Feature order
+   *  matches DslParser's sorted-by-property-key order (`gi.<name>` alphabetically), and
+   *  `gi.bed: north,south` expands to two Icon instances in that order, so this fixture
+   *  stays byte-identical to what parsing the equivalent `.dsl` file produces. */
   val wallFeatures: RenderedMap = LayoutEngine.layout(
     List(
       Room("barracks", RoomSize(5, 4), Some("Barracks"),
-        // Order matches DslParser.parseRoomFeatures' fixed emission order
-        // (arrow-slit before bed) so this fixture matches its DSL companion byte-for-byte.
         features = List(
-          RoomFeature.ArrowSlit(WallSide.East),
-          RoomFeature.Bed(WallSide.North),
-          RoomFeature.Bed(WallSide.South),
+          RoomFeature.Icon("game-icons", "bed", position = FeaturePosition.Side(WallSide.North)),
+          RoomFeature.Icon("game-icons", "bed", position = FeaturePosition.Side(WallSide.South)),
+          RoomFeature.Icon("game-icons", "watchtower", position = FeaturePosition.Side(WallSide.East)),
         )),
       Room("hall", RoomSize(5, 4), Some("Hall"),
-        // Order matches DslParser.parseRoomFeatures' fixed emission order
-        // (illusory-wall, then fireplace, then curtain).
         features = List(
-          RoomFeature.IllusoryWall(WallSide.South),
-          RoomFeature.Fireplace(WallSide.North),
-          RoomFeature.Curtain(WallSide.West),
+          RoomFeature.Icon("game-icons", "fireplace", position = FeaturePosition.Side(WallSide.North)),
+          RoomFeature.Icon("game-icons", "invisible", position = FeaturePosition.Side(WallSide.South)),
+          RoomFeature.Icon("game-icons", "theater-curtains", position = FeaturePosition.Side(WallSide.West)),
         )),
     ),
     List(Connection("barracks", "hall", DoorType.Open)),

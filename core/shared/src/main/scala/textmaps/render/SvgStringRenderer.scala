@@ -15,10 +15,11 @@ import textmaps.layout.*
  *  - Dark ink wall strokes
  *  - Stairs: box with tapering step bars, rotated to face the wall the flight
  *    leads toward; bar stroke weight fades with depth to show Up vs Down
- *  - Windows: small opening gap on the wall
+ *  - Windows: small opening gap on the wall — along with doors, the only
+ *    hardcoded direct-SVG room feature
  *  - Doors: flat gap glyph by default; an architectural leaf + swing arc when
  *    `swing` is Inside/Outside; secret doors get a small "S" above their line
- *  - Free-standing features (`RoomFeature.Icon`) are embedded Iconify icons,
+ *  - Every other room feature (`RoomFeature.Icon`) is an embedded Iconify icon,
  *    fetched via an injected `IconFetcher`; a missing icon falls back to a
  *    dashed placeholder box + its name rather than rendering nothing
  *  - Room number inside (bold, centred); room name below the room
@@ -111,36 +112,12 @@ object SvgStringRenderer:
     <line x1="8"  y1="19" x2="22" y2="19" stroke="#333" stroke-width="1"/>
     <line x1="8"  y1="25" x2="22" y2="25" stroke="#333" stroke-width="1"/>
   </symbol>
-  <!-- Wall-placed feature symbols (30×30, designed to sit on a wall) -->
+  <!-- Wall-placed feature symbol (30×6, designed to sit on a wall) -->
   <symbol id="feat-window" viewBox="0 0 30 6">
     <rect x="0"  y="0" width="30" height="6" fill="white"/>
     <rect x="0"  y="1" width="8"  height="4" fill="#cce" stroke="#99c" stroke-width="0.5"/>
     <rect x="11" y="1" width="8"  height="4" fill="#cce" stroke="#99c" stroke-width="0.5"/>
     <rect x="22" y="1" width="8"  height="4" fill="#cce" stroke="#99c" stroke-width="0.5"/>
-  </symbol>
-  <symbol id="feat-arrow-slit" viewBox="0 0 30 6">
-    <rect x="0"  y="0" width="30" height="6" fill="white"/>
-    <rect x="12" y="1" width="6"  height="4" fill="#555"/>
-  </symbol>
-  <symbol id="feat-illusory-wall" viewBox="0 0 30 4">
-    <line x1="0" y1="2" x2="30" y2="2"
-          stroke="#888" stroke-width="1.5" stroke-dasharray="4,3"/>
-  </symbol>
-  <symbol id="feat-fireplace" viewBox="0 0 30 20">
-    <rect x="0"  y="0"  width="30" height="20" fill="#555" stroke="#333" stroke-width="1"/>
-    <path d="M 7 19 L 7 8 A 8 8 0 0 1 23 8 L 23 19 Z" fill="white"/>
-    <path d="M 11 17 Q 15 9 19 17" fill="none" stroke="#c63" stroke-width="1.5"/>
-  </symbol>
-  <symbol id="feat-bed" viewBox="0 0 30 24">
-    <rect x="1"  y="1"  width="28" height="22" fill="white" stroke="#333" stroke-width="1"/>
-    <rect x="1"  y="1"  width="28" height="7"  fill="#ddd" stroke="#333" stroke-width="0.5"/>
-    <circle cx="8"  cy="5" r="3" fill="white" stroke="#333" stroke-width="0.5"/>
-    <circle cx="22" cy="5" r="3" fill="white" stroke="#333" stroke-width="0.5"/>
-  </symbol>
-  <symbol id="feat-curtain" viewBox="0 0 30 16">
-    <line x1="0" y1="2" x2="30" y2="2" stroke="#333" stroke-width="1.5"/>
-    <path d="M 0 2 Q 3 14 6 8 Q 9 2 12 14 Q 15 2 18 14 Q 21 2 24 14 Q 27 2 30 8"
-          fill="none" stroke="#333" stroke-width="1.2"/>
   </symbol>
 </defs>"""
 
@@ -260,13 +237,8 @@ object SvgStringRenderer:
       case RoomFeature.SpiralStairs(dir)  => List(spiralStairs(rm, dir))
       case RoomFeature.Ladder(dir)        => List(centeredSymbol(rm, "feat-ladder", dir))
       case RoomFeature.Icon(iconSet, iconName, size, pos) => List(iconFeature(rm, iconSet, iconName, size, pos, iconFetcher))
-      // Wall features — use `<use>` placed on the wall
+      // Window — the only wall opening still a `<use>`-placed direct SVG symbol.
       case RoomFeature.Window(side)       => List(wallUse(rm, side, "feat-window",      30, 6))
-      case RoomFeature.ArrowSlit(side)    => List(wallUse(rm, side, "feat-arrow-slit",  30, 6))
-      case RoomFeature.IllusoryWall(side) => List(wallUse(rm, side, "feat-illusory-wall", 30, 4))
-      case RoomFeature.Fireplace(side)    => List(wallUse(rm, side, "feat-fireplace",   30, 20))
-      case RoomFeature.Bed(side)          => List(wallUse(rm, side, "feat-bed",         30, 24))
-      case RoomFeature.Curtain(side)      => List(wallUse(rm, side, "feat-curtain",     30, 16))
     }
 
   /** Bordered box with tapering horizontal step bars (narrow near the top, wide

@@ -177,6 +177,33 @@ class DslParserTest extends munit.FunSuite:
         assert(rooms.head.features.contains(RoomFeature.Icon("game-icons", "colombian-statue", FeatureSize(2, 3), FeaturePosition.Auto)))
       case other => fail(s"unexpected: $other")
 
+  test("a comma list of wall sides creates one icon instance per side (wall-furnishing case)"):
+    val input =
+      """import icon-sets.iconify.design/game-icons as gi
+        |map dungeon
+        |room barracks 5x4
+        |  gi.bed: north,south
+        |""".stripMargin
+    DslParser.parse(input) match
+      case Right(DungeonMap(_, DungeonMapSource.Manual(rooms, _))) =>
+        assertEquals(rooms.head.features, List(
+          RoomFeature.Icon("game-icons", "bed", FeatureSize.default, FeaturePosition.Side(WallSide.North)),
+          RoomFeature.Icon("game-icons", "bed", FeatureSize.default, FeaturePosition.Side(WallSide.South)),
+        ))
+      case other => fail(s"unexpected: $other")
+
+  test("a col,row coordinate is not mistaken for a wall-side comma list"):
+    val input =
+      """import icon-sets.iconify.design/game-icons as gi
+        |map dungeon
+        |room cave 6x5
+        |  gi.colombian-statue: 2,3
+        |""".stripMargin
+    DslParser.parse(input) match
+      case Right(DungeonMap(_, DungeonMapSource.Manual(rooms, _))) =>
+        assertEquals(rooms.head.features, List(RoomFeature.Icon("game-icons", "colombian-statue", FeatureSize.default, FeaturePosition.At(2, 3))))
+      case other => fail(s"unexpected: $other")
+
   test("a property key with a dot but no matching import is ignored, not treated as an icon"):
     val input =
       """map dungeon

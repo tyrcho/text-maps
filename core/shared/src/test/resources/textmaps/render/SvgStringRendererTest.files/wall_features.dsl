@@ -1,15 +1,17 @@
 map dungeon
 
+import icon-sets.iconify.design/game-icons as gi
+
 room barracks 5x4
   label: "Barracks"
-  bed: north,south
-  arrow-slit: east
+  gi.bed: north,south
+  gi.watchtower: east
 
 room hall 5x4
   label: "Hall"
-  fireplace: north
-  curtain: west
-  illusory-wall: south
+  gi.fireplace: north
+  gi.invisible: south
+  gi.theater-curtains: west
 
 connect barracks -> hall
   door: open

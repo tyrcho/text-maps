@@ -158,24 +158,18 @@ object DslParser:
     props.get("spiral-stairs").flatMap(parseStairDir).foreach(d => buf += RoomFeature.SpiralStairs(d))
     props.get("ladder").flatMap(parseStairDir).foreach(d => buf += RoomFeature.Ladder(d))
 
-    // Wall openings (all support comma-separated sides)
-    def sides(key: String)(f: WallSide => RoomFeature): Unit =
-      props.get(key).foreach(_.split(",").flatMap(s => parseWallSide(s.strip())).foreach(s => buf += f(s)))
+    // Window — the only wall opening still a hardcoded direct SVG symbol,
+    // alongside doors; supports comma-separated sides (e.g. `window: north,south`).
+    props.get("window").foreach(_.split(",").flatMap(s => parseWallSide(s.strip())).foreach(s => buf += RoomFeature.Window(s)))
 
-    sides("window")(RoomFeature.Window(_))
-    sides("arrow-slit")(RoomFeature.ArrowSlit(_))
-    sides("illusory-wall")(RoomFeature.IllusoryWall(_))
-
-    // Furniture / fixtures
-    sides("fireplace")(RoomFeature.Fireplace(_))
-    sides("bed")(RoomFeature.Bed(_))
-    sides("curtain")(RoomFeature.Curtain(_))
-
-    // Free-standing, cell-positioned features — an icon from an imported Iconify
-    // icon set, keyed `<alias>.<icon-name>` (e.g. `gi.stalactites`, given a header
-    // `import icon-sets.iconify.design/game-icons as gi`). The value is either a
-    // size (`2`, `2x3`) or a position (`north`, `2,1`) — not both at once, same
-    // convention as the old hardcoded structural/natural features this replaces.
+    // Every other room feature — free-standing structural/natural or a wall
+    // furnishing (fireplace, bed, curtain, arrow slit, illusory wall, ...) — is
+    // an icon from an imported Iconify icon set, keyed `<alias>.<icon-name>`
+    // (e.g. `gi.stalactites`, given a header `import .../game-icons as gi`).
+    // The value is either a size (`2`, `2x3`), a single position (`north`,
+    // `2,1`), or — matching the old wall features' comma-separated-sides
+    // support — a comma list of wall-side words (`north,south`), which creates
+    // one Icon per side instead of a single positioned Icon.
     // Iterated in sorted key order — `props`/`imports` are plain Maps with no
     // reliable iteration order, and feature order must be deterministic (both for
     // stable rendering and for DslFixtureRenderTest, which compares against a
@@ -184,8 +178,8 @@ object DslParser:
       (alias, iconSet) <- imports.toList.sortBy(_._1)
       (key, value)      <- props.toList.sortBy(_._1)
       iconName          <- Some(key).filter(_.startsWith(s"$alias.")).map(_.stripPrefix(s"$alias."))
+      (size, position)  <- parseIconValue(value)
     do
-      val (size, position) = parseSizeOrPosition(value)
       buf += RoomFeature.Icon(iconSet, iconName, size, position)
 
     buf.result()
@@ -213,6 +207,19 @@ object DslParser:
             (FeatureSize.default, FeaturePosition.At(c.strip().toInt, r.strip().toInt))
           case _ =>
             (parseFeatureSize(s), FeaturePosition.Auto)
+
+  /** An icon feature's value, which may expand to more than one feature: a comma
+   *  list where every part is a wall-side word (e.g. `north,south`) yields one
+   *  `(default size, Side(that wall))` pair per side — the multi-instance
+   *  wall-furnishing case (`gi.bed: north,south` → two beds). Anything else
+   *  (a single value, or a `col,row` coordinate, which is also comma-separated
+   *  but isn't all wall-side words) falls back to `parseSizeOrPosition`. */
+  private def parseIconValue(v: String): List[(FeatureSize, FeaturePosition)] =
+    val parts = v.strip().split(",").map(_.strip())
+    if parts.length > 1 && parts.forall(parseWallSide(_).isDefined) then
+      parts.toList.flatMap(p => parseWallSide(p).map(side => (FeatureSize.default, FeaturePosition.Side(side))))
+    else
+      List(parseSizeOrPosition(v))
 
   private def parseWallSide(s: String): Option[WallSide] = s.toLowerCase match
     case "north" | "n" => Some(WallSide.North)
