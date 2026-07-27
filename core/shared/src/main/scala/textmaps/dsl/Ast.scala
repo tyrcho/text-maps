@@ -82,6 +82,11 @@ case class Room(
   features: List[RoomFeature] = Nil,
 )
 
+/** A callout annotation pointing at a room, independent of that room's own label — the
+ *  leader-line-and-text-box convention seen in One Page Dungeon-style maps (DSL:
+ *  `note <side> of <room-id>: <text>`, e.g. `note left of vault: A trunk of gold and rations.`). */
+case class Note(roomId: String, side: WallSide, text: String)
+
 case class Connection(
   from:      String,
   to:        String,
@@ -103,7 +108,7 @@ case class MapMeta(
 )
 
 enum DungeonMapSource:
-  case Manual(rooms: List[Room], connections: List[Connection])
+  case Manual(rooms: List[Room], connections: List[Connection], notes: List[Note] = Nil)
   case Generated(roomCount: Int, style: Option[String] = None, seed: Option[Long] = None)
 
 case class DungeonMap(meta: MapMeta, source: DungeonMapSource)

@@ -63,4 +63,5 @@
 <text x="0" y="-32" text-anchor="middle" dominant-baseline="auto" fill="#333" font-size="9" font-family="sans-serif" font-weight="bold">1</text>
 <text x="-95" y="85" fill="#333" font-size="10" font-family="sans-serif" font-weight="bold">Legend</text>
 <text x="-95" y="99" fill="#555" font-size="9" font-family="serif" font-style="italic">1 - Alone</text>
+
 </svg>

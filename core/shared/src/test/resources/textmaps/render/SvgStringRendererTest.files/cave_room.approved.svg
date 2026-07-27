@@ -71,4 +71,5 @@
 <text x="-80" y="115" fill="#333" font-size="10" font-family="sans-serif" font-weight="bold">Legend</text>
 <text x="-80" y="129" fill="#555" font-size="9" font-family="serif" font-style="italic">1 - Entrance</text>
 <text x="-80" y="143" fill="#555" font-size="9" font-family="serif" font-style="italic">2 - Cavern</text>
+
 </svg>

@@ -9,6 +9,7 @@ package textmaps.dsl
 object DslParser:
 
   private val ImportRe = """^import\s+(\S+)\s+as\s+(\S+)$""".r
+  private val NoteRe   = """^note\s+(\S+)\s+of\s+(\S+)\s*:\s*(.*)$""".r
 
   def parse(input: String): ParseResult =
     val allLines = input.linesIterator.toList
@@ -31,6 +32,7 @@ object DslParser:
     case RoomDecl(id: String, size: RoomSize)
     case ConnDecl(from: String, to: String)
     case GenerateDecl(roomCount: Int, style: Option[String], seed: Option[Long])
+    case NoteDecl(side: WallSide, roomId: String, text: String)
     case Prop(key: String, value: String)
 
   private def classifyLine(raw: String): Either[String, Line] =
@@ -43,8 +45,16 @@ object DslParser:
         case Array(k, v) => Right(Line.Prop(k.strip(), v.strip().stripQuotes))
         case _           => Right(Line.Blank)
     else
-      val tokens = line.split("\\s+").toList
-      tokens match
+      line match
+        case NoteRe(sideStr, roomId, text) =>
+          parseDirection(sideStr) match
+            case Some(side) => Right(Line.NoteDecl(side, roomId, text.strip()))
+            case None       => Left(s"Unknown note side: $sideStr")
+        case _ => classifyTokens(line)
+
+  private def classifyTokens(line: String): Either[String, Line] =
+    val tokens = line.split("\\s+").toList
+    tokens match
         case "map" :: "dungeon" :: rest =>
           Right(Line.MapHeader(if rest.nonEmpty then Some(rest.mkString(" ").stripQuotes) else None, MapType.Dungeon))
         case "map" :: "building" :: rest =>
@@ -69,6 +79,7 @@ object DslParser:
   private case class RoomStmt(room: Room)          extends Stmt
   private case class ConnStmt(conn: Connection)    extends Stmt
   private case class GenStmt(gen: DungeonMapSource.Generated) extends Stmt
+  private case class NoteStmt(note: Note)          extends Stmt
 
   private def parseLines(lines: List[String], imports: Map[String, String]): ParseResult =
     val nonBlank = lines.indexWhere(l => l.strip().nonEmpty && !l.strip().startsWith("#"))
@@ -97,6 +108,7 @@ object DslParser:
           DungeonMapSource.Manual(
             rooms = stmts.collect { case RoomStmt(r) => r },
             connections = stmts.collect { case ConnStmt(c) => c },
+            notes = stmts.collect { case NoteStmt(n) => n },
           )
         }
         DungeonMap(meta, source)
@@ -134,6 +146,8 @@ object DslParser:
           ))
         case Right(Line.GenerateDecl(n, style, seed)) =>
           stmts += GenStmt(DungeonMapSource.Generated(n, style, seed))
+        case Right(Line.NoteDecl(side, roomId, text)) =>
+          stmts += NoteStmt(Note(roomId, side, text))
         case Right(Line.MapHeader(_, _)) => ()
         case Right(Line.Prop(_, _))      => ()
         case Left(msg) =>

@@ -80,4 +80,5 @@
 <text x="-80" y="85" fill="#333" font-size="10" font-family="sans-serif" font-weight="bold">Legend</text>
 <text x="-80" y="99" fill="#555" font-size="9" font-family="serif" font-style="italic">1 - Entry</text>
 <text x="-80" y="113" fill="#555" font-size="9" font-family="serif" font-style="italic">2 - Vault</text>
+
 </svg>

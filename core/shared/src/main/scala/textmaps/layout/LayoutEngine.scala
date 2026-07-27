@@ -38,6 +38,9 @@ case class RenderedDoor(
   intoRoomSign: Double    = 1.0, // +1/-1: which perpendicular direction (pre-rotation) points into this door's own room
 )
 
+// A callout annotation resolved against its room's actual placed position.
+case class RenderedNote(room: RenderedRoom, side: WallSide, text: String)
+
 case class RenderedMap(
   rooms:      List[RenderedRoom],
   corridors:  List[RenderedCorridor],
@@ -49,6 +52,7 @@ case class RenderedMap(
   mapType:         MapType         = MapType.Dungeon,
   labelStyle:      LabelStyle      = LabelStyle.Legend,
   backgroundStyle: BackgroundStyle = BackgroundStyle.Plain,
+  notes:           List[RenderedNote] = Nil,
 )
 
 object LayoutEngine:
@@ -60,8 +64,8 @@ object LayoutEngine:
 
   def compute(map: DungeonMap): RenderedMap =
     map.source match
-      case DungeonMapSource.Manual(rooms, conns) =>
-        layout(rooms, conns, map.meta.seed, map.meta.mapType, map.meta.labelStyle, map.meta.background)
+      case DungeonMapSource.Manual(rooms, conns, notes) =>
+        layout(rooms, conns, map.meta.seed, map.meta.mapType, map.meta.labelStyle, map.meta.background, notes)
       case DungeonMapSource.Generated(_, _, _) =>
         layout(List.empty, List.empty, None, map.meta.mapType, map.meta.labelStyle, map.meta.background)
 
@@ -72,6 +76,7 @@ object LayoutEngine:
     mapType:    MapType                  = MapType.Dungeon,
     labelStyle: Option[LabelStyle]       = None,
     background: Option[BackgroundStyle]  = None,
+    notes:      List[Note]               = Nil,
   ): RenderedMap =
     val resolvedLabelStyle = labelStyle.getOrElse(defaultLabelStyle(mapType))
     val resolvedBackground = background.getOrElse(BackgroundStyle.Plain)
@@ -82,6 +87,7 @@ object LayoutEngine:
       val byId      = rendered.map(r => r.id -> r).toMap
       val corridors = conns.map(c => renderCorridor(c, byId))
       val doors     = conns.flatMap(c => renderDoors(c, byId))
+      val resolvedNotes = notes.map(n => RenderedNote(byId(n.roomId), n.side, n.text))
       val allX = rendered.flatMap(r => List(r.x - MARGIN_PX, r.x + r.w + MARGIN_PX))
       val allY = rendered.flatMap(r => List(r.y - MARGIN_PX, r.y + r.h + MARGIN_PX))
       RenderedMap(
@@ -95,6 +101,7 @@ object LayoutEngine:
         mapType         = mapType,
         labelStyle      = resolvedLabelStyle,
         backgroundStyle = resolvedBackground,
+        notes           = resolvedNotes,
       )
 
   // ── BFS tree placement ──────────────────────────────────────────────────

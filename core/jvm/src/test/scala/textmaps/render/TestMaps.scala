@@ -221,3 +221,16 @@ object TestMaps:
     None,
     Some(BackgroundStyle.ShadowEdge),
   )
+
+  val roomNotes: RenderedMap = LayoutEngine.layout(
+    List(
+      Room("vault", RoomSize(5, 4), Some("Vault")),
+      Room("hall",  RoomSize(6, 4), Some("Hall")),
+    ),
+    List(Connection("vault", "hall", DoorType.Open)),
+    None,
+    notes = List(
+      Note("vault", WallSide.West,  "A battered chest holds a scarf and a few silver coins."),
+      Note("vault", WallSide.North, "A tapestry on the wall depicting the land around the halls."),
+    ),
+  )

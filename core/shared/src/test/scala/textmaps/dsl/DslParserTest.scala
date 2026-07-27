@@ -14,7 +14,7 @@ class DslParserTest extends munit.FunSuite:
         |""".stripMargin
     val result = DslParser.parse(input)
     result match
-      case Right(DungeonMap(_, DungeonMapSource.Manual(rooms, _))) =>
+      case Right(DungeonMap(_, DungeonMapSource.Manual(rooms, _, _))) =>
         assertEquals(rooms.length, 2)
         assertEquals(rooms.head.id, "entrance")
         assertEquals(rooms.head.size, RoomSize(4, 4))
@@ -29,7 +29,7 @@ class DslParserTest extends munit.FunSuite:
         |  shape: circular
         |""".stripMargin
     DslParser.parse(input) match
-      case Right(DungeonMap(_, DungeonMapSource.Manual(rooms, _))) =>
+      case Right(DungeonMap(_, DungeonMapSource.Manual(rooms, _, _))) =>
         assertEquals(rooms.head.label, Some("Treasury"))
         assertEquals(rooms.head.shape, RoomShape.Circular)
       case other => fail(s"unexpected: $other")
@@ -43,7 +43,7 @@ class DslParserTest extends munit.FunSuite:
         |  door: locked
         |""".stripMargin
     DslParser.parse(input) match
-      case Right(DungeonMap(_, DungeonMapSource.Manual(_, conns))) =>
+      case Right(DungeonMap(_, DungeonMapSource.Manual(_, conns, _))) =>
         assertEquals(conns.length, 1)
         assertEquals(conns.head.from, "a")
         assertEquals(conns.head.to, "b")
@@ -83,7 +83,7 @@ class DslParserTest extends munit.FunSuite:
         |  window: north, east
         |""".stripMargin
     DslParser.parse(input) match
-      case Right(DungeonMap(meta, DungeonMapSource.Manual(rooms, _))) =>
+      case Right(DungeonMap(meta, DungeonMapSource.Manual(rooms, _, _))) =>
         assertEquals(meta.mapType, MapType.Building)
         assertEquals(rooms.head.features.count { case RoomFeature.Window(_) => true; case _ => false }, 2)
         assert(rooms.head.features.contains(RoomFeature.Window(WallSide.North)))
@@ -103,7 +103,7 @@ class DslParserTest extends munit.FunSuite:
         |  swing-to: outside
         |""".stripMargin
     DslParser.parse(input) match
-      case Right(DungeonMap(_, DungeonMapSource.Manual(_, conns))) =>
+      case Right(DungeonMap(_, DungeonMapSource.Manual(_, conns, _))) =>
         val c = conns.head
         assertEquals(c.direction, Some(WallSide.North))
         assertEquals(c.door, DoorType.Locked)
@@ -121,7 +121,7 @@ class DslParserTest extends munit.FunSuite:
         |  direction: r
         |""".stripMargin
     DslParser.parse(input) match
-      case Right(DungeonMap(_, DungeonMapSource.Manual(_, conns))) =>
+      case Right(DungeonMap(_, DungeonMapSource.Manual(_, conns, _))) =>
         assertEquals(conns.head.direction, Some(WallSide.East))
       case other => fail(s"unexpected: $other")
 
@@ -133,7 +133,7 @@ class DslParserTest extends munit.FunSuite:
         |  gi.stalactites:
         |""".stripMargin
     DslParser.parse(input) match
-      case Right(DungeonMap(_, DungeonMapSource.Manual(rooms, _))) =>
+      case Right(DungeonMap(_, DungeonMapSource.Manual(rooms, _, _))) =>
         assert(rooms.head.features.contains(RoomFeature.Icon("game-icons", "stalactites")))
       case other => fail(s"unexpected: $other")
 
@@ -145,7 +145,7 @@ class DslParserTest extends munit.FunSuite:
         |  gi.stalactites:
         |""".stripMargin
     DslParser.parse(input) match
-      case Right(DungeonMap(_, DungeonMapSource.Manual(rooms, _))) =>
+      case Right(DungeonMap(_, DungeonMapSource.Manual(rooms, _, _))) =>
         assert(rooms.head.features.contains(RoomFeature.Icon("game-icons", "stalactites")))
       case other => fail(s"unexpected: $other")
 
@@ -158,7 +158,7 @@ class DslParserTest extends munit.FunSuite:
         |  gi.colombian-statue: 2,3
         |""".stripMargin
     DslParser.parse(input) match
-      case Right(DungeonMap(_, DungeonMapSource.Manual(rooms, _))) =>
+      case Right(DungeonMap(_, DungeonMapSource.Manual(rooms, _, _))) =>
         assert(rooms.head.features.contains(RoomFeature.Icon("game-icons", "ionic-column", FeatureSize.default, FeaturePosition.Side(WallSide.North))))
         assert(rooms.head.features.contains(RoomFeature.Icon("game-icons", "colombian-statue", FeatureSize.default, FeaturePosition.At(2, 3))))
       case other => fail(s"unexpected: $other")
@@ -172,7 +172,7 @@ class DslParserTest extends munit.FunSuite:
         |  gi.colombian-statue: 2x3
         |""".stripMargin
     DslParser.parse(input) match
-      case Right(DungeonMap(_, DungeonMapSource.Manual(rooms, _))) =>
+      case Right(DungeonMap(_, DungeonMapSource.Manual(rooms, _, _))) =>
         assert(rooms.head.features.contains(RoomFeature.Icon("game-icons", "ionic-column", FeatureSize.square(2), FeaturePosition.Auto)))
         assert(rooms.head.features.contains(RoomFeature.Icon("game-icons", "colombian-statue", FeatureSize(2, 3), FeaturePosition.Auto)))
       case other => fail(s"unexpected: $other")
@@ -185,7 +185,7 @@ class DslParserTest extends munit.FunSuite:
         |  gi.bed: north,south
         |""".stripMargin
     DslParser.parse(input) match
-      case Right(DungeonMap(_, DungeonMapSource.Manual(rooms, _))) =>
+      case Right(DungeonMap(_, DungeonMapSource.Manual(rooms, _, _))) =>
         assertEquals(rooms.head.features, List(
           RoomFeature.Icon("game-icons", "bed", FeatureSize.default, FeaturePosition.Side(WallSide.North)),
           RoomFeature.Icon("game-icons", "bed", FeatureSize.default, FeaturePosition.Side(WallSide.South)),
@@ -200,7 +200,7 @@ class DslParserTest extends munit.FunSuite:
         |  gi.colombian-statue: 2,3
         |""".stripMargin
     DslParser.parse(input) match
-      case Right(DungeonMap(_, DungeonMapSource.Manual(rooms, _))) =>
+      case Right(DungeonMap(_, DungeonMapSource.Manual(rooms, _, _))) =>
         assertEquals(rooms.head.features, List(RoomFeature.Icon("game-icons", "colombian-statue", FeatureSize.default, FeaturePosition.At(2, 3))))
       case other => fail(s"unexpected: $other")
 
@@ -213,7 +213,7 @@ class DslParserTest extends munit.FunSuite:
         |  gi.sarcophagus: 4,1
         |""".stripMargin
     DslParser.parse(input) match
-      case Right(DungeonMap(_, DungeonMapSource.Manual(rooms, _))) =>
+      case Right(DungeonMap(_, DungeonMapSource.Manual(rooms, _, _))) =>
         assertEquals(rooms.head.features, List(
           RoomFeature.Icon("game-icons", "sarcophagus", FeatureSize.default, FeaturePosition.At(1, 1)),
           RoomFeature.Icon("game-icons", "sarcophagus", FeatureSize.default, FeaturePosition.At(4, 1)),
@@ -228,7 +228,7 @@ class DslParserTest extends munit.FunSuite:
         |  stairs: down east
         |""".stripMargin
     DslParser.parse(input) match
-      case Right(DungeonMap(_, DungeonMapSource.Manual(rooms, _))) =>
+      case Right(DungeonMap(_, DungeonMapSource.Manual(rooms, _, _))) =>
         assertEquals(rooms.head.features, List(
           RoomFeature.Stairs(StairDir.Up, WallSide.West),
           RoomFeature.Stairs(StairDir.Down, WallSide.East),
@@ -242,7 +242,7 @@ class DslParserTest extends munit.FunSuite:
         |  gi.stalactites: north
         |""".stripMargin
     DslParser.parse(input) match
-      case Right(DungeonMap(_, DungeonMapSource.Manual(rooms, _))) =>
+      case Right(DungeonMap(_, DungeonMapSource.Manual(rooms, _, _))) =>
         assertEquals(rooms.head.features, Nil)
       case other => fail(s"unexpected: $other")
 
@@ -253,7 +253,7 @@ class DslParserTest extends munit.FunSuite:
         |  stairs: up
         |""".stripMargin
     DslParser.parse(input) match
-      case Right(DungeonMap(_, DungeonMapSource.Manual(rooms, _))) =>
+      case Right(DungeonMap(_, DungeonMapSource.Manual(rooms, _, _))) =>
         assert(rooms.head.features.contains(RoomFeature.Stairs(StairDir.Up, WallSide.North)))
       case other => fail(s"unexpected: $other")
 
@@ -264,7 +264,7 @@ class DslParserTest extends munit.FunSuite:
         |  stairs: down west
         |""".stripMargin
     DslParser.parse(input) match
-      case Right(DungeonMap(_, DungeonMapSource.Manual(rooms, _))) =>
+      case Right(DungeonMap(_, DungeonMapSource.Manual(rooms, _, _))) =>
         assert(rooms.head.features.contains(RoomFeature.Stairs(StairDir.Down, WallSide.West)))
       case other => fail(s"unexpected: $other")
 

@@ -107,12 +107,19 @@ since the "why" for both draws on the same reference images.
   specifically called out by the user as a liked style) show **two label conventions this project doesn't
   have yet**, distinct from the existing `legend`/`inline` `LabelStyle`s:
   1. Large in-room numerals with no visible external legend or in-room name text (`dungeon-opd-numbered-plan.png`).
+     Not implemented — still a `LabelStyle` candidate (`numbered-plain`) if this project ever wants closer
+     parity with the reference style the user pointed to.
   2. Callout boxes connected to specific map features by a leader line, used both for short tags
      (`callout-labels`) and full read-aloud room text under a map title + one-line hook
      (`titled-callouts`) — the latter is the complete "one-page dungeon" document convention (title, hook,
-     numbered boxed descriptions, map), not just a room-labeling choice.
-  Neither is implemented; recorded here as two additional `LabelStyle` candidates (`numbered-plain` and
-  `callout`) if this project ever wants closer parity with the reference style the user pointed to.
+     numbered boxed descriptions, map), not just a room-labeling choice. **Implemented (the leader-line
+     callout half, not the title/hook document convention):** a new top-level DSL statement,
+     `note <side> of <room-id>: <text>` (`Ast.Note`, `DungeonMapSource.Manual.notes`), independent of a
+     room's own label rather than a `LabelStyle` variant — a room can have any number of notes plus its own
+     label at once. Renders as a word-wrapped box with a leader line to the room, positioned on the given
+     side and stacked when more than one note shares a room+side; extends the viewBox as needed
+     (`SvgStringRenderer.noteBoxes`/`noteCallouts`/`expandForNotes`) since callouts can protrude on any side,
+     unlike the legend which only ever grows the map downward. See the `room_notes` fixture.
 
 ### Medieval
 
@@ -169,10 +176,12 @@ since the "why" for both draws on the same reference images.
 
 This ADR intentionally does not commit to implementing the city/town map type, a grid-square dungeon mode,
 medieval fortification-wall styling (thick walls, towers, courtyards), icon-based legend glyphs (concrete
-reference now available, see "Modern buildings/houses" above), or the callout/leader-line and plain-numeral
-label styles surfaced by the One Page Dungeon references (see "Dungeon" above) — those remain future work
-per the README and `doc/map-references/SOURCES.md`'s scope note. It only records what the gathered
-references suggest, for whoever picks that work up next.
+reference now available, see "Modern buildings/houses" above), or the plain-numeral label style surfaced by
+the One Page Dungeon references (see "Dungeon" above, `numbered-plain`) — those remain future work per the
+README and `doc/map-references/SOURCES.md`'s scope note. (The callout/leader-line half of that same
+reference is now implemented as `note`, see "Dungeon" above — only the title/one-line-hook/numbered-
+read-aloud-description document convention it's paired with in the reference remains undone.) This ADR only
+records what the gathered references suggest, for whoever picks up whatever's left.
 
 **Update:** the soft-shadow-edge background fill *is* now implemented (`BackgroundStyle.ShadowEdge`, see
 "Dungeon" above) — no longer a non-decision. Its default-background change (Plain for every `MapType`,

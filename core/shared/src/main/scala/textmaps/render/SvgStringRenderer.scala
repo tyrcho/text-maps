@@ -40,10 +40,11 @@ object SvgStringRenderer:
 
   def render(map: RenderedMap, iconFetcher: IconFetcher = IconFetcher.none): String =
     val pad = 60.0
-    val vx  = (map.minX - pad).toInt
-    val vy  = (map.minY - pad).toInt
-    val vw  = (map.width  + pad * 2).toInt
-    val vh  = (map.height + pad * 2 + legendHeight(map)).toInt
+    val baseVx = (map.minX - pad).toInt
+    val baseVy = (map.minY - pad).toInt
+    val baseVw = (map.width  + pad * 2).toInt
+    val baseVh = (map.height + pad * 2 + legendHeight(map)).toInt
+    val (vx, vy, vw, vh) = expandForNotes(map, baseVx, baseVy, baseVw, baseVh)
     s"""|<?xml version="1.0" encoding="UTF-8"?>
         |<svg xmlns="http://www.w3.org/2000/svg"
         |     viewBox="$vx $vy $vw $vh"
@@ -61,14 +62,16 @@ object SvgStringRenderer:
         |${map.doors.map(door).mkString("\n")}
         |${map.rooms.zipWithIndex.map { (rm, i) => roomLabel(rm, i + 1, map.labelStyle) }.mkString("\n")}
         |${legendBox(map)}
+        |${noteCallouts(map)}
         |</svg>""".stripMargin
 
   def renderInner(map: RenderedMap, iconFetcher: IconFetcher = IconFetcher.none): String =
     val pad = 60.0
-    val vx  = (map.minX - pad).toInt
-    val vy  = (map.minY - pad).toInt
-    val vw  = (map.width  + pad * 2).toInt
-    val vh  = (map.height + pad * 2 + legendHeight(map)).toInt
+    val baseVx = (map.minX - pad).toInt
+    val baseVy = (map.minY - pad).toInt
+    val baseVw = (map.width  + pad * 2).toInt
+    val baseVh = (map.height + pad * 2 + legendHeight(map)).toInt
+    val (vx, vy, vw, vh) = expandForNotes(map, baseVx, baseVy, baseVw, baseVh)
     val viewBoxAttr = s"$vx $vy $vw $vh"
     s"""|__VIEWBOX__${viewBoxAttr}__END__
         |${defs()}
@@ -83,7 +86,8 @@ object SvgStringRenderer:
         |${map.rooms.flatMap(rm => roomFeatures(rm, iconFetcher)).mkString("\n")}
         |${map.doors.map(door).mkString("\n")}
         |${map.rooms.zipWithIndex.map { (rm, i) => roomLabel(rm, i + 1, map.labelStyle) }.mkString("\n")}
-        |${legendBox(map)}""".stripMargin
+        |${legendBox(map)}
+        |${noteCallouts(map)}""".stripMargin
 
   // ── <defs> ────────────────────────────────────────────────────────────
 
@@ -261,6 +265,96 @@ object SvgStringRenderer:
         s"""<text x="$x" y="$y" fill="#555" font-size="$FONT_SZ" font-family="serif" font-style="italic">${i + 1} - ${escapeXml(rm.label)}</text>"""
       }
       (heading +: lines).mkString("\n")
+
+  // ── Note callouts ───────────────────────────────────────────────────────
+  // One Page Dungeon convention: a text box connected by a leader line to the room it annotates,
+  // independent of that room's own label (DSL: `note <side> of <room-id>: <text>`).
+
+  private val NOTE_BOX_W        = 160
+  private val NOTE_MARGIN       = 30 // gap between a room's wall and its nearest note box
+  private val NOTE_GAP          = 10 // gap between stacked note boxes on the same room+side
+  private val NOTE_PAD          = 6
+  private val NOTE_LINE_H       = FONT_SZ + 4
+  private val NOTE_CHARS_PER_LINE = 22
+
+  private case class NoteBox(x: Double, y: Double, w: Double, h: Double, lines: List[String], anchor: Vec2, leaderStart: Vec2)
+
+  /** Greedy word-wrap — callout text is meant to be a longer read-aloud description, not a label. */
+  private def wrapText(text: String, maxChars: Int): List[String] =
+    val words = text.strip().split("\\s+").filter(_.nonEmpty)
+    val lines = collection.mutable.ListBuffer[String]()
+    var current = new StringBuilder
+    words.foreach { w =>
+      if current.isEmpty then current.append(w)
+      else if current.length + 1 + w.length <= maxChars then current.append(' ').append(w)
+      else
+        lines += current.toString
+        current = new StringBuilder(w)
+    }
+    if current.nonEmpty then lines += current.toString
+    if lines.isEmpty then List("") else lines.toList
+
+  /** One box per note, stacked along the room's own wall when more than one note shares the same
+   *  room+side (grouped/sorted so output is deterministic regardless of map.notes' order). */
+  private def noteBoxes(map: RenderedMap): List[NoteBox] =
+    map.notes
+      .groupBy(n => (n.room.id, n.side))
+      .toList
+      .sortBy { case ((id, side), _) => (id, side.toString) }
+      .flatMap { case (_, notes) =>
+        val rm = notes.head.room
+        notes.foldLeft((0.0, List.empty[NoteBox])) { case ((offset, acc), n) =>
+          val lines = wrapText(n.text, NOTE_CHARS_PER_LINE)
+          val boxH  = (NOTE_PAD * 2 + lines.length * NOTE_LINE_H).toDouble
+          val boxW  = NOTE_BOX_W.toDouble
+          val (bx, by, anchor, leaderStart, advance) = n.side match
+            case WallSide.West =>
+              val a = Vec2(rm.x, rm.y + rm.h / 2 + offset)
+              val x = rm.x - NOTE_MARGIN - boxW
+              val y = rm.y + rm.h / 2 - boxH / 2 + offset
+              (x, y, a, Vec2(x + boxW, y + boxH / 2), boxH + NOTE_GAP)
+            case WallSide.East =>
+              val a = Vec2(rm.x + rm.w, rm.y + rm.h / 2 + offset)
+              val x = rm.x + rm.w + NOTE_MARGIN
+              val y = rm.y + rm.h / 2 - boxH / 2 + offset
+              (x, y, a, Vec2(x, y + boxH / 2), boxH + NOTE_GAP)
+            case WallSide.North =>
+              val a = Vec2(rm.x + rm.w / 2 + offset, rm.y)
+              val x = rm.x + rm.w / 2 - boxW / 2 + offset
+              val y = rm.y - NOTE_MARGIN - boxH
+              (x, y, a, Vec2(x + boxW / 2, y + boxH), boxW + NOTE_GAP)
+            case WallSide.South =>
+              val a = Vec2(rm.x + rm.w / 2 + offset, rm.y + rm.h)
+              val x = rm.x + rm.w / 2 - boxW / 2 + offset
+              val y = rm.y + rm.h + NOTE_MARGIN
+              (x, y, a, Vec2(x + boxW / 2, y), boxW + NOTE_GAP)
+          (offset + advance, acc :+ NoteBox(bx, by, boxW, boxH, lines, anchor, leaderStart))
+        }._2
+      }
+
+  private def noteCallout(nb: NoteBox): String =
+    val leader = s"""<line x1="${nb.leaderStart.x.toInt}" y1="${nb.leaderStart.y.toInt}" x2="${nb.anchor.x.toInt}" y2="${nb.anchor.y.toInt}" stroke="#333" stroke-width="1"/>"""
+    val box    = s"""<rect x="${nb.x.toInt}" y="${nb.y.toInt}" width="${nb.w.toInt}" height="${nb.h.toInt}" fill="white" stroke="#333" stroke-width="1"/>"""
+    val text = nb.lines.zipWithIndex.map { case (l, i) =>
+      val ty = (nb.y + NOTE_PAD + FONT_SZ + i * NOTE_LINE_H).toInt
+      s"""<text x="${(nb.x + NOTE_PAD).toInt}" y="$ty" fill="#333" font-size="$FONT_SZ" font-family="serif">${escapeXml(l)}</text>"""
+    }.mkString("\n")
+    s"$leader\n$box\n$text"
+
+  private def noteCallouts(map: RenderedMap): String =
+    noteBoxes(map).map(noteCallout).mkString("\n")
+
+  /** Extends a base viewBox rect to also contain every note box, since callouts can protrude on
+   *  any side of the map, unlike the legend (which only ever grows the box downward). */
+  private def expandForNotes(map: RenderedMap, bx: Int, by: Int, bw: Int, bh: Int): (Int, Int, Int, Int) =
+    val boxes = noteBoxes(map)
+    if boxes.isEmpty then (bx, by, bw, bh)
+    else
+      val minX = boxes.map(_.x).min min bx
+      val minY = boxes.map(_.y).min min by
+      val maxX = boxes.map(b => b.x + b.w).max max (bx + bw)
+      val maxY = boxes.map(b => b.y + b.h).max max (by + bh)
+      (minX.toInt, minY.toInt, (maxX - minX).toInt, (maxY - minY).toInt)
 
   // ── Room features ────────────────────────────────────────────────────
 
