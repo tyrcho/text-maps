@@ -49,13 +49,19 @@
 
 <rect x="57" y="-15" width="96" height="30" fill="white"/>
 <rect x="267" y="-15" width="96" height="30" fill="white"/>
-<rect x="-60" y="-45" width="120" height="90" fill="white"/>
-<rect x="150" y="-45" width="120" height="90" fill="white"/>
-<rect x="360" y="-45" width="120" height="90" fill="white"/>
 <line x1="57" y1="-15" x2="153" y2="-15" stroke="#333" stroke-width="1.5"/>
 <line x1="57" y1="15" x2="153" y2="15" stroke="#333" stroke-width="1.5"/>
 <line x1="267" y1="-15" x2="363" y2="-15" stroke="#333" stroke-width="1.5"/>
 <line x1="267" y1="15" x2="363" y2="15" stroke="#333" stroke-width="1.5"/>
+<line x1="87" y1="-15" x2="87" y2="15" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="117" y1="-15" x2="117" y2="15" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="147" y1="-15" x2="147" y2="15" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="297" y1="-15" x2="297" y2="15" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="327" y1="-15" x2="327" y2="15" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="357" y1="-15" x2="357" y2="15" stroke="#d8d8d8" stroke-width="0.5"/>
+<rect x="-60" y="-45" width="120" height="90" fill="white"/>
+<rect x="150" y="-45" width="120" height="90" fill="white"/>
+<rect x="360" y="-45" width="120" height="90" fill="white"/>
 <rect x="-60" y="-45" width="120" height="90" fill="none" stroke="#333" stroke-width="1.5"/>
 <rect x="150" y="-45" width="120" height="90" fill="none" stroke="#333" stroke-width="1.5"/>
 <rect x="360" y="-45" width="120" height="90" fill="none" stroke="#333" stroke-width="1.5"/>
@@ -74,12 +80,6 @@
 <line x1="450" y1="-45" x2="450" y2="45" stroke="#d8d8d8" stroke-width="0.5"/>
 <line x1="360" y1="-15" x2="480" y2="-15" stroke="#d8d8d8" stroke-width="0.5"/>
 <line x1="360" y1="15" x2="480" y2="15" stroke="#d8d8d8" stroke-width="0.5"/>
-<line x1="87" y1="-15" x2="87" y2="15" stroke="#d8d8d8" stroke-width="0.5"/>
-<line x1="117" y1="-15" x2="117" y2="15" stroke="#d8d8d8" stroke-width="0.5"/>
-<line x1="147" y1="-15" x2="147" y2="15" stroke="#d8d8d8" stroke-width="0.5"/>
-<line x1="297" y1="-15" x2="297" y2="15" stroke="#d8d8d8" stroke-width="0.5"/>
-<line x1="327" y1="-15" x2="327" y2="15" stroke="#d8d8d8" stroke-width="0.5"/>
-<line x1="357" y1="-15" x2="357" y2="15" stroke="#d8d8d8" stroke-width="0.5"/>
 <rect x="-15" y="-15" width="30" height="30" fill="white" stroke="#333" stroke-width="0.8"/>
 <path d="M 0,-10 A 10,10 0 1,0 -10,0" fill="none" stroke="#333" stroke-width="1.2"/>
 <path d="M -10,0 A 5,5 0 1,0 0,-5" fill="none" stroke="#333" stroke-width="0.8"/>

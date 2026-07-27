@@ -179,6 +179,23 @@ object TestMaps:
     Some(LabelStyle.Inline),
   )
 
+  /** Regression fixture for the corridor/room z-order bug: `entrance -> far` is a long straight
+   *  corridor that geometrically crosses `obstacle`'s footprint (both `obstacle` and `far` sit due east
+   *  of `entrance` on the same line, `far` much farther out) — proves the far corridor's wall strokes
+   *  render *behind* `obstacle`'s own floor/walls rather than drawn on top of them. */
+  val corridorCrossesRoom: RenderedMap = LayoutEngine.layout(
+    List(
+      Room("entrance", RoomSize(4, 4), Some("Entrance")),
+      Room("obstacle", RoomSize(4, 4), Some("Obstacle")),
+      Room("far",      RoomSize(4, 4), Some("Far Room")),
+    ),
+    List(
+      Connection("entrance", "obstacle", DoorType.Open, corridor = Some(RoomSize(1, 2)), direction = Some(WallSide.East)),
+      Connection("entrance", "far",      DoorType.Open, corridor = Some(RoomSize(1, 20)), direction = Some(WallSide.East)),
+    ),
+    None,
+  )
+
   /** Same room/corridor shape used by both background-style fixtures below, so the only difference
    *  between their approved SVGs is the background rendering itself. */
   private val backgroundDemoRooms = List(

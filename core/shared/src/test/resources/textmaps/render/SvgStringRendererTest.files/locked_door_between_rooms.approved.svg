@@ -48,10 +48,13 @@
 <rect x="-125" y="-125" width="463" height="322" fill="white"/>
 
 <rect x="42" y="-15" width="99" height="30" fill="white"/>
-<rect x="-45" y="-45" width="90" height="90" fill="white"/>
-<rect x="138" y="-45" width="120" height="90" fill="white"/>
 <line x1="42" y1="-15" x2="141" y2="-15" stroke="#333" stroke-width="1.5"/>
 <line x1="42" y1="15" x2="141" y2="15" stroke="#333" stroke-width="1.5"/>
+<line x1="72" y1="-15" x2="72" y2="15" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="102" y1="-15" x2="102" y2="15" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="132" y1="-15" x2="132" y2="15" stroke="#d8d8d8" stroke-width="0.5"/>
+<rect x="-45" y="-45" width="90" height="90" fill="white"/>
+<rect x="138" y="-45" width="120" height="90" fill="white"/>
 <rect x="-45" y="-45" width="90" height="90" fill="none" stroke="#333" stroke-width="1.5"/>
 <rect x="138" y="-45" width="120" height="90" fill="none" stroke="#333" stroke-width="1.5"/>
 <line x1="-15" y1="-45" x2="-15" y2="45" stroke="#d8d8d8" stroke-width="0.5"/>
@@ -63,9 +66,6 @@
 <line x1="228" y1="-45" x2="228" y2="45" stroke="#d8d8d8" stroke-width="0.5"/>
 <line x1="138" y1="-15" x2="258" y2="-15" stroke="#d8d8d8" stroke-width="0.5"/>
 <line x1="138" y1="15" x2="258" y2="15" stroke="#d8d8d8" stroke-width="0.5"/>
-<line x1="72" y1="-15" x2="72" y2="15" stroke="#d8d8d8" stroke-width="0.5"/>
-<line x1="102" y1="-15" x2="102" y2="15" stroke="#d8d8d8" stroke-width="0.5"/>
-<line x1="132" y1="-15" x2="132" y2="15" stroke="#d8d8d8" stroke-width="0.5"/>
 
 <use href="#door-locked" x="30" y="-15" width="30" height="30" preserveAspectRatio="none" transform="rotate(90,45,0)"/>
 <use href="#door-locked" x="123" y="-15" width="30" height="30" preserveAspectRatio="none" transform="rotate(90,138,0)"/>

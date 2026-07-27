@@ -13,6 +13,11 @@ import textmaps.layout.*
  *    `BackgroundStyle.ShadowEdge` for a hatch band hugging just each room/corridor's own boundary (a
  *    soft halo, fading to plain white beyond it) — see the `background:` DSL header property
  *  - White floor rectangles for rooms and corridors
+ *  - All corridor rendering (floor/walls/grid) is emitted before any room rendering, so a room's own
+ *    floor+walls always paint over a corridor that happens to cross its footprint — layout has no
+ *    corridor/room collision avoidance, so a long or L-shaped corridor between distant rooms can
+ *    geometrically pass through an unrelated room; this ordering keeps that room visually on top rather
+ *    than showing a stray corridor wall stroke drawn over it
  *  - Floor grid anchored to each shape's own top-left (not global coordinates),
  *    for rooms and corridors alike
  *  - Dark ink wall strokes
@@ -47,11 +52,11 @@ object SvgStringRenderer:
         |${background(vx, vy, vw, vh, map.backgroundStyle)}
         |${edgeHatchLayer(map)}
         |${map.corridors.flatMap(corridorFloors).mkString("\n")}
-        |${map.rooms.map(roomFloor).mkString("\n")}
         |${map.corridors.flatMap(corridorWalls).mkString("\n")}
+        |${map.corridors.flatMap(corridorGrid).mkString("\n")}
+        |${map.rooms.map(roomFloor).mkString("\n")}
         |${map.rooms.map(roomWalls).mkString("\n")}
         |${map.rooms.map(roomGrid).mkString("\n")}
-        |${map.corridors.flatMap(corridorGrid).mkString("\n")}
         |${map.rooms.flatMap(rm => roomFeatures(rm, iconFetcher)).mkString("\n")}
         |${map.doors.map(door).mkString("\n")}
         |${map.rooms.zipWithIndex.map { (rm, i) => roomLabel(rm, i + 1, map.labelStyle) }.mkString("\n")}
@@ -70,11 +75,11 @@ object SvgStringRenderer:
         |${background(vx, vy, vw, vh, map.backgroundStyle)}
         |${edgeHatchLayer(map)}
         |${map.corridors.flatMap(corridorFloors).mkString("\n")}
-        |${map.rooms.map(roomFloor).mkString("\n")}
         |${map.corridors.flatMap(corridorWalls).mkString("\n")}
+        |${map.corridors.flatMap(corridorGrid).mkString("\n")}
+        |${map.rooms.map(roomFloor).mkString("\n")}
         |${map.rooms.map(roomWalls).mkString("\n")}
         |${map.rooms.map(roomGrid).mkString("\n")}
-        |${map.corridors.flatMap(corridorGrid).mkString("\n")}
         |${map.rooms.flatMap(rm => roomFeatures(rm, iconFetcher)).mkString("\n")}
         |${map.doors.map(door).mkString("\n")}
         |${map.rooms.zipWithIndex.map { (rm, i) => roomLabel(rm, i + 1, map.labelStyle) }.mkString("\n")}

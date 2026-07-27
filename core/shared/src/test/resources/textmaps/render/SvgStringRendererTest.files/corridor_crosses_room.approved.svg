@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg"
+     viewBox="-140 -140 1049 366"
+     width="1049" height="366">
+<defs>
+  <pattern id="hatch" width="6" height="6"
+           patternTransform="rotate(45 0 0)" patternUnits="userSpaceOnUse">
+    <line x1="0" y1="0" x2="0" y2="6" stroke="#888" stroke-width="1.2"/>
+  </pattern>
+
+  <!-- ── Door symbols (viewBox 0 0 30 30, open gap fills corridor width) ── -->
+  <symbol id="door-open" viewBox="0 0 30 30">
+    <rect x="0"  y="12" width="30" height="6" fill="white"/>
+    <rect x="0"  y="11" width="4"  height="8" fill="#333"/>
+    <rect x="26" y="11" width="4"  height="8" fill="#333"/>
+  </symbol>
+  <symbol id="door-closed" viewBox="0 0 30 30">
+    <rect x="0" y="12" width="30" height="6" fill="white"/>
+    <rect x="2" y="13" width="26" height="4" fill="#333"/>
+  </symbol>
+  <symbol id="door-locked" viewBox="0 0 30 30">
+    <rect x="0" y="12" width="30" height="6" fill="white"/>
+    <rect x="2" y="11" width="26" height="8" fill="#333"/>
+    <rect x="4" y="13" width="22" height="4" fill="white"/>
+  </symbol>
+  <symbol id="door-secret" viewBox="0 0 30 30">
+    <line x1="0" y1="15" x2="30" y2="15"
+          stroke="#888" stroke-width="1.2" stroke-dasharray="6,6"/>
+  </symbol>
+
+  <!-- ── Room feature symbols (viewBox 0 0 30 30, one grid cell) ── -->
+  <symbol id="feat-ladder" viewBox="0 0 30 30">
+    <line x1="8"  y1="3"  x2="8"  y2="27" stroke="#333" stroke-width="1.5"/>
+    <line x1="22" y1="3"  x2="22" y2="27" stroke="#333" stroke-width="1.5"/>
+    <line x1="8"  y1="7"  x2="22" y2="7"  stroke="#333" stroke-width="1"/>
+    <line x1="8"  y1="13" x2="22" y2="13" stroke="#333" stroke-width="1"/>
+    <line x1="8"  y1="19" x2="22" y2="19" stroke="#333" stroke-width="1"/>
+    <line x1="8"  y1="25" x2="22" y2="25" stroke="#333" stroke-width="1"/>
+  </symbol>
+  <!-- Wall-placed feature symbol (30×6, designed to sit on a wall) -->
+  <symbol id="feat-window" viewBox="0 0 30 6">
+    <rect x="0"  y="0" width="30" height="6" fill="white"/>
+    <rect x="0"  y="1" width="8"  height="4" fill="#cce" stroke="#99c" stroke-width="0.5"/>
+    <rect x="11" y="1" width="8"  height="4" fill="#cce" stroke="#99c" stroke-width="0.5"/>
+    <rect x="22" y="1" width="8"  height="4" fill="#cce" stroke="#99c" stroke-width="0.5"/>
+  </symbol>
+</defs>
+<rect x="-140" y="-140" width="1049" height="366" fill="white"/>
+
+<rect x="57" y="-15" width="115" height="30" fill="white"/>
+<rect x="57" y="-15" width="655" height="30" fill="white"/>
+<line x1="57" y1="-15" x2="172" y2="-15" stroke="#333" stroke-width="1.5"/>
+<line x1="57" y1="15" x2="172" y2="15" stroke="#333" stroke-width="1.5"/>
+<line x1="57" y1="-15" x2="712" y2="-15" stroke="#333" stroke-width="1.5"/>
+<line x1="57" y1="15" x2="712" y2="15" stroke="#333" stroke-width="1.5"/>
+<line x1="87" y1="-15" x2="87" y2="15" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="117" y1="-15" x2="117" y2="15" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="147" y1="-15" x2="147" y2="15" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="87" y1="-15" x2="87" y2="15" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="117" y1="-15" x2="117" y2="15" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="147" y1="-15" x2="147" y2="15" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="177" y1="-15" x2="177" y2="15" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="207" y1="-15" x2="207" y2="15" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="237" y1="-15" x2="237" y2="15" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="267" y1="-15" x2="267" y2="15" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="297" y1="-15" x2="297" y2="15" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="327" y1="-15" x2="327" y2="15" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="357" y1="-15" x2="357" y2="15" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="387" y1="-15" x2="387" y2="15" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="417" y1="-15" x2="417" y2="15" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="447" y1="-15" x2="447" y2="15" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="477" y1="-15" x2="477" y2="15" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="507" y1="-15" x2="507" y2="15" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="537" y1="-15" x2="537" y2="15" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="567" y1="-15" x2="567" y2="15" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="597" y1="-15" x2="597" y2="15" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="627" y1="-15" x2="627" y2="15" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="657" y1="-15" x2="657" y2="15" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="687" y1="-15" x2="687" y2="15" stroke="#d8d8d8" stroke-width="0.5"/>
+<rect x="-60" y="-60" width="120" height="120" fill="white"/>
+<rect x="169" y="-60" width="120" height="120" fill="white"/>
+<rect x="709" y="-60" width="120" height="120" fill="white"/>
+<rect x="-60" y="-60" width="120" height="120" fill="none" stroke="#333" stroke-width="1.5"/>
+<rect x="169" y="-60" width="120" height="120" fill="none" stroke="#333" stroke-width="1.5"/>
+<rect x="709" y="-60" width="120" height="120" fill="none" stroke="#333" stroke-width="1.5"/>
+<line x1="-30" y1="-60" x2="-30" y2="60" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="0" y1="-60" x2="0" y2="60" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="30" y1="-60" x2="30" y2="60" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="-60" y1="-30" x2="60" y2="-30" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="-60" y1="0" x2="60" y2="0" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="-60" y1="30" x2="60" y2="30" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="199" y1="-60" x2="199" y2="60" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="229" y1="-60" x2="229" y2="60" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="259" y1="-60" x2="259" y2="60" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="169" y1="-30" x2="289" y2="-30" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="169" y1="0" x2="289" y2="0" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="169" y1="30" x2="289" y2="30" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="739" y1="-60" x2="739" y2="60" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="769" y1="-60" x2="769" y2="60" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="799" y1="-60" x2="799" y2="60" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="709" y1="-30" x2="829" y2="-30" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="709" y1="0" x2="829" y2="0" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="709" y1="30" x2="829" y2="30" stroke="#d8d8d8" stroke-width="0.5"/>
+
+<use href="#door-open" x="45" y="-15" width="30" height="30" preserveAspectRatio="none" transform="rotate(90,60,0)"/>
+<use href="#door-open" x="154" y="-15" width="30" height="30" preserveAspectRatio="none" transform="rotate(90,169,0)"/>
+<use href="#door-open" x="45" y="-15" width="30" height="30" preserveAspectRatio="none" transform="rotate(90,60,0)"/>
+<use href="#door-open" x="694" y="-15" width="30" height="30" preserveAspectRatio="none" transform="rotate(90,709,0)"/>
+<text x="0" y="-47" text-anchor="middle" dominant-baseline="auto" fill="#333" font-size="9" font-family="sans-serif" font-weight="bold">1</text>
+<text x="229" y="-47" text-anchor="middle" dominant-baseline="auto" fill="#333" font-size="9" font-family="sans-serif" font-weight="bold">2</text>
+<text x="769" y="-47" text-anchor="middle" dominant-baseline="auto" fill="#333" font-size="9" font-family="sans-serif" font-weight="bold">3</text>
+<text x="-80" y="100" fill="#333" font-size="10" font-family="sans-serif" font-weight="bold">Legend</text>
+<text x="-80" y="114" fill="#555" font-size="9" font-family="serif" font-style="italic">1 - Entrance</text>
+<text x="-80" y="128" fill="#555" font-size="9" font-family="serif" font-style="italic">2 - Obstacle</text>
+<text x="-80" y="142" fill="#555" font-size="9" font-family="serif" font-style="italic">3 - Far Room</text>
+</svg>

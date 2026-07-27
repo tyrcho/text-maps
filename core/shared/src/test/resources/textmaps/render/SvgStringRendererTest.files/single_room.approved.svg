@@ -48,8 +48,9 @@
 <rect x="-155" y="-125" width="310" height="308" fill="white"/>
 
 
-<rect x="-75" y="-45" width="150" height="90" fill="white"/>
 
+
+<rect x="-75" y="-45" width="150" height="90" fill="white"/>
 <rect x="-75" y="-45" width="150" height="90" fill="none" stroke="#333" stroke-width="1.5"/>
 <line x1="-45" y1="-45" x2="-45" y2="45" stroke="#d8d8d8" stroke-width="0.5"/>
 <line x1="-15" y1="-45" x2="-15" y2="45" stroke="#d8d8d8" stroke-width="0.5"/>
@@ -57,7 +58,6 @@
 <line x1="45" y1="-45" x2="45" y2="45" stroke="#d8d8d8" stroke-width="0.5"/>
 <line x1="-75" y1="-15" x2="75" y2="-15" stroke="#d8d8d8" stroke-width="0.5"/>
 <line x1="-75" y1="15" x2="75" y2="15" stroke="#d8d8d8" stroke-width="0.5"/>
-
 
 
 <text x="0" y="-32" text-anchor="middle" dominant-baseline="auto" fill="#333" font-size="9" font-family="sans-serif" font-weight="bold">1</text>

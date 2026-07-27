@@ -50,16 +50,25 @@
 <rect x="42" y="-15" width="103" height="30" fill="white"/>
 <rect x="172" y="42" width="30" height="103" fill="white"/>
 <rect x="42" y="172" width="103" height="30" fill="white"/>
-<rect x="-45" y="-45" width="90" height="90" fill="white"/>
-<rect x="142" y="-45" width="90" height="90" fill="white"/>
-<rect x="142" y="142" width="90" height="90" fill="white"/>
-<rect x="-45" y="142" width="90" height="90" fill="white"/>
 <line x1="42" y1="-15" x2="145" y2="-15" stroke="#333" stroke-width="1.5"/>
 <line x1="42" y1="15" x2="145" y2="15" stroke="#333" stroke-width="1.5"/>
 <line x1="172" y1="42" x2="172" y2="145" stroke="#333" stroke-width="1.5"/>
 <line x1="202" y1="42" x2="202" y2="145" stroke="#333" stroke-width="1.5"/>
 <line x1="42" y1="172" x2="145" y2="172" stroke="#333" stroke-width="1.5"/>
 <line x1="42" y1="202" x2="145" y2="202" stroke="#333" stroke-width="1.5"/>
+<line x1="72" y1="-15" x2="72" y2="15" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="102" y1="-15" x2="102" y2="15" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="132" y1="-15" x2="132" y2="15" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="172" y1="72" x2="202" y2="72" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="172" y1="102" x2="202" y2="102" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="172" y1="132" x2="202" y2="132" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="72" y1="172" x2="72" y2="202" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="102" y1="172" x2="102" y2="202" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="132" y1="172" x2="132" y2="202" stroke="#d8d8d8" stroke-width="0.5"/>
+<rect x="-45" y="-45" width="90" height="90" fill="white"/>
+<rect x="142" y="-45" width="90" height="90" fill="white"/>
+<rect x="142" y="142" width="90" height="90" fill="white"/>
+<rect x="-45" y="142" width="90" height="90" fill="white"/>
 <rect x="-45" y="-45" width="90" height="90" fill="none" stroke="#333" stroke-width="1.5"/>
 <rect x="142" y="-45" width="90" height="90" fill="none" stroke="#333" stroke-width="1.5"/>
 <rect x="142" y="142" width="90" height="90" fill="none" stroke="#333" stroke-width="1.5"/>
@@ -80,15 +89,6 @@
 <line x1="15" y1="142" x2="15" y2="232" stroke="#d8d8d8" stroke-width="0.5"/>
 <line x1="-45" y1="172" x2="45" y2="172" stroke="#d8d8d8" stroke-width="0.5"/>
 <line x1="-45" y1="202" x2="45" y2="202" stroke="#d8d8d8" stroke-width="0.5"/>
-<line x1="72" y1="-15" x2="72" y2="15" stroke="#d8d8d8" stroke-width="0.5"/>
-<line x1="102" y1="-15" x2="102" y2="15" stroke="#d8d8d8" stroke-width="0.5"/>
-<line x1="132" y1="-15" x2="132" y2="15" stroke="#d8d8d8" stroke-width="0.5"/>
-<line x1="172" y1="72" x2="202" y2="72" stroke="#d8d8d8" stroke-width="0.5"/>
-<line x1="172" y1="102" x2="202" y2="102" stroke="#d8d8d8" stroke-width="0.5"/>
-<line x1="172" y1="132" x2="202" y2="132" stroke="#d8d8d8" stroke-width="0.5"/>
-<line x1="72" y1="172" x2="72" y2="202" stroke="#d8d8d8" stroke-width="0.5"/>
-<line x1="102" y1="172" x2="102" y2="202" stroke="#d8d8d8" stroke-width="0.5"/>
-<line x1="132" y1="172" x2="132" y2="202" stroke="#d8d8d8" stroke-width="0.5"/>
 
 <rect x="43.0" y="-15.0" width="4" height="30.0" fill="white"/>
 <line x1="45.0" y1="-15.0" x2="66.2" y2="6.2" stroke="#333" stroke-width="1.2"/>

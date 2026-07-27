@@ -49,10 +49,13 @@
 <rect x="-140" y="-155" width="562" height="382" fill="url(#hatch)"/>
 
 <rect x="57" y="-15" width="108" height="30" fill="white"/>
-<rect x="-60" y="-45" width="120" height="90" fill="white"/>
-<path d="M 321.0,-24.0 Q 309.2,-4.6 306.6,16.8 Q 304.0,38.2 287.8,51.7 Q 271.5,65.2 258.7,53.8 Q 245.9,42.5 207.2,36.9 Q 168.5,31.3 165.6,23.5 Q 162.7,15.7 167.0,-8.8 Q 171.3,-33.3 191.5,-46.3 Q 211.8,-59.2 259.7,-67.1 Q 307.6,-75.1 320.2,-59.2 Q 332.8,-43.3 321.0,-24.0 Z" fill="white"/>
 <line x1="57" y1="-15" x2="165" y2="-15" stroke="#333" stroke-width="1.5"/>
 <line x1="57" y1="15" x2="165" y2="15" stroke="#333" stroke-width="1.5"/>
+<line x1="87" y1="-15" x2="87" y2="15" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="117" y1="-15" x2="117" y2="15" stroke="#d8d8d8" stroke-width="0.5"/>
+<line x1="147" y1="-15" x2="147" y2="15" stroke="#d8d8d8" stroke-width="0.5"/>
+<rect x="-60" y="-45" width="120" height="90" fill="white"/>
+<path d="M 321.0,-24.0 Q 309.2,-4.6 306.6,16.8 Q 304.0,38.2 287.8,51.7 Q 271.5,65.2 258.7,53.8 Q 245.9,42.5 207.2,36.9 Q 168.5,31.3 165.6,23.5 Q 162.7,15.7 167.0,-8.8 Q 171.3,-33.3 191.5,-46.3 Q 211.8,-59.2 259.7,-67.1 Q 307.6,-75.1 320.2,-59.2 Q 332.8,-43.3 321.0,-24.0 Z" fill="white"/>
 <rect x="-60" y="-45" width="120" height="90" fill="none" stroke="#333" stroke-width="1.5"/>
 <path d="M 321.0,-24.0 Q 309.2,-4.6 306.6,16.8 Q 304.0,38.2 287.8,51.7 Q 271.5,65.2 258.7,53.8 Q 245.9,42.5 207.2,36.9 Q 168.5,31.3 165.6,23.5 Q 162.7,15.7 167.0,-8.8 Q 171.3,-33.3 191.5,-46.3 Q 211.8,-59.2 259.7,-67.1 Q 307.6,-75.1 320.2,-59.2 Q 332.8,-43.3 321.0,-24.0 Z" fill="none" stroke="#333" stroke-width="1.5"/>
 <line x1="-30" y1="-45" x2="-30" y2="45" stroke="#d8d8d8" stroke-width="0.5"/>
@@ -61,9 +64,6 @@
 <line x1="-60" y1="-15" x2="60" y2="-15" stroke="#d8d8d8" stroke-width="0.5"/>
 <line x1="-60" y1="15" x2="60" y2="15" stroke="#d8d8d8" stroke-width="0.5"/>
 
-<line x1="87" y1="-15" x2="87" y2="15" stroke="#d8d8d8" stroke-width="0.5"/>
-<line x1="117" y1="-15" x2="117" y2="15" stroke="#d8d8d8" stroke-width="0.5"/>
-<line x1="147" y1="-15" x2="147" y2="15" stroke="#d8d8d8" stroke-width="0.5"/>
 
 <use href="#door-open" x="45" y="-15" width="30" height="30" preserveAspectRatio="none" transform="rotate(90,60,0)"/>
 <use href="#door-open" x="147" y="-15" width="30" height="30" preserveAspectRatio="none" transform="rotate(90,162,0)"/>
