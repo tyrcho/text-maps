@@ -179,11 +179,12 @@ object TestMaps:
     Some(LabelStyle.Inline),
   )
 
-  /** Regression fixture for the corridor/room z-order bug: `entrance -> far` is a long straight
-   *  corridor that geometrically crosses `obstacle`'s footprint (both `obstacle` and `far` sit due east
-   *  of `entrance` on the same line, `far` much farther out) — proves the far corridor's wall strokes
-   *  render *behind* `obstacle`'s own floor/walls rather than drawn on top of them. */
-  val corridorCrossesRoom: RenderedMap = LayoutEngine.layout(
+  /** Regression fixture for corridor/room crossing avoidance: `obstacle` and `far` both explicitly
+   *  request `direction: east` from `entrance`, `far` much farther out, so a naive straight corridor to
+   *  `far` would run right through `obstacle`'s footprint. Layout is expected to swing `far` off its
+   *  requested angle (here: straight south instead) rather than let that happen — explicit `direction:`
+   *  is a hint collision avoidance can override, same precedent as pre-existing room-overlap avoidance. */
+  val corridorAvoidsRoom: RenderedMap = LayoutEngine.layout(
     List(
       Room("entrance", RoomSize(4, 4), Some("Entrance")),
       Room("obstacle", RoomSize(4, 4), Some("Obstacle")),

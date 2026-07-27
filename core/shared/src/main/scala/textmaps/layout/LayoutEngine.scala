@@ -122,7 +122,13 @@ object LayoutEngine:
     while queue.nonEmpty do
       val (cur, pos, _, _) = queue.dequeue()
       val neighbors = adj.getOrElse(cur, Nil).filterNot(placed.contains)
-      neighbors.zipWithIndex.foreach { case (nb, i) =>
+      val curRoom   = roomsById(cur)
+      // Angle is assigned by each neighbor's original position in the adjacency list (preserves the
+      // existing fan-out pattern for maps with no explicit `direction:`), but neighbors are *resolved*
+      // in ascending distance order — nearer rooms are placed (and so become visible to collision/
+      // corridor-crossing checks) before farther ones, so a farther room's corridor can react to a
+      // nearer sibling instead of both being decided independently and blindly.
+      val withAngles = neighbors.zipWithIndex.map { case (nb, i) =>
         val conn  = connByPair.get((cur, nb))
         val angle = conn.flatMap(_.direction).map { dir =>
           // Direction is declared relative to the connection's own `from`; flip it
@@ -130,12 +136,14 @@ object LayoutEngine:
           val forward = conn.exists(_.from == cur)
           directionAngle(if forward then dir else oppositeSide(dir))
         }.getOrElse(angles(i % angles.length))
-        val curRoom   = roomsById(cur)
-        val nbRoom    = roomsById(nb)
-        val gap       = connByPair.get((cur, nb)).flatMap(_.corridor).map(_.height * UNIT_PX).getOrElse(CORRIDOR_PX)
-        val dist      = roomHalfDiag(curRoom) + roomHalfDiag(nbRoom) + gap
-        val candidate = pos + Vec2.polar(angle, dist)
-        val final_    = resolveCollision(candidate, placed.toMap, roomsById)
+        val nbRoom         = roomsById(nb)
+        val corridorWidth  = conn.flatMap(_.corridor).map(_.width * UNIT_PX).getOrElse(CORRIDOR_W)
+        val gap            = conn.flatMap(_.corridor).map(_.height * UNIT_PX).getOrElse(CORRIDOR_PX)
+        val dist           = roomHalfDiag(curRoom) + roomHalfDiag(nbRoom) + gap
+        (nb, angle, nbRoom, corridorWidth, dist)
+      }
+      withAngles.sortBy(_._5).foreach { case (nb, angle, nbRoom, corridorWidth, dist) =>
+        val final_ = resolveCollision(pos, angle, dist, placed.toMap, roomsById, curRoom, nbRoom, corridorWidth)
         placed(nb) = final_
         queue.enqueue((nb, final_, 0, angle))
       }
@@ -169,16 +177,36 @@ object LayoutEngine:
   private def roomHalfDiag(r: Room): Double =
     math.sqrt(math.pow(r.size.width * UNIT_PX / 2, 2) + math.pow(r.size.height * UNIT_PX / 2, 2))
 
+  // Tried in order at nb's full placement distance from cur, not as small fixed-size nudges: a room
+  // blocking the straight path to nb can sit far enough away that a small Cartesian nudge changes
+  // nothing (the corridor's leg through cur's own row/column is unaffected by tiny offsets), so this
+  // needs to be able to swing nb substantially off its original angle. 0.0 first preserves today's
+  // placement whenever there's no collision at all, which is the overwhelming majority of maps.
+  private val ANGLE_JITTER_DELTAS = Array(
+    0.0, 15.0, -15.0, 30.0, -30.0, 45.0, -45.0, 60.0, -60.0, 90.0, -90.0, 120.0, -120.0, 150.0, -150.0, 180.0,
+  )
+
+  /** Swings nb around cur (same distance, different angle) until it neither overlaps another placed
+   *  room nor makes the cur->nb corridor cross a third, unrelated room — two rooms not directly
+   *  connected by this edge should never geometrically overlap either a room or a corridor rectangle.
+   *  Best-effort: an explicit `direction:` is only a hint here, same as pre-existing room-overlap
+   *  avoidance already treated it — collision avoidance can move nb off the requested angle rather than
+   *  let it cross another room. A sufficiently pathological layout can still exhaust the search without
+   *  finding a fully clean spot, in which case the original angle/distance is used as a last resort. */
   private def resolveCollision(
-    candidate: Vec2,
-    placed:    Map[String, Vec2],
-    roomsById: Map[String, Room],
+    origin:        Vec2,
+    angle:         Double,
+    dist:          Double,
+    placed:        Map[String, Vec2],
+    roomsById:     Map[String, Room],
+    cur:           Room,
+    nb:            Room,
+    corridorWidth: Double,
   ): Vec2 =
-    val jitter = Array(0.0, 45.0, 90.0, 135.0, 180.0, 225.0, 270.0, 315.0)
-    jitter.foldLeft(candidate) { (best, angle) =>
-      if !overlapsAny(best, placed, roomsById) then best
-      else candidate + Vec2.polar(angle, CORRIDOR_PX * 0.8)
-    }
+    ANGLE_JITTER_DELTAS
+      .map(delta => origin + Vec2.polar(angle + delta, dist))
+      .find(cand => !overlapsAny(cand, placed, roomsById) && !corridorCrossesOtherRoom(cur, origin, nb, cand, corridorWidth, placed, roomsById))
+      .getOrElse(origin + Vec2.polar(angle, dist))
 
   private def overlapsAny(pos: Vec2, placed: Map[String, Vec2], roomsById: Map[String, Room]): Boolean =
     placed.exists { case (id, center) =>
@@ -188,6 +216,25 @@ object LayoutEngine:
       dx < (r.size.width  * UNIT_PX + CORRIDOR_PX * 0.5) &&
       dy < (r.size.height * UNIT_PX + CORRIDOR_PX * 0.5)
     }
+
+  /** Would the corridor connecting cur (already at curPos) to nb (candidate nbPos) pass through any
+   *  other already-placed room's bounding box? Uses the exact same geometry `renderCorridor` will later
+   *  draw with (`computeCorridorRects`), so this check and the actual render can't disagree. */
+  private def corridorCrossesOtherRoom(
+    cur:           Room, curPos: Vec2,
+    nb:            Room, nbPos:  Vec2,
+    corridorWidth: Double,
+    placed:        Map[String, Vec2],
+    roomsById:     Map[String, Room],
+  ): Boolean =
+    val rects = computeCorridorRects(renderRoom(cur, curPos), renderRoom(nb, nbPos), corridorWidth)
+    rects.nonEmpty && placed.exists { case (id, pos) =>
+      id != cur.id && id != nb.id && rects.exists(r => rectOverlapsRoom(r, renderRoom(roomsById(id), pos)))
+    }
+
+  private def rectOverlapsRoom(r: CorridorRect, room: RenderedRoom): Boolean =
+    r.x < room.x + room.w && r.x + r.w > room.x &&
+    r.y < room.y + room.h && r.y + r.h > room.y
 
   // ── Rendering helpers ───────────────────────────────────────────────────
 
@@ -202,13 +249,19 @@ object LayoutEngine:
   private val WALL_OVERLAP = 3.0
 
   private def renderCorridor(c: Connection, byId: Map[String, RenderedRoom]): RenderedCorridor =
-    val a    = byId(c.from)
-    val b    = byId(c.to)
+    val a = byId(c.from)
+    val b = byId(c.to)
+    val width = c.corridor.map(_.width * UNIT_PX).getOrElse(CORRIDOR_W)
+    RenderedCorridor(c.from, c.to, c.door, computeCorridorRects(a, b, width))
+
+  /** Straight-H, straight-V, or single-bend L-shaped floor rect(s) connecting two rendered rooms —
+   *  shared by `renderCorridor` (the actual render) and `corridorCrossesOtherRoom` (the placement-time
+   *  collision check), so the two can never disagree about where a corridor will actually sit. */
+  private def computeCorridorRects(a: RenderedRoom, b: RenderedRoom, width: Double): List[CorridorRect] =
     val cxA  = a.x + a.w / 2
     val cyA  = a.y + a.h / 2
     val cxB  = b.x + b.w / 2
     val cyB  = b.y + b.h / 2
-    val width = c.corridor.map(_.width * UNIT_PX).getOrElse(CORRIDOR_W)
     val half = width / 2
 
     val rects = collection.mutable.ListBuffer[CorridorRect]()
@@ -245,7 +298,7 @@ object LayoutEngine:
       if vLen > 1 then
         rects += CorridorRect(cxB - half, math.min(cyA, entryY), width, vLen)
 
-    RenderedCorridor(c.from, c.to, c.door, rects.toList)
+    rects.toList
 
   /** Two doors per connection — one at each room's wall opening, independently
    *  typed and swung (`door`/`swing` for the `from` end, `doorTo`/`swingTo` for the

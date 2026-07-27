@@ -45,3 +45,30 @@ class LayoutEngineTest extends munit.FunSuite:
     val map = DungeonMap(MapMeta(), DungeonMapSource.Manual(Nil, Nil))
     val rendered = LayoutEngine.compute(map)
     assert(rendered.rooms.isEmpty)
+
+  test("a corridor never crosses a room it isn't connected to"):
+    // obstacle and far both explicitly request due east of entrance, far much farther out — a naive
+    // straight corridor to far would run right through obstacle's footprint unless layout swings far
+    // off its requested angle.
+    val rooms = List(
+      Room("entrance", RoomSize(4, 4)),
+      Room("obstacle", RoomSize(4, 4)),
+      Room("far",      RoomSize(4, 4)),
+    )
+    val conns = List(
+      Connection("entrance", "obstacle", corridor = Some(RoomSize(1, 2)),  direction = Some(WallSide.East)),
+      Connection("entrance", "far",      corridor = Some(RoomSize(1, 20)), direction = Some(WallSide.East)),
+    )
+    val map = DungeonMap(MapMeta(), DungeonMapSource.Manual(rooms, conns))
+    val rendered = LayoutEngine.compute(map)
+
+    def overlaps(rect: CorridorRect, room: RenderedRoom): Boolean =
+      rect.x < room.x + room.w && rect.x + rect.w > room.x &&
+      rect.y < room.y + room.h && rect.y + rect.h > room.y
+
+    for
+      corridor  <- rendered.corridors
+      otherRoom <- rendered.rooms if otherRoom.id != corridor.fromRoom && otherRoom.id != corridor.toRoom
+      rect      <- corridor.rects
+    do
+      assert(!overlaps(rect, otherRoom), s"corridor ${corridor.fromRoom}->${corridor.toRoom} crosses room ${otherRoom.id}")

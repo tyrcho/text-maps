@@ -32,7 +32,7 @@ class DslFixtureRenderTest extends AnyFunSuite:
     "dungeon_inline_labels",
     "dungeon_hatch_background",
     "dungeon_shadow_edge_background",
-    "corridor_crosses_room",
+    "corridor_avoids_room",
     "room_notes",
   )
 

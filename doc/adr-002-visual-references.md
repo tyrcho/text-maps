@@ -32,13 +32,34 @@ since the "why" for both draws on the same reference images.
   reference for how `Dungeon` and `Building` styles might connect if this project ever supports mixed/nested
   maps — not on the current roadmap, but worth remembering. **Reproduction attempt:** an actual best-effort
   DSL/SVG at `doc/map-references/redbrand-hideout-reproduction.{dsl,svg}` surfaced concrete, code-verified
-  gaps rather than speculative ones, plus one actual rendering bug (**fixed**, not just documented):
-  eyeballing the rendered reproduction showed a corridor's dark wall strokes drawn on top of an unrelated
-  room it geometrically crossed — `render`/`renderInner` (`SvgStringRenderer.scala`) interleaved room floors
-  between corridor floors and corridor walls, so a corridor crossing a room it wasn't connected to (easy
-  with no corridor/room collision avoidance, see gap 5 below) painted its wall strokes over that room's
-  already-drawn floor. Fixed by grouping all corridor rendering before all room rendering, so a room's own
-  floor+walls always win; locked in with a dedicated `corridor_crosses_room` regression fixture.
+  gaps rather than speculative ones, plus one actual rendering bug (**fixed twice — first cosmetically,
+  then properly**, not just documented):
+  1. Eyeballing the rendered reproduction first showed a corridor's dark wall strokes drawn on top of an
+     unrelated room it geometrically crossed — `render`/`renderInner` (`SvgStringRenderer.scala`)
+     interleaved room floors between corridor floors and corridor walls, so a corridor crossing a room it
+     wasn't connected to (easy with no corridor/room collision avoidance) painted its wall strokes over
+     that room's already-drawn floor. Fixed by grouping all corridor rendering before all room rendering,
+     so a room's own floor+walls always render on top. This only fixed the *symptom* — the corridor still
+     geometrically crossed the room, just hidden underneath it.
+  2. Correctly called out as insufficient: two map elements should never cross at all, not just render in
+     the right order when they do. **Properly fixed** in `LayoutEngine.bfsLayout`/`resolveCollision`
+     (`LayoutEngine.scala`): neighbors of a room are now resolved in ascending placement-distance order
+     (nearer siblings placed first, so a farther sibling's collision check can actually see them — they
+     previously could be resolved in adjacency-list order, missing same-batch crossings entirely), and
+     collision avoidance now swings a candidate room around its full placement radius at a widening set of
+     angle deltas (0°, ±15°, ±30°, ... up to 180°) checking both room-room overlap *and* whether the
+     resulting corridor (via a new shared `computeCorridorRects`, so this check and the actual render can
+     never disagree) would cross any other already-placed room — not just a small fixed-size Cartesian
+     nudge, which was too weak to route around a room sitting far along the same ray. An explicit
+     `direction:` is only a hint here, same precedent as pre-existing room-overlap avoidance already set —
+     collision avoidance can swing a room off its requested angle rather than let its corridor cross
+     another room. Best-effort, not an absolute guarantee (a sufficiently pathological layout can still
+     exhaust the search), but the z-order fix from step 1 remains as defense for whatever residual cases
+     avoidance can't resolve — notably loop/extra edges (gap 5 below), whose endpoints are already fixed
+     by the time they're processed and so can't be moved at all.
+  Locked in by both a `corridor_avoids_room` SVG fixture and a direct geometric assertion in
+  `LayoutEngineTest` (`"a corridor never crosses a room it isn't connected to"`) that no corridor rect
+  overlaps any room it isn't one of the two endpoints of.
 
   Remaining gaps:
   1. **No irregular/polygonal "built" room shape.** `RoomShape` (`Ast.scala:19-20`) is only
