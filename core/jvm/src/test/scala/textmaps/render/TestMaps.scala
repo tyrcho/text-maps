@@ -49,7 +49,7 @@ object TestMaps:
     List(
       Room("entrance", RoomSize(4, 3), Some("Entry")),
       Room("vault", RoomSize(3, 3), Some("Vault"),
-        features = List(RoomFeature.Stairs(StairDir.Up), RoomFeature.Window(WallSide.North))),
+        features = List(RoomFeature.Stairs(StairDir.Up, WallSide.West), RoomFeature.Window(WallSide.North))),
     ),
     List(Connection("entrance", "vault", DoorType.Locked)),
     None,
@@ -103,9 +103,9 @@ object TestMaps:
     None,
   )
 
-  /** Also exercises feature positioning: Crevasse/Pillar use an approximate `-at:`
-   *  side bias, Statue uses a precise `-at:` grid-cell coordinate; Stalactite/
-   *  Stalagmite/Pool are left at their Auto defaults for comparison. */
+  /** Also exercises feature positioning: Crevasse/Pillar use an approximate side-bias
+   *  position, Statue uses a precise grid-cell coordinate; Stalactite/Stalagmite/Pool
+   *  are left at their Auto defaults for comparison. */
   val naturalStructuralFeatures: RenderedMap = LayoutEngine.layout(
     List(
       Room("cave", RoomSize(6, 4), Some("Cave"),

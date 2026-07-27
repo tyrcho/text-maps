@@ -151,17 +151,17 @@
 <line x1="132" y1="172" x2="132" y2="202" stroke="#d8d8d8" stroke-width="0.5"/>
 
 <rect x="43.0" y="-15.0" width="4" height="30.0" fill="white"/>
-<line x1="45.0" y1="-15.0" x2="75.0" y2="-15.0" stroke="#333" stroke-width="1.2"/>
-<path d="M 75.0,-15.0 A 30.0,30.0 0 0,1 45.0,15.0" fill="none" stroke="#333" stroke-width="0.8"/>
+<line x1="45.0" y1="-15.0" x2="66.2" y2="6.2" stroke="#333" stroke-width="1.2"/>
+<path d="M 66.2,6.2 A 30.0,30.0 0 0,1 45.0,15.0" fill="none" stroke="#333" stroke-width="0.8"/>
 <rect x="140.3" y="-15.0" width="4" height="30.0" fill="white"/>
-<line x1="142.3" y1="-15.0" x2="112.3" y2="-15.0" stroke="#333" stroke-width="1.2"/>
-<path d="M 112.3,-15.0 A 30.0,30.0 0 0,0 142.3,15.0" fill="none" stroke="#333" stroke-width="0.8"/>
+<line x1="142.3" y1="-15.0" x2="121.1" y2="6.2" stroke="#333" stroke-width="1.2"/>
+<path d="M 121.1,6.2 A 30.0,30.0 0 0,0 142.3,15.0" fill="none" stroke="#333" stroke-width="0.8"/>
 <rect x="172.3" y="43.0" width="30.0" height="4" fill="white"/>
-<line x1="172.3" y1="45.0" x2="172.3" y2="15.0" stroke="#333" stroke-width="1.2"/>
-<path d="M 172.3,15.0 A 30.0,30.0 0 0,1 202.3,45.0" fill="none" stroke="#333" stroke-width="0.8"/>
+<line x1="172.3" y1="45.0" x2="193.5" y2="23.8" stroke="#333" stroke-width="1.2"/>
+<path d="M 193.5,23.8 A 30.0,30.0 0 0,1 202.3,45.0" fill="none" stroke="#333" stroke-width="0.8"/>
 <rect x="172.3" y="140.3" width="30.0" height="4" fill="white"/>
-<line x1="172.3" y1="142.3" x2="172.3" y2="172.3" stroke="#333" stroke-width="1.2"/>
-<path d="M 172.3,172.3 A 30.0,30.0 0 0,0 202.3,142.3" fill="none" stroke="#333" stroke-width="0.8"/>
+<line x1="172.3" y1="142.3" x2="193.5" y2="163.5" stroke="#333" stroke-width="1.2"/>
+<path d="M 193.5,163.5 A 30.0,30.0 0 0,0 202.3,142.3" fill="none" stroke="#333" stroke-width="0.8"/>
 <use href="#door-secret" x="127" y="172" width="30" height="30" preserveAspectRatio="none" transform="rotate(90,142,187)"/>
 <use href="#door-secret" x="30" y="172" width="30" height="30" preserveAspectRatio="none" transform="rotate(90,45,187)"/>
 <text x="0" y="-32" text-anchor="middle" dominant-baseline="auto" fill="#333" font-size="9" font-family="sans-serif" font-weight="bold">1</text>

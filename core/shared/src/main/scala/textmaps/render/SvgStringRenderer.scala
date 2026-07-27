@@ -12,7 +12,8 @@ import textmaps.layout.*
  *  - Floor grid anchored to each shape's own top-left (not global coordinates),
  *    for rooms and corridors alike
  *  - Dark ink wall strokes
- *  - Stairs: box with tapering step bars
+ *  - Stairs: box with tapering step bars, rotated to face the wall the flight
+ *    leads toward, with a small "UP"/"DN" label for direction of travel
  *  - Windows: small opening gap on the wall
  *  - Doors: flat gap glyph by default; an architectural leaf + swing arc when
  *    `swing` is Inside/Outside
@@ -287,7 +288,7 @@ object SvgStringRenderer:
 
   private def roomFeatures(rm: RenderedRoom): List[String] =
     rm.features.flatMap {
-      case RoomFeature.Stairs(_)          => List(stairHatch(rm))
+      case RoomFeature.Stairs(dir, facing) => List(stairHatch(rm, dir, facing))
       case RoomFeature.SpiralStairs(dir)  => List(spiralStairs(rm, dir))
       case RoomFeature.Ladder(dir)        => List(centeredSymbol(rm, "feat-ladder", dir))
       case RoomFeature.Pillar(size, pos)     => List(sizedCentered(rm, "feat-pillar",     size, position = pos))
@@ -307,23 +308,36 @@ object SvgStringRenderer:
     }
 
   /** Bordered box with tapering horizontal step bars (narrow near the top, wide
-   *  near the bottom) — "steps receding into the distance". No direction arrow;
-   *  Up/Down aren't visually distinguished for this glyph. */
-  private def stairHatch(rm: RenderedRoom): String =
+   *  near the bottom) — "steps receding into the distance". Rotated so the narrow
+   *  end points toward `facing` (the wall the stairs lead toward); an "UP"/"DN"
+   *  label (no arrow) shows direction of travel. */
+  private def stairHatch(rm: RenderedRoom, dir: StairDir, facing: WallSide): String =
     val bw = GRID; val bh = GRID
     val bx = (rm.x + (rm.w - bw) / 2).toInt
     val by = (rm.y + (rm.h - bh) / 2).toInt
+    val cx = bx + bw / 2.0
+    val cy = by + bh / 2.0
     val box = s"""<rect x="$bx" y="$by" width="$bw" height="$bh" fill="white" stroke="#333" stroke-width="0.8"/>"""
     val steps  = 5
     val stepGap = bh.toDouble / (steps + 1)
-    val cx = bx + bw / 2.0
     val bars = (1 to steps).map { i =>
       val y         = by + stepGap * i
       val widthFrac = 0.28 + 0.13 * i
       val halfW     = bw * widthFrac / 2
       f"""<line x1="${cx - halfW}%.1f" y1="$y%.1f" x2="${cx + halfW}%.1f" y2="$y%.1f" stroke="#333" stroke-width="1.4"/>"""
     }.mkString("\n")
-    s"$box\n$bars"
+    val rotate = facing match
+      case WallSide.North => 0
+      case WallSide.East  => 90
+      case WallSide.South => 180
+      case WallSide.West  => 270
+    val group = s"""<g transform="rotate($rotate,${cx.toInt},${cy.toInt})">$box\n$bars</g>"""
+    val label = dir match
+      case StairDir.Up   => "UP"
+      case StairDir.Down => "DN"
+    val ly = (by + bh + 9).toInt
+    val text = s"""<text x="${cx.toInt}" y="$ly" text-anchor="middle" fill="#333" font-size="7" font-family="sans-serif" font-weight="bold">$label</text>"""
+    s"$group\n$text"
 
   /** Spiral staircase: circular arrow in a box. */
   private def spiralStairs(rm: RenderedRoom, dir: StairDir): String =
@@ -507,9 +521,10 @@ object SvgStringRenderer:
     else
       doorSwingArc(d)
 
-  /** Architectural door symbol: a leaf line + quarter-circle swing arc, swinging
-   *  into or away from this door's own room. Computed directly in world
-   *  coordinates from the door's position/width/angle/intoRoomSign — no
+  /** Architectural door symbol: a leaf line + swing arc, swinging into or away
+   *  from this door's own room. The leaf is drawn at a 45° opening angle (not a
+   *  full 90° quarter-turn), so the arc sweeps 45° too. Computed directly in
+   *  world coordinates from the door's position/width/angle/intoRoomSign — no
    *  rotation-frame math needed, unlike the flat `<use>`-based symbols above. */
   private def doorSwingArc(d: RenderedDoor): String =
     val half     = d.width / 2
@@ -517,7 +532,11 @@ object SvgStringRenderer:
     val hinge = if vertical then Vec2(d.position.x, d.position.y - half) else Vec2(d.position.x - half, d.position.y)
     val jamb2 = if vertical then Vec2(d.position.x, d.position.y + half) else Vec2(d.position.x + half, d.position.y)
     val dirSign = if d.swing == DoorSwing.Inside then d.intoRoomSign else -d.intoRoomSign
-    val leafEnd = if vertical then Vec2(hinge.x + dirSign * d.width, hinge.y) else Vec2(hinge.x, hinge.y + dirSign * d.width)
+    val along   = math.cos(math.Pi / 4) * d.width // toward jamb2 (closed-leaf direction)
+    val perp    = math.sin(math.Pi / 4) * d.width // toward intoRoomSign (open-leaf direction)
+    val leafEnd =
+      if vertical then Vec2(hinge.x + dirSign * perp, hinge.y + along)
+      else Vec2(hinge.x + along, hinge.y + dirSign * perp)
     val cross   = (leafEnd.x - hinge.x) * (jamb2.y - hinge.y) - (leafEnd.y - hinge.y) * (jamb2.x - hinge.x)
     val sweep   = if cross > 0 then 1 else 0
 

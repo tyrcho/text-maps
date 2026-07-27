@@ -71,12 +71,17 @@ the flat blend-into-wall look.
 
 **Room shapes:** `rectangular` (default) | `circular` | `cave` (irregular, hand-drawn-looking outline)
 
-**Room features can be positioned** with an optional `<feature>-at:` companion property, e.g.
-`pillar: 2` + `pillar-at: north` (approximate — biased toward that side of the room) or
-`statue-at: 2,1` (precise — grid-cell coordinates from the room's own top-left interior corner). Applies to
-the free-standing features: `pillar`, `statue`, `stalactite`, `stalagmite`, `crevasse`, `pool`, `stream`.
-Omit it to keep each feature's default placement (centred, or ceiling/floor-anchored for
-stalactite/stalagmite).
+**Stairs:** `stairs: up` or `stairs: down` alone faces north by default; add a wall-side word to set which
+wall the flight leads toward, e.g. `stairs: up west`. The glyph's tapering step bars point toward that wall,
+and a small "UP"/"DN" label (no arrow) shows direction of travel.
+
+**Room features can be positioned** — for the free-standing features (`pillar`, `statue`, `stalactite`,
+`stalagmite`, `crevasse`, `pool`, `stream`), the property's value is either a size or a position, not both:
+a bare number or `WxH` (e.g. `pillar: 2`, `statue: 2x3`) sets size with default placement; a wall-side word
+(e.g. `statue: west`) biases placement approximately toward that side of the room; `col,row` grid-cell
+coordinates (e.g. `statue: 2,1`, measured from the room's own top-left interior corner) place it precisely.
+Leave the value empty (`pool:`) to keep the feature's default size and placement (centred, or
+ceiling/floor-anchored for stalactite/stalagmite).
 
 **Label styles** (header property `labels:`): `legend` (numbered rooms + a "N - label" legend box below the
 map — default for `map dungeon`) | `inline` (no numbers; label centred inside each room — default for

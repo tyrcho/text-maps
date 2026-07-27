@@ -141,7 +141,7 @@ object DslParser:
     val buf = List.newBuilder[RoomFeature]
 
     // Vertical movement
-    props.get("stairs").flatMap(parseStairDir).foreach(d => buf += RoomFeature.Stairs(d))
+    props.get("stairs").flatMap(parseStairs).foreach { case (d, f) => buf += RoomFeature.Stairs(d, f) }
     props.get("spiral-stairs").flatMap(parseStairDir).foreach(d => buf += RoomFeature.SpiralStairs(d))
     props.get("ladder").flatMap(parseStairDir).foreach(d => buf += RoomFeature.Ladder(d))
 
@@ -158,12 +158,12 @@ object DslParser:
     sides("bed")(RoomFeature.Bed(_))
     sides("curtain")(RoomFeature.Curtain(_))
 
-    // Sized, positionable features — presence of the key triggers the feature;
-    // value sets size; an optional `<key>-at` companion property sets position.
+    // Sized, positionable features — presence of the key triggers the feature. The value is
+    // either a size (`2`, `2x3`) or a position (`north`, `2,1`) — not both at once.
     def sized(key: String)(f: (FeatureSize, FeaturePosition) => RoomFeature): Unit =
       props.get(key).foreach { v =>
-        val position = props.get(s"$key-at").map(parseFeaturePosition).getOrElse(FeaturePosition.Auto)
-        buf += f(parseFeatureSize(v), position)
+        val (size, position) = parseSizeOrPosition(v)
+        buf += f(size, position)
       }
 
     sized("pillar")(RoomFeature.Pillar(_, _))
@@ -185,19 +185,20 @@ object DslParser:
           case _           => FeatureSize.default
       case n => FeatureSize.square(n.toIntOption.getOrElse(1))
 
-  /** `north`/`south`/`east`/`west` (approximate bias) or `col,row` (precise grid-cell
-   *  coordinates, e.g. `2,3`). Anything unparseable falls back to Auto. */
-  private def parseFeaturePosition(v: String): FeaturePosition =
+  /** A sized/positionable feature's single value: `north`/`south`/`east`/`west` (approximate
+   *  position bias) or `col,row` (precise grid-cell position, e.g. `2,3`) set position with the
+   *  default size; anything else (`2`, `2x3`, or empty) sets size with the default (Auto)
+   *  position — size and an explicit position can't be combined in this one slot. */
+  private def parseSizeOrPosition(v: String): (FeatureSize, FeaturePosition) =
     val s = v.strip()
     parseWallSide(s) match
-      case Some(side) => FeaturePosition.Side(side)
+      case Some(side) => (FeatureSize.default, FeaturePosition.Side(side))
       case None =>
         s.split(",", 2) match
-          case Array(c, r) =>
-            (c.strip().toIntOption, r.strip().toIntOption) match
-              case (Some(col), Some(row)) => FeaturePosition.At(col, row)
-              case _                      => FeaturePosition.Auto
-          case _ => FeaturePosition.Auto
+          case Array(c, r) if c.strip().toIntOption.isDefined && r.strip().toIntOption.isDefined =>
+            (FeatureSize.default, FeaturePosition.At(c.strip().toInt, r.strip().toInt))
+          case _ =>
+            (parseFeatureSize(s), FeaturePosition.Auto)
 
   private def parseWallSide(s: String): Option[WallSide] = s.toLowerCase match
     case "north" | "n" => Some(WallSide.North)
@@ -210,6 +211,14 @@ object DslParser:
     case "up"   => Some(StairDir.Up)
     case "down" => Some(StairDir.Down)
     case _      => None
+
+  /** `up`/`down` alone (facing defaults to north), or `up north`/`down west` etc. —
+   *  a direction of travel plus which wall the stairs lead toward. */
+  private def parseStairs(s: String): Option[(StairDir, WallSide)] =
+    s.strip().split("\\s+").toList match
+      case dir :: Nil         => parseStairDir(dir).map((_, WallSide.North))
+      case dir :: facing :: _ => for d <- parseStairDir(dir); f <- parseWallSide(facing) yield (d, f)
+      case _                  => None
 
   // ── Helpers ─────────────────────────────────────────────────────────────
 

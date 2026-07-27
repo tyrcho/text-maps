@@ -38,9 +38,10 @@ object FeatureSize:
 
 /** Where a free-standing (non-wall-mounted) feature sits within its room.
  *  `Auto` is today's behaviour (centred / ceiling- or floor-anchored / full-width,
- *  depending on the feature). DSL syntax on the `<feature>-at:` companion property:
- *  `north`/`south`/`east`/`west` (approximate bias) or `2,3` (precise grid-cell coords,
- *  in GRID units from the room's own top-left interior corner). */
+ *  depending on the feature). DSL syntax: the feature's own value is either a size
+ *  (`2`, `2x3`) or a position — `north`/`south`/`east`/`west` (approximate bias) or
+ *  `2,3` (precise grid-cell coords, in GRID units from the room's own top-left
+ *  interior corner) — never both at once. */
 enum FeaturePosition:
   case Auto
   case Side(side: WallSide)
@@ -50,7 +51,7 @@ object FeaturePosition:
 
 enum RoomFeature:
   // Vertical movement
-  case Stairs(dir: StairDir)             // standard staircase
+  case Stairs(dir: StairDir, facing: WallSide = WallSide.North) // standard staircase; facing = wall it leads toward
   case SpiralStairs(dir: StairDir)       // spiral staircase
   case Ladder(dir: StairDir)             // ladder up or down
   // Wall openings

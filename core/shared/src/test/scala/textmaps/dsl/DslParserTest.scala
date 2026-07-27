@@ -129,18 +129,29 @@ class DslParserTest extends munit.FunSuite:
     val input =
       """map dungeon
         |room cave 6x5
-        |  pillar: 2
-        |  pillar-at: north
-        |  statue:
-        |  statue-at: 2,3
+        |  pillar: north
+        |  statue: 2,3
         |""".stripMargin
     DslParser.parse(input) match
       case Right(DungeonMap(_, DungeonMapSource.Manual(rooms, _))) =>
-        assert(rooms.head.features.contains(RoomFeature.Pillar(FeatureSize.square(2), FeaturePosition.Side(WallSide.North))))
+        assert(rooms.head.features.contains(RoomFeature.Pillar(FeatureSize.default, FeaturePosition.Side(WallSide.North))))
         assert(rooms.head.features.contains(RoomFeature.Statue(FeatureSize.default, FeaturePosition.At(2, 3))))
       case other => fail(s"unexpected: $other")
 
-  test("parses stairs feature"):
+  test("parses feature size (no position)"):
+    val input =
+      """map dungeon
+        |room cave 6x5
+        |  pillar: 2
+        |  statue: 2x3
+        |""".stripMargin
+    DslParser.parse(input) match
+      case Right(DungeonMap(_, DungeonMapSource.Manual(rooms, _))) =>
+        assert(rooms.head.features.contains(RoomFeature.Pillar(FeatureSize.square(2), FeaturePosition.Auto)))
+        assert(rooms.head.features.contains(RoomFeature.Statue(FeatureSize(2, 3), FeaturePosition.Auto)))
+      case other => fail(s"unexpected: $other")
+
+  test("parses stairs feature (facing defaults to north)"):
     val input =
       """map dungeon
         |room vault 3x3
@@ -148,7 +159,18 @@ class DslParserTest extends munit.FunSuite:
         |""".stripMargin
     DslParser.parse(input) match
       case Right(DungeonMap(_, DungeonMapSource.Manual(rooms, _))) =>
-        assert(rooms.head.features.contains(RoomFeature.Stairs(StairDir.Up)))
+        assert(rooms.head.features.contains(RoomFeature.Stairs(StairDir.Up, WallSide.North)))
+      case other => fail(s"unexpected: $other")
+
+  test("parses stairs feature with explicit facing"):
+    val input =
+      """map dungeon
+        |room vault 3x3
+        |  stairs: down west
+        |""".stripMargin
+    DslParser.parse(input) match
+      case Right(DungeonMap(_, DungeonMapSource.Manual(rooms, _))) =>
+        assert(rooms.head.features.contains(RoomFeature.Stairs(StairDir.Down, WallSide.West)))
       case other => fail(s"unexpected: $other")
 
   test("ignores comments"):

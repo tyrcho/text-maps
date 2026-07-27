@@ -5,7 +5,7 @@ room entrance 4x3
 
 room vault 3x3
   label: "Vault"
-  stairs: up
+  stairs: up west
   window: north
 
 connect entrance -> vault

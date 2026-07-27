@@ -144,14 +144,14 @@ object AsciiRenderer:
     // 4b. Room labels — movement-feature prefix/suffix baked in; drawn after features so labels read on top
     for r <- cRooms do
       val prefix = r.features.collectFirst {
-        case RoomFeature.Stairs(StairDir.Up)         => "< "
+        case RoomFeature.Stairs(StairDir.Up, _)      => "< "
         case RoomFeature.SpiralStairs(StairDir.Up)   => "S< "
         case RoomFeature.SpiralStairs(StairDir.Down) => "S> "
         case RoomFeature.Ladder(StairDir.Up)         => "^ "
         case RoomFeature.Ladder(StairDir.Down)       => "v "
       }.getOrElse("")
       val suffix = r.features.collectFirst {
-        case RoomFeature.Stairs(StairDir.Down) => " >"
+        case RoomFeature.Stairs(StairDir.Down, _) => " >"
       }.getOrElse("")
       val display = (prefix + r.label + suffix).take(r.cw)
       val lx      = r.cx + (r.cw - display.length) / 2
