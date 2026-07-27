@@ -1,21 +1,26 @@
 # Best-effort reproduction of doc/map-references/dungeon-5e-redbrand-hideout.webp using the current
 # text-maps DSL, written to surface concrete gaps (see the write-up in adr-002-visual-references.md).
-# Simplifications forced by those gaps are called out inline below.
+# Remaining simplifications forced by still-open gaps are called out inline below. The original version
+# of this file used icon-substitution workarounds (e.g. gi.coffin standing in for a second sarcophagus)
+# because repeating the same feature key silently overwrote the previous line; that's now fixed
+# (DslParser's consumeProps preserves repeated keys instead of collapsing to the last one), so this
+# version uses the genuine repeated icon/feature the reference actually has.
 map dungeon "Redbrand Hideout"
   background: shadow-edge
 
 import icon-sets.iconify.design/game-icons as gi
 import icon-sets.iconify.design/mdi as mdi
 
-# 1. Entry hall — reference has a water pool AND two separate staircases in a small side
-#    alcove. Only one `stairs:` (or any single feature key) survives per room (gap: a room can
-#    only hold one instance of a given feature key — repeating it silently overwrites the
-#    previous line, verified directly: two `gi.sarcophagus:` lines collapse to just the last
-#    one). The second staircase is dropped rather than faked.
+# 1. Entry hall — reference has a water pool and two separate staircases in a small side alcove.
+#    Both staircases now exist as distinct features (repeating stairs: on separate lines no longer
+#    collides in the parser) but still visually overlap: unlike Icon, RoomFeature.Stairs has no
+#    position field, so stairHatch always centers the glyph in the room regardless of facing — a
+#    newly-found render-side gap, not fixed here (see adr-002).
 room entrance 8x6
   label: "Entry Hall"
   gi.pool-dive: 5,1
   stairs: up west
+  stairs: down east
 
 # 2. Bedroom/storage — bunk beds on opposite walls work fine (the wall-side comma-list is the
 #    one supported multi-instance case); crates + barrels are two different icons so both
@@ -36,22 +41,18 @@ room hall_3a 6x4
 room hall_3b 5x4
   label: "Hall (locked wing)"
 
-# 4. Crypt — reference has two sarcophagi. Demonstrated collision (see verification above) means
-#    two `gi.sarcophagus:` lines would collapse to one; using a second, different icon
-#    (`gi.coffin`) is the workaround that actually ships two coffin-shaped features, not a fix to
-#    the underlying gap.
+# 4. Crypt — reference has two sarcophagi; both now render from two `gi.sarcophagus:` lines.
 room crypt_4 6x6
   label: "Crypt"
   gi.sarcophagus: 1,1
-  gi.coffin: 4,1
+  gi.sarcophagus: 4,1
 
-# 5. Rack room — reference shows two identical bar-rack fixtures plus a shackled captive. A
-#    second `gi.manacles:` line at a different position would collide with the first (same gap
-#    as room 4), so this uses one rack icon plus a different one standing in for the second.
+# 5. Rack room — reference shows two identical bar-rack fixtures plus a shackled captive.
 room racks_5 5x6
   label: "Racks"
   gi.manacles: 1,1
-  gi.skeleton: 4,1
+  gi.manacles: 4,4
+  gi.skeleton: 2,3
 
 # 6. Small room off the racks, barrel pile.
 room small_6 4x4

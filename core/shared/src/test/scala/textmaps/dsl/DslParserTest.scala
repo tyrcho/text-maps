@@ -204,6 +204,37 @@ class DslParserTest extends munit.FunSuite:
         assertEquals(rooms.head.features, List(RoomFeature.Icon("game-icons", "colombian-statue", FeatureSize.default, FeaturePosition.At(2, 3))))
       case other => fail(s"unexpected: $other")
 
+  test("repeating the same icon key at different positions creates one instance per line"):
+    val input =
+      """import icon-sets.iconify.design/game-icons as gi
+        |map dungeon
+        |room crypt 6x5
+        |  gi.sarcophagus: 1,1
+        |  gi.sarcophagus: 4,1
+        |""".stripMargin
+    DslParser.parse(input) match
+      case Right(DungeonMap(_, DungeonMapSource.Manual(rooms, _))) =>
+        assertEquals(rooms.head.features, List(
+          RoomFeature.Icon("game-icons", "sarcophagus", FeatureSize.default, FeaturePosition.At(1, 1)),
+          RoomFeature.Icon("game-icons", "sarcophagus", FeatureSize.default, FeaturePosition.At(4, 1)),
+        ))
+      case other => fail(s"unexpected: $other")
+
+  test("repeating stairs: on separate lines creates one staircase per line"):
+    val input =
+      """map dungeon
+        |room entry 8x6
+        |  stairs: up west
+        |  stairs: down east
+        |""".stripMargin
+    DslParser.parse(input) match
+      case Right(DungeonMap(_, DungeonMapSource.Manual(rooms, _))) =>
+        assertEquals(rooms.head.features, List(
+          RoomFeature.Stairs(StairDir.Up, WallSide.West),
+          RoomFeature.Stairs(StairDir.Down, WallSide.East),
+        ))
+      case other => fail(s"unexpected: $other")
+
   test("a property key with a dot but no matching import is ignored, not treated as an icon"):
     val input =
       """map dungeon

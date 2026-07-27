@@ -32,7 +32,15 @@ since the "why" for both draws on the same reference images.
   reference for how `Dungeon` and `Building` styles might connect if this project ever supports mixed/nested
   maps — not on the current roadmap, but worth remembering. **Reproduction attempt:** an actual best-effort
   DSL/SVG at `doc/map-references/redbrand-hideout-reproduction.{dsl,svg}` surfaced concrete, code-verified
-  gaps rather than speculative ones:
+  gaps rather than speculative ones, plus one actual rendering bug (**fixed**, not just documented):
+  eyeballing the rendered reproduction showed a corridor's dark wall strokes drawn on top of an unrelated
+  room it geometrically crossed — `render`/`renderInner` (`SvgStringRenderer.scala`) interleaved room floors
+  between corridor floors and corridor walls, so a corridor crossing a room it wasn't connected to (easy
+  with no corridor/room collision avoidance, see gap 5 below) painted its wall strokes over that room's
+  already-drawn floor. Fixed by grouping all corridor rendering before all room rendering, so a room's own
+  floor+walls always win; locked in with a dedicated `corridor_crosses_room` regression fixture.
+
+  Remaining gaps:
   1. **No irregular/polygonal "built" room shape.** `RoomShape` (`Ast.scala:19-20`) is only
      `Rectangular | Circular | Cave`. The reference's built interior (rooms 1, 3, the 4/5/6 cluster) has
      jogged, notched, L-shaped outlines that fit none of these.
@@ -42,14 +50,24 @@ since the "why" for both draws on the same reference images.
      `cave` room like any other, forcing it into the numbered legend.
   3. **No "bridge" (or any linear-span) feature** crossing open terrain — nothing in `RoomFeature`
      (`Ast.scala:52-66`) models this; the two crossings are just ordinary connections into the cave room.
-  4. **A room can only hold one instance of a given feature key.** `consumeProps`
+  4. **A room can only hold one instance of a given feature key.** ~~`consumeProps`
      (`DslParser.scala:144-150`) collects a room's properties into a `Map[String, String]` — a repeated key
-     silently overwrites the previous line. Verified directly: two `gi.sarcophagus:` lines at different
-     positions collapse to just the last one (confirmed via a throwaway JVM script before writing the final
-     `.dsl`). The reproduction works around this — twin sarcophagi become `sarcophagus` + `coffin`, twin
-     racks become `manacles` + `skeleton` — but that's two *different* icons standing in for "two of the
-     same fixture," not an actual fix, and entry hall's second staircase is simply dropped since `stairs:`
-     has no such workaround available.
+     silently overwrites the previous line.~~ **Implemented:** `consumeProps` now returns
+     `Map[String, List[String]]`, accumulating repeated keys instead of overwriting; `parseRoomFeatures`
+     iterates every value for `stairs`/`spiral-stairs`/`ladder`/`window` and for each `<alias>.<icon-name>`
+     match, so repeating e.g. `gi.sarcophagus:` on two lines now genuinely produces two `Icon` features (two
+     `DslParserTest` cases lock this in). Single-valued properties (`label`, `shape`, `door`, `corridor`,
+     ...) keep today's last-wins behavior via a small `.one(key)` extension. The reproduction's
+     sarcophagus/coffin and manacles/skeleton icon-substitution workarounds have been removed — it now uses
+     the same icon twice, as the reference does.
+     **Newly found while re-verifying this fix on the reproduction:** the *renderer* side isn't fully
+     solved. Unlike `RoomFeature.Icon` (which carries a `position: FeaturePosition`), `RoomFeature.Stairs`/
+     `SpiralStairs`/`Ladder` have no position field — `stairHatch` (`SvgStringRenderer.scala:285-310`)
+     always centers the glyph in the room regardless of `facing`. So the reproduction's entry hall now has
+     two genuinely distinct `Stairs` features (`up west` and `down east`), but they render on top of each
+     other at the same center point — the second simply hides the first. Not fixed here; would need a
+     `position` field on those three cases plus DSL syntax to set it (today's `stairs: <dir> <facing>` has
+     no slot for one).
   5. **No support for cyclic layouts.** `bfsLayout` (`LayoutEngine.scala:102-140`) places each room exactly
      once via a spanning tree from `entrance`. The reproduction's last connection (`storage_7 -> small_6`)
      deliberately closes a loop — both rooms are already placed via separate tree paths by the time it's

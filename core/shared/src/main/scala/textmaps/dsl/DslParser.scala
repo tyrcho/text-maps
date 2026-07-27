@@ -116,8 +116,8 @@ object DslParser:
           stmts += RoomStmt(Room(
             id       = id,
             size     = size,
-            label    = props.get("label"),
-            shape    = props.get("shape").flatMap(parseShape).getOrElse(RoomShape.Rectangular),
+            label    = props.one("label"),
+            shape    = props.one("shape").flatMap(parseShape).getOrElse(RoomShape.Rectangular),
             features = parseRoomFeatures(props, imports),
           ))
         case Right(Line.ConnDecl(from, to)) =>
@@ -125,12 +125,12 @@ object DslParser:
           stmts += ConnStmt(Connection(
             from      = from,
             to        = to,
-            door      = props.get("door").flatMap(parseDoor).getOrElse(DoorType.Open),
-            corridor  = props.get("corridor").flatMap(parseSize(_).toOption),
-            doorTo    = props.get("door-to").flatMap(parseDoor),
-            swing     = props.get("swing").flatMap(parseSwing).getOrElse(DoorSwing.Default),
-            swingTo   = props.get("swing-to").flatMap(parseSwing),
-            direction = props.get("direction").flatMap(parseDirection),
+            door      = props.one("door").flatMap(parseDoor).getOrElse(DoorType.Open),
+            corridor  = props.one("corridor").flatMap(parseSize(_).toOption),
+            doorTo    = props.one("door-to").flatMap(parseDoor),
+            swing     = props.one("swing").flatMap(parseSwing).getOrElse(DoorSwing.Default),
+            swingTo   = props.one("swing-to").flatMap(parseSwing),
+            direction = props.one("direction").flatMap(parseDirection),
           ))
         case Right(Line.GenerateDecl(n, style, seed)) =>
           stmts += GenStmt(DungeonMapSource.Generated(n, style, seed))
@@ -141,27 +141,39 @@ object DslParser:
 
     Right(stmts.toList)
 
-  private def consumeProps(it: collection.BufferedIterator[String]): Map[String, String] =
-    val props = collection.mutable.Map[String, String]()
+  /** Property lines collected per room/connection, in declaration order. Repeating the same key on
+   *  separate lines accumulates rather than overwrites — most properties are single-valued and only ever
+   *  care about one occurrence (see `.one`), but room features (`stairs:`, `gi.<icon>:`, ...) can
+   *  legitimately repeat to place more than one instance (e.g. two `gi.sarcophagus:` lines at different
+   *  positions), which a plain last-wins `Map[String, String]` silently collapsed to one. */
+  private def consumeProps(it: collection.BufferedIterator[String]): Map[String, List[String]] =
+    val props = collection.mutable.Map[String, List[String]]()
     while it.hasNext && (it.head.startsWith(" ") || it.head.startsWith("\t") || it.head.isBlank) do
       classifyLine(it.next()) match
-        case Right(Line.Prop(k, v)) => props(k) = v
+        case Right(Line.Prop(k, v)) => props(k) = props.getOrElse(k, Nil) :+ v
         case _ => ()
     props.toMap
 
+  /** Single-valued property lookup (label, shape, door, corridor, ...) — last occurrence wins, matching
+   *  this project's previous last-wins behavior for properties that only ever make sense once. */
+  extension (props: Map[String, List[String]])
+    private def one(key: String): Option[String] = props.get(key).flatMap(_.lastOption)
+
   // ── Feature parsing ────────────────────────────────────────────────────
 
-  private def parseRoomFeatures(props: Map[String, String], imports: Map[String, String]): List[RoomFeature] =
+  private def parseRoomFeatures(props: Map[String, List[String]], imports: Map[String, String]): List[RoomFeature] =
     val buf = List.newBuilder[RoomFeature]
 
-    // Vertical movement
-    props.get("stairs").flatMap(parseStairs).foreach { case (d, f) => buf += RoomFeature.Stairs(d, f) }
-    props.get("spiral-stairs").flatMap(parseStairDir).foreach(d => buf += RoomFeature.SpiralStairs(d))
-    props.get("ladder").flatMap(parseStairDir).foreach(d => buf += RoomFeature.Ladder(d))
+    // Vertical movement — repeatable: multiple `stairs:`/`spiral-stairs:`/`ladder:` lines in one room
+    // (e.g. two separate staircases) each produce their own feature instance.
+    props.getOrElse("stairs", Nil).flatMap(parseStairs).foreach { case (d, f) => buf += RoomFeature.Stairs(d, f) }
+    props.getOrElse("spiral-stairs", Nil).flatMap(parseStairDir).foreach(d => buf += RoomFeature.SpiralStairs(d))
+    props.getOrElse("ladder", Nil).flatMap(parseStairDir).foreach(d => buf += RoomFeature.Ladder(d))
 
     // Window — the only wall opening still a hardcoded direct SVG symbol,
-    // alongside doors; supports comma-separated sides (e.g. `window: north,south`).
-    props.get("window").foreach(_.split(",").flatMap(s => parseWallSide(s.strip())).foreach(s => buf += RoomFeature.Window(s)))
+    // alongside doors; supports comma-separated sides on one line (e.g. `window: north,south`)
+    // and repeated `window:` lines alike.
+    props.getOrElse("window", Nil).foreach(_.split(",").flatMap(s => parseWallSide(s.strip())).foreach(s => buf += RoomFeature.Window(s)))
 
     // Every other room feature — free-standing structural/natural or a wall
     // furnishing (fireplace, bed, curtain, arrow slit, illusory wall, ...) — is
@@ -170,15 +182,18 @@ object DslParser:
     // The value is either a size (`2`, `2x3`), a single position (`north`,
     // `2,1`), or — matching the old wall features' comma-separated-sides
     // support — a comma list of wall-side words (`north,south`), which creates
-    // one Icon per side instead of a single positioned Icon.
+    // one Icon per side instead of a single positioned Icon. Repeating the same
+    // `alias.icon-name:` key on separate lines (e.g. two `gi.sarcophagus:` lines
+    // at different positions) likewise creates one Icon per line, not just one.
     // Iterated in sorted key order — `props`/`imports` are plain Maps with no
     // reliable iteration order, and feature order must be deterministic (both for
     // stable rendering and for DslFixtureRenderTest, which compares against a
     // hand-written Scala fixture listing features in this same sorted order).
     for
       (alias, iconSet) <- imports.toList.sortBy(_._1)
-      (key, value)      <- props.toList.sortBy(_._1)
+      (key, values)     <- props.toList.sortBy(_._1)
       iconName          <- Some(key).filter(_.startsWith(s"$alias.")).map(_.stripPrefix(s"$alias."))
+      value             <- values
       (size, position)  <- parseIconValue(value)
     do
       buf += RoomFeature.Icon(iconSet, iconName, size, position)

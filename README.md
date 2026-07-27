@@ -114,6 +114,10 @@ wall sides:
   creates one instance of that icon per side instead of a single positioned one — the multi-instance case for
   furnishing several walls with the same icon.
 - Leave the value empty (`gi.stalactites:`) to keep the default size and centred placement.
+- Repeating the same `<alias>.<icon-name>:` key on separate lines within a room places one instance per
+  line (e.g. two `gi.sarcophagus:` lines at different `col,row` coordinates place two sarcophagi) — as does
+  repeating `stairs:`/`spiral-stairs:`/`ladder:` for more than one of those in a room, though those three
+  don't yet carry a position, so more than one in the same room will visually overlap at the room's centre.
 
 **Window is the one exception** — still a hardcoded, direct SVG symbol (a plain gap with three panes, same
 `WallSide` positioning), alongside doors, since those are structural openings rather than furnishings.
