@@ -30,7 +30,42 @@ since the "why" for both draws on the same reference images.
   to shape/labels) is still just the existing hatch — not attempted here.
 - `dungeon-5e-redbrand-hideout.webp` (a dungeon literally built under a town building) is a concrete
   reference for how `Dungeon` and `Building` styles might connect if this project ever supports mixed/nested
-  maps — not on the current roadmap, but worth remembering.
+  maps — not on the current roadmap, but worth remembering. **Reproduction attempt:** an actual best-effort
+  DSL/SVG at `doc/map-references/redbrand-hideout-reproduction.{dsl,svg}` surfaced concrete, code-verified
+  gaps rather than speculative ones:
+  1. **No irregular/polygonal "built" room shape.** `RoomShape` (`Ast.scala:19-20`) is only
+     `Rectangular | Circular | Cave`. The reference's built interior (rooms 1, 3, the 4/5/6 cluster) has
+     jogged, notched, L-shaped outlines that fit none of these.
+  2. **No unnumbered open terrain.** Every `Cave`-shaped area is still a `Room` with a label and a legend
+     row — the reference's central chasm/underground river is background terrain the built rooms border
+     and cross via bridges, with no number of its own. Modeled here as room 9 ("Underground Stream"), a
+     `cave` room like any other, forcing it into the numbered legend.
+  3. **No "bridge" (or any linear-span) feature** crossing open terrain — nothing in `RoomFeature`
+     (`Ast.scala:52-66`) models this; the two crossings are just ordinary connections into the cave room.
+  4. **A room can only hold one instance of a given feature key.** `consumeProps`
+     (`DslParser.scala:144-150`) collects a room's properties into a `Map[String, String]` — a repeated key
+     silently overwrites the previous line. Verified directly: two `gi.sarcophagus:` lines at different
+     positions collapse to just the last one (confirmed via a throwaway JVM script before writing the final
+     `.dsl`). The reproduction works around this — twin sarcophagi become `sarcophagus` + `coffin`, twin
+     racks become `manacles` + `skeleton` — but that's two *different* icons standing in for "two of the
+     same fixture," not an actual fix, and entry hall's second staircase is simply dropped since `stairs:`
+     has no such workaround available.
+  5. **No support for cyclic layouts.** `bfsLayout` (`LayoutEngine.scala:102-140`) places each room exactly
+     once via a spanning tree from `entrance`. The reproduction's last connection (`storage_7 -> small_6`)
+     deliberately closes a loop — both rooms are already placed via separate tree paths by the time it's
+     processed — and it still renders a corridor/doors (`conns.map` runs over every connection, not just
+     tree edges), just with whatever straight/L-shaped geometry falls out of wherever the tree happened to
+     put those two rooms, not deliberate bridge placement.
+  6. **No icon-based/glyph legend** — confirmed blocker for reproducing the reference's separate symbol key
+     (Bars, Bridge, Bunk Bed, Locked Door, Rack, Secret Door, Sarcophagus, Table); already future work below.
+  7. **Minimum room-to-room gap is diagonal-based, not wall-aligned** (`roomHalfDiag`,
+     `LayoutEngine.scala:162-163`, sums each room's full corner-to-center diagonal regardless of which axis
+     the connection runs along) — so the reference's flush, party-wall-adjacent room clusters can't be fully
+     reproduced; there's always a visible corridor stub between rooms, even at the smallest `corridor:`
+     size. The rendered reproduction reads as a loose chain of rooms rather than the reference's compact
+     footprint, mostly because of this.
+  Not attempted: compass rose, off-map distance/direction annotations ("100 feet to forest"), scale caption
+  ("1 square = 5 feet") — decorative, not layout-affecting, lowest priority of what the exercise surfaced.
 - `dungeon-5e-stone-tooth-fortress.webp` and `-sunless-citadel.webp` are classic module maps with more
   rectilinear structure (built fortress rather than natural cave) — useful for comparing against the BSP
   generator's rectangular-room output.

@@ -23,7 +23,7 @@ not redistribute these files outside this reference folder or represent them as 
 | `medieval-5e-greenest-town.webp` | Medieval | `adventure/HotDQ/007-map-1-1-greenest.webp` | Walled town under siege, dense building layout — *Hoard of the Dragon Queen* |
 | `dungeon-5e-cragmaw-hideout.webp` | Dungeon | `adventure/LMoP/Cragmaw Hideout.webp` | Cave/tunnel dungeon — *Lost Mine of Phandelver* |
 | `dungeon-5e-wave-echo-cave.webp` | Dungeon | `adventure/LMoP/Wave Echo Cave.webp` | Large multi-chamber cave dungeon — *Lost Mine of Phandelver* |
-| `dungeon-5e-redbrand-hideout.webp` | Dungeon | `adventure/LMoP/Redbrand Hideout.webp` | Dungeon built under a town building — bridges dungeon/building styles — *Lost Mine of Phandelver* |
+| `dungeon-5e-redbrand-hideout.webp` | Dungeon | `adventure/LMoP/Redbrand Hideout.webp` | Dungeon built under a town building — bridges dungeon/building styles — *Lost Mine of Phandelver*. See `redbrand-hideout-reproduction.dsl`/`.svg` (original text-maps content, not sourced externally) for a best-effort DSL reproduction and `adr-002-visual-references.md`'s "Dungeon" section for the concrete DSL/renderer gaps it surfaced. |
 | `dungeon-5e-stone-tooth-fortress.webp` | Dungeon | `adventure/TftYP-TFoF/002-map-2-1-the-stone-tooth.webp` | Dwarven fortress dungeon — *The Forge of Fury* |
 | `dungeon-5e-sunless-citadel.webp` | Dungeon | `adventure/TftYP-TSC/002-tsc01.webp` | Classic ruined-citadel dungeon — *The Sunless Citadel* |
 
