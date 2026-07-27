@@ -125,30 +125,67 @@ class DslParserTest extends munit.FunSuite:
         assertEquals(conns.head.direction, Some(WallSide.East))
       case other => fail(s"unexpected: $other")
 
-  test("parses feature position (approximate and precise)"):
+  test("parses an import statement and resolves alias.icon-name features"):
     val input =
-      """map dungeon
+      """import icon-sets.iconify.design/game-icons as gi
+        |map dungeon
         |room cave 6x5
-        |  pillar: north
-        |  statue: 2,3
+        |  gi.stalactites:
         |""".stripMargin
     DslParser.parse(input) match
       case Right(DungeonMap(_, DungeonMapSource.Manual(rooms, _))) =>
-        assert(rooms.head.features.contains(RoomFeature.Pillar(FeatureSize.default, FeaturePosition.Side(WallSide.North))))
-        assert(rooms.head.features.contains(RoomFeature.Statue(FeatureSize.default, FeaturePosition.At(2, 3))))
+        assert(rooms.head.features.contains(RoomFeature.Icon("game-icons", "stalactites")))
       case other => fail(s"unexpected: $other")
 
-  test("parses feature size (no position)"):
+  test("import statement works after the map header too"):
     val input =
       """map dungeon
+        |import icon-sets.iconify.design/game-icons as gi
         |room cave 6x5
-        |  pillar: 2
-        |  statue: 2x3
+        |  gi.stalactites:
         |""".stripMargin
     DslParser.parse(input) match
       case Right(DungeonMap(_, DungeonMapSource.Manual(rooms, _))) =>
-        assert(rooms.head.features.contains(RoomFeature.Pillar(FeatureSize.square(2), FeaturePosition.Auto)))
-        assert(rooms.head.features.contains(RoomFeature.Statue(FeatureSize(2, 3), FeaturePosition.Auto)))
+        assert(rooms.head.features.contains(RoomFeature.Icon("game-icons", "stalactites")))
+      case other => fail(s"unexpected: $other")
+
+  test("icon feature position (approximate and precise)"):
+    val input =
+      """import icon-sets.iconify.design/game-icons as gi
+        |map dungeon
+        |room cave 6x5
+        |  gi.ionic-column: north
+        |  gi.colombian-statue: 2,3
+        |""".stripMargin
+    DslParser.parse(input) match
+      case Right(DungeonMap(_, DungeonMapSource.Manual(rooms, _))) =>
+        assert(rooms.head.features.contains(RoomFeature.Icon("game-icons", "ionic-column", FeatureSize.default, FeaturePosition.Side(WallSide.North))))
+        assert(rooms.head.features.contains(RoomFeature.Icon("game-icons", "colombian-statue", FeatureSize.default, FeaturePosition.At(2, 3))))
+      case other => fail(s"unexpected: $other")
+
+  test("icon feature size (no position)"):
+    val input =
+      """import icon-sets.iconify.design/game-icons as gi
+        |map dungeon
+        |room cave 6x5
+        |  gi.ionic-column: 2
+        |  gi.colombian-statue: 2x3
+        |""".stripMargin
+    DslParser.parse(input) match
+      case Right(DungeonMap(_, DungeonMapSource.Manual(rooms, _))) =>
+        assert(rooms.head.features.contains(RoomFeature.Icon("game-icons", "ionic-column", FeatureSize.square(2), FeaturePosition.Auto)))
+        assert(rooms.head.features.contains(RoomFeature.Icon("game-icons", "colombian-statue", FeatureSize(2, 3), FeaturePosition.Auto)))
+      case other => fail(s"unexpected: $other")
+
+  test("a property key with a dot but no matching import is ignored, not treated as an icon"):
+    val input =
+      """map dungeon
+        |room cave 6x5
+        |  gi.stalactites: north
+        |""".stripMargin
+    DslParser.parse(input) match
+      case Right(DungeonMap(_, DungeonMapSource.Manual(rooms, _))) =>
+        assertEquals(rooms.head.features, Nil)
       case other => fail(s"unexpected: $other")
 
   test("parses stairs feature (facing defaults to north)"):

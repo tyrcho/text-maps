@@ -21,6 +21,7 @@ import textmaps.layout.*
  *    w   window (on wall)
  *    <   stairs up
  *    >   stairs down
+ *    *   icon feature (any RoomFeature.Icon — the specific icon isn't shown)
  *
  *  Background by map type:
  *    dungeon  →  # (rock)
@@ -96,47 +97,13 @@ object AsciiRenderer:
     val charsPerGrid = 30 / PX_PER_CHAR  // GRID px / px-per-char = 3 chars per square
     for r <- cRooms do
       r.features.foreach {
-        case RoomFeature.Stream(size, _) =>
-          val rows = math.max(1, size.h * charsPerGrid)
-          val startRow = r.cy + (r.ch - rows) / 2
-          for row <- startRow until startRow + rows; x <- r.cx until r.cx + r.cw do set(x, row, '~')
-
-        case RoomFeature.Stalactite(size, _) =>
-          val cols = math.min(size.w * charsPerGrid, r.cw)
-          val rows = math.min(size.h * charsPerGrid, r.ch)
-          val startCol = r.cx + (r.cw - cols) / 2
-          for row <- r.cy until r.cy + rows; x <- startCol until startCol + cols do set(x, row, 'v')
-
-        case RoomFeature.Stalagmite(size, _) =>
-          val cols = math.min(size.w * charsPerGrid, r.cw)
-          val rows = math.min(size.h * charsPerGrid, r.ch)
-          val startCol = r.cx + (r.cw - cols) / 2
-          for row <- (r.cy + r.ch - rows) until r.cy + r.ch; x <- startCol until startCol + cols do set(x, row, '^')
-
-        case RoomFeature.Pool(size, _) =>
-          val cols = math.min(size.w * charsPerGrid, r.cw)
-          val rows = math.min(size.h * charsPerGrid, r.ch)
-          val startCol = r.cx + (r.cw - cols) / 2
-          val startRow = r.cy + (r.ch - rows) / 2
-          for row <- startRow until startRow + rows; x <- startCol until startCol + cols do set(x, row, '~')
-
-        case RoomFeature.Crevasse(size, _) =>
-          val rows = math.max(1, size.h * charsPerGrid)
-          val startRow = r.cy + (r.ch - rows) / 2
-          for row <- startRow until startRow + rows; x <- r.cx until r.cx + r.cw do
-            set(x, row, if (row - startRow) % 2 == 0 then '/' else '\\')
-
-        case RoomFeature.Pillar(size, _) =>
+        // Icon features are coarse in ASCII — a single generic glyph filling
+        // the feature's bounding box, since the specific icon can't be shown.
+        case RoomFeature.Icon(_, _, size, _) =>
           val cols = math.min(size.w * charsPerGrid, r.cw)
           val rows = math.min(size.h * charsPerGrid, r.ch)
           val cx = r.cx + (r.cw - cols) / 2; val cy = r.cy + (r.ch - rows) / 2
-          for row <- cy until cy + rows; x <- cx until cx + cols do set(x, row, 'O')
-
-        case RoomFeature.Statue(size, _) =>
-          val cols = math.min(size.w * charsPerGrid, r.cw)
-          val rows = math.min(size.h * charsPerGrid, r.ch)
-          val cx = r.cx + (r.cw - cols) / 2; val cy = r.cy + (r.ch - rows) / 2
-          for row <- cy until cy + rows; x <- cx until cx + cols do set(x, row, '@')
+          for row <- cy until cy + rows; x <- cx until cx + cols do set(x, row, '*')
 
         case _ =>
       }

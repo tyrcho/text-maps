@@ -30,7 +30,7 @@ enum StairDir:
   case Up, Down
 
 /** Size of a room feature in grid squares (1 square = GRID px = 30 px).
- *  Default is 1×1.  DSL syntax:  `pool:` → 1×1, `pool: 2` → 2×2, `pool: 3x2` → 3×2. */
+ *  Default is 1×1.  DSL syntax:  `gi.pool:` → 1×1, `gi.pool: 2` → 2×2, `gi.pool: 3x2` → 3×2. */
 case class FeatureSize(w: Int = 1, h: Int = 1)
 object FeatureSize:
   val default: FeatureSize = FeatureSize()
@@ -62,15 +62,11 @@ enum RoomFeature:
   case Fireplace(side: WallSide)         // fireplace against a wall
   case Bed(side: WallSide)               // bed against a wall
   case Curtain(side: WallSide)           // hanging curtain across a wall
-  // Structural — default 1 square, can be resized and positioned
-  case Pillar(size: FeatureSize = FeatureSize.default, position: FeaturePosition = FeaturePosition.Auto)
-  case Statue(size: FeatureSize = FeatureSize.default, position: FeaturePosition = FeaturePosition.Auto)
-  // Natural features — default 1 square, can be resized and positioned
-  case Stalactite(size: FeatureSize = FeatureSize.default, position: FeaturePosition = FeaturePosition.Auto)
-  case Stalagmite(size: FeatureSize = FeatureSize.default, position: FeaturePosition = FeaturePosition.Auto)
-  case Crevasse(size: FeatureSize = FeatureSize.default, position: FeaturePosition = FeaturePosition.Auto)
-  case Pool(size: FeatureSize = FeatureSize.default, position: FeaturePosition = FeaturePosition.Auto)
-  case Stream(size: FeatureSize = FeatureSize.default, position: FeaturePosition = FeaturePosition.Auto)
+  // Free-standing, cell-positioned features — an icon from an imported Iconify
+  // icon set (DSL: `import <path> as <alias>`, then `<alias>.<icon-name>: <value>`),
+  // default 1 square, can be resized and positioned like the old hardcoded
+  // structural/natural features it replaces.
+  case Icon(iconSet: String, iconName: String, size: FeatureSize = FeatureSize.default, position: FeaturePosition = FeaturePosition.Auto)
 
 case class RoomSize(width: Int, height: Int)
 

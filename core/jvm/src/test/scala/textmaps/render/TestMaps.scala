@@ -103,25 +103,30 @@ object TestMaps:
     None,
   )
 
-  /** Also exercises feature positioning: Crevasse/Pillar use an approximate side-bias
-   *  position, Statue uses a precise grid-cell coordinate; Stalactite/Stalagmite/Pool
-   *  are left at their Auto defaults for comparison. */
+  /** Also exercises feature positioning: cave-entrance/ionic-column use an approximate
+   *  side-bias position, colombian-statue uses a precise grid-cell coordinate;
+   *  stalactites/spikes/water-drop are left at their Auto defaults for comparison. All
+   *  icons are from the "game-icons" Iconify set (DSL: `import ... as gi`).
+   *
+   *  Feature order within each room matches DslParser's sorted-by-property-key
+   *  order (`gi.<name>` alphabetically) so this fixture stays byte-identical to
+   *  what parsing the equivalent `.dsl` file produces. */
   val naturalStructuralFeatures: RenderedMap = LayoutEngine.layout(
     List(
       Room("cave", RoomSize(6, 4), Some("Cave"),
         features = List(
-          RoomFeature.Stalactite(),
-          RoomFeature.Stalagmite(),
-          RoomFeature.Crevasse(position = FeaturePosition.Side(WallSide.West)),
+          RoomFeature.Icon("game-icons", "cave-entrance", position = FeaturePosition.Side(WallSide.West)),
+          RoomFeature.Icon("game-icons", "spikes"),
+          RoomFeature.Icon("game-icons", "stalactites"),
         )),
       Room("hall", RoomSize(5, 4), Some("Hall"),
         features = List(
-          RoomFeature.Pillar(position = FeaturePosition.Side(WallSide.North)),
-          RoomFeature.Statue(position = FeaturePosition.At(2, 1)),
-          RoomFeature.Pool(),
+          RoomFeature.Icon("game-icons", "colombian-statue", position = FeaturePosition.At(2, 1)),
+          RoomFeature.Icon("game-icons", "ionic-column", position = FeaturePosition.Side(WallSide.North)),
+          RoomFeature.Icon("game-icons", "water-drop"),
         )),
       Room("stream_room", RoomSize(5, 3), Some("Stream"),
-        features = List(RoomFeature.Stream())),
+        features = List(RoomFeature.Icon("game-icons", "splashy-stream"))),
     ),
     List(
       Connection("cave", "hall",        DoorType.Open),

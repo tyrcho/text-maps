@@ -4,9 +4,12 @@ import org.scalajs.dom
 import org.scalajs.dom.{document, window}
 import textmaps.dsl.{DslParser, DungeonMapSource}
 import textmaps.generate.DungeonGenerator
+import textmaps.icons.CachingIconFetcher
 import textmaps.layout.LayoutEngine
 import textmaps.main.routing.{HashRouter, Route}
 import textmaps.render.SvgStringRenderer
+
+val iconFetcher = new CachingIconFetcher(new LocalStorageIconCache, new XhrIconFetcher)
 
 val defaultDsl =
   """map dungeon "The Sunken Keep"
@@ -89,7 +92,7 @@ def render(dsl: String, errEl: dom.html.Div, mapSvg: dom.svg.SVG): Unit =
           ast.copy(source = DungeonGenerator.generate(n, seed))
         case _ => ast
       val renderedMap = LayoutEngine.compute(expanded)
-      injectSvg(mapSvg, SvgStringRenderer.renderInner(renderedMap))
+      injectSvg(mapSvg, SvgStringRenderer.renderInner(renderedMap, iconFetcher))
 
 // Parses the renderInner output (which embeds viewBox as a sentinel) and
 // injects the SVG content into the live <svg> element.

@@ -3,6 +3,7 @@ package textmaps.render
 import java.nio.file.{Files, Path}
 import org.scalatest.funsuite.AnyFunSuite
 import textmaps.dsl.DslParser
+import textmaps.icons.TestIcons
 import textmaps.layout.LayoutEngine
 
 /** Parses each `.dsl` file next to the approved SVG/ASCII fixtures and asserts it
@@ -41,7 +42,7 @@ class DslFixtureRenderTest extends AnyFunSuite:
       val rendered = LayoutEngine.compute(parsed)
 
       val expectedSvg = Files.readString(svgDir.resolve(s"$name.approved.svg"))
-      assert(SvgStringRenderer.render(rendered) == expectedSvg, s"SVG mismatch for '$name'")
+      assert(SvgStringRenderer.render(rendered, TestIcons.fetcher) == expectedSvg, s"SVG mismatch for '$name'")
 
       val expectedAscii = Files.readString(asciiDir.resolve(s"$name.approved.txt"))
       assert(AsciiRenderer.render(rendered) == expectedAscii, s"ASCII mismatch for '$name'")

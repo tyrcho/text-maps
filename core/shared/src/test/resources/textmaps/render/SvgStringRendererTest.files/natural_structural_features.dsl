@@ -1,20 +1,22 @@
 map dungeon
 
+import icon-sets.iconify.design/game-icons as gi
+
 room cave 6x4
   label: "Cave"
-  stalactite:
-  stalagmite:
-  crevasse: west
+  gi.stalactites:
+  gi.spikes:
+  gi.cave-entrance: west
 
 room hall 5x4
   label: "Hall"
-  pillar: north
-  statue: 2,1
-  pool:
+  gi.ionic-column: north
+  gi.colombian-statue: 2,1
+  gi.water-drop:
 
 room stream_room 5x3
   label: "Stream"
-  stream:
+  gi.splashy-stream:
 
 connect cave -> hall
   door: open

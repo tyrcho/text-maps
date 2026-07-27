@@ -2,6 +2,7 @@ package textmaps.render
 
 import textmaps.dsl.{DoorSwing, DoorType, FeaturePosition, FeatureSize, LabelStyle, MapType, RoomFeature, RoomShape, RoomSize, StairDir, WallSide}
 import textmaps.generate.Rng
+import textmaps.icons.IconFetcher
 import textmaps.layout.*
 
 /** Renders a RenderedMap as a self-contained SVG string.
@@ -17,6 +18,9 @@ import textmaps.layout.*
  *  - Windows: small opening gap on the wall
  *  - Doors: flat gap glyph by default; an architectural leaf + swing arc when
  *    `swing` is Inside/Outside; secret doors get a small "S" above their line
+ *  - Free-standing features (`RoomFeature.Icon`) are embedded Iconify icons,
+ *    fetched via an injected `IconFetcher`; a missing icon falls back to a
+ *    dashed placeholder box + its name rather than rendering nothing
  *  - Room number inside (bold, centred); room name below the room
  */
 object SvgStringRenderer:
@@ -25,7 +29,7 @@ object SvgStringRenderer:
   private val WALL    = 1.5
   private val FONT_SZ = 9
 
-  def render(map: RenderedMap): String =
+  def render(map: RenderedMap, iconFetcher: IconFetcher = IconFetcher.none): String =
     val pad = 60.0
     val vx  = (map.minX - pad).toInt
     val vy  = (map.minY - pad).toInt
@@ -43,13 +47,13 @@ object SvgStringRenderer:
         |${map.rooms.map(roomWalls).mkString("\n")}
         |${map.rooms.map(roomGrid).mkString("\n")}
         |${map.corridors.flatMap(corridorGrid).mkString("\n")}
-        |${map.rooms.flatMap(roomFeatures).mkString("\n")}
+        |${map.rooms.flatMap(rm => roomFeatures(rm, iconFetcher)).mkString("\n")}
         |${map.doors.map(door).mkString("\n")}
         |${map.rooms.zipWithIndex.map { (rm, i) => roomLabel(rm, i + 1, map.labelStyle) }.mkString("\n")}
         |${legendBox(map)}
         |</svg>""".stripMargin
 
-  def renderInner(map: RenderedMap): String =
+  def renderInner(map: RenderedMap, iconFetcher: IconFetcher = IconFetcher.none): String =
     val pad = 60.0
     val vx  = (map.minX - pad).toInt
     val vy  = (map.minY - pad).toInt
@@ -65,7 +69,7 @@ object SvgStringRenderer:
         |${map.rooms.map(roomWalls).mkString("\n")}
         |${map.rooms.map(roomGrid).mkString("\n")}
         |${map.corridors.flatMap(corridorGrid).mkString("\n")}
-        |${map.rooms.flatMap(roomFeatures).mkString("\n")}
+        |${map.rooms.flatMap(rm => roomFeatures(rm, iconFetcher)).mkString("\n")}
         |${map.doors.map(door).mkString("\n")}
         |${map.rooms.zipWithIndex.map { (rm, i) => roomLabel(rm, i + 1, map.labelStyle) }.mkString("\n")}
         |${legendBox(map)}""".stripMargin
@@ -107,42 +111,6 @@ object SvgStringRenderer:
     <line x1="8"  y1="19" x2="22" y2="19" stroke="#333" stroke-width="1"/>
     <line x1="8"  y1="25" x2="22" y2="25" stroke="#333" stroke-width="1"/>
   </symbol>
-  <symbol id="feat-pillar" viewBox="0 0 30 30">
-    <circle cx="15" cy="15" r="10" fill="#666" stroke="#333" stroke-width="1"/>
-    <circle cx="15" cy="15" r="7"  fill="#888"/>
-  </symbol>
-  <symbol id="feat-statue" viewBox="0 0 30 30">
-    <polygon points="15,3 27,15 15,27 3,15" fill="#ccc" stroke="#333" stroke-width="1.2"/>
-    <line x1="15" y1="7"  x2="15" y2="23" stroke="#333" stroke-width="0.8"/>
-    <line x1="7"  y1="15" x2="23" y2="15" stroke="#333" stroke-width="0.8"/>
-  </symbol>
-  <symbol id="feat-pool" viewBox="0 0 30 30">
-    <rect x="2" y="2" width="26" height="26" rx="8" fill="white" stroke="#99c" stroke-width="1"/>
-    <path d="M 6 10 Q 10 7 14 10 Q 18 13 22 10" fill="none" stroke="#99c" stroke-width="1.2"/>
-    <path d="M 6 16 Q 10 13 14 16 Q 18 19 22 16" fill="none" stroke="#99c" stroke-width="1.2"/>
-    <path d="M 6 22 Q 10 19 14 22 Q 18 25 22 22" fill="none" stroke="#99c" stroke-width="1.2"/>
-  </symbol>
-  <symbol id="feat-stream" viewBox="0 0 30 30">
-    <path d="M 0 12 Q 5 8 10 14 Q 15 20 20 14 Q 25 8 30 12"
-          fill="none" stroke="#99c" stroke-width="1.8"/>
-    <path d="M 0 18 Q 5 14 10 20 Q 15 26 20 20 Q 25 14 30 18"
-          fill="none" stroke="#99c" stroke-width="1.8"/>
-  </symbol>
-  <symbol id="feat-stalactite" viewBox="0 0 30 30">
-    <polygon points="7,2  4,16  10,16"  fill="#666"/>
-    <polygon points="15,2 12,13  18,13" fill="#666"/>
-    <polygon points="23,2 20,18  26,18" fill="#666"/>
-  </symbol>
-  <symbol id="feat-stalagmite" viewBox="0 0 30 30">
-    <polygon points="7,28  4,14  10,14"  fill="#666"/>
-    <polygon points="15,28 12,17  18,17" fill="#666"/>
-    <polygon points="23,28 20,12  26,12" fill="#666"/>
-  </symbol>
-  <symbol id="feat-crevasse" viewBox="0 0 30 30">
-    <polygon points="0,15 5,10 9,16 13,8 17,18 21,9 25,16 30,15 30,20 25,20 21,14 17,23 13,13 9,21 5,15 0,20"
-             fill="#555" stroke="#333" stroke-width="0.5"/>
-  </symbol>
-
   <!-- Wall-placed feature symbols (30×30, designed to sit on a wall) -->
   <symbol id="feat-window" viewBox="0 0 30 6">
     <rect x="0"  y="0" width="30" height="6" fill="white"/>
@@ -286,18 +254,12 @@ object SvgStringRenderer:
 
   // ── Room features ────────────────────────────────────────────────────
 
-  private def roomFeatures(rm: RenderedRoom): List[String] =
+  private def roomFeatures(rm: RenderedRoom, iconFetcher: IconFetcher): List[String] =
     rm.features.flatMap {
       case RoomFeature.Stairs(dir, facing) => List(stairHatch(rm, dir, facing))
       case RoomFeature.SpiralStairs(dir)  => List(spiralStairs(rm, dir))
       case RoomFeature.Ladder(dir)        => List(centeredSymbol(rm, "feat-ladder", dir))
-      case RoomFeature.Pillar(size, pos)     => List(sizedCentered(rm, "feat-pillar",     size, position = pos))
-      case RoomFeature.Statue(size, pos)     => List(sizedCentered(rm, "feat-statue",     size, position = pos))
-      case RoomFeature.Pool(size, pos)       => List(sizedCentered(rm, "feat-pool",       size, position = pos))
-      case RoomFeature.Crevasse(size, pos)   => List(sizedCentered(rm, "feat-crevasse",   size, slimH = true, position = pos))
-      case RoomFeature.Stream(size, pos)     => List(sizedStream(rm, size, pos))
-      case RoomFeature.Stalactite(size, pos) => List(sizedCeiling(rm, "feat-stalactite", size, pos))
-      case RoomFeature.Stalagmite(size, pos) => List(sizedFloor(rm,  "feat-stalagmite",  size, pos))
+      case RoomFeature.Icon(iconSet, iconName, size, pos) => List(iconFeature(rm, iconSet, iconName, size, pos, iconFetcher))
       // Wall features — use `<use>` placed on the wall
       case RoomFeature.Window(side)       => List(wallUse(rm, side, "feat-window",      30, 6))
       case RoomFeature.ArrowSlit(side)    => List(wallUse(rm, side, "feat-arrow-slit",  30, 6))
@@ -377,54 +339,27 @@ object SvgStringRenderer:
       case FeaturePosition.At(col, row) =>
         (rm.x + col * GRID, rm.y + row * GRID)
 
-  /** Pool, pillar, statue, crevasse: centred by default, sized by FeatureSize.
-   *  slimH=true fixes height at 1 GRID (crevasse is a horizontal band). */
-  private def sizedCentered(rm: RenderedRoom, id: String, size: FeatureSize, slimH: Boolean = false, position: FeaturePosition = FeaturePosition.Auto): String =
+  /** A free-standing feature backed by an Iconify icon: centred by default,
+   *  sized by FeatureSize, positioned via FeaturePosition exactly like the
+   *  hardcoded structural/natural features this replaces. Embeds the fetched
+   *  icon as a nested `<svg>` (its own viewBox, scaled to the feature's box);
+   *  falls back to a dashed placeholder box + the icon's name when the icon
+   *  couldn't be fetched (offline, uncached, unknown name, ...) so a missing
+   *  icon degrades gracefully instead of silently rendering nothing. */
+  private def iconFeature(rm: RenderedRoom, iconSet: String, iconName: String, size: FeatureSize, position: FeaturePosition, iconFetcher: IconFetcher): String =
     val sw = size.w * GRID
-    val sh = if slimH then GRID else size.h * GRID
+    val sh = size.h * GRID
     val autoX = rm.x + (rm.w - sw) / 2
     val autoY = rm.y + (rm.h - sh) / 2
     val (x, y) = resolvePosition(rm, sw, sh, position, autoX, autoY)
-    s"""<use href="#$id" x="${x.toInt}" y="${y.toInt}" width="$sw" height="$sh"/>"""
-
-  /** Stalactite: centred horizontally, anchored to ceiling by default. */
-  private def sizedCeiling(rm: RenderedRoom, id: String, size: FeatureSize, position: FeaturePosition = FeaturePosition.Auto): String =
-    val sw = size.w * GRID
-    val sh = size.h * GRID
-    val autoX = rm.x + (rm.w - sw) / 2
-    val autoY = rm.y
-    val (x, y) = resolvePosition(rm, sw, sh, position, autoX, autoY)
-    s"""<use href="#$id" x="${x.toInt}" y="${y.toInt}" width="$sw" height="$sh"/>"""
-
-  /** Stalagmite: centred horizontally, anchored to floor by default. */
-  private def sizedFloor(rm: RenderedRoom, id: String, size: FeatureSize, position: FeaturePosition = FeaturePosition.Auto): String =
-    val sw = size.w * GRID
-    val sh = size.h * GRID
-    val autoX = rm.x + (rm.w - sw) / 2
-    val autoY = rm.y + rm.h - sh
-    val (x, y) = resolvePosition(rm, sw, sh, position, autoX, autoY)
-    s"""<use href="#$id" x="${x.toInt}" y="${y.toInt}" width="$sw" height="$sh"/>"""
-
-  /** Stream: always spans full room width; size.h controls band height.
-   *  Position only affects the vertical placement of the band (north/south bias
-   *  or an explicit row); east/west and column have no effect on a full-width feature. */
-  private def sizedStream(rm: RenderedRoom, size: FeatureSize, position: FeaturePosition = FeaturePosition.Auto): String =
-    val sw  = rm.w.toInt
-    val sh  = size.h * GRID
-    val x   = rm.x.toInt
-    val autoY1 = rm.y + (rm.h - sh) / 2
-    val y1 = (position match
-      case FeaturePosition.Auto                         => autoY1
-      case FeaturePosition.Side(WallSide.North)          => rm.y + FEATURE_MARGIN
-      case FeaturePosition.Side(WallSide.South)          => rm.y + rm.h - sh - FEATURE_MARGIN
-      case FeaturePosition.Side(_)                       => autoY1
-      case FeaturePosition.At(_, row)                    => rm.y + row * GRID
-    ).toInt
-    val y2  = y1 + sh / 2
-    val mx  = (rm.x + rm.w / 2).toInt
-    val amp = math.min(sh / 4, 12)
-    s"""<path d="M $x,$y1 Q $mx,${y1-amp} ${x+sw},$y1" fill="none" stroke="#99c" stroke-width="1.8"/>
-<path d="M $x,$y2 Q $mx,${y2+amp} ${x+sw},$y2" fill="none" stroke="#99c" stroke-width="1.8"/>"""
+    val bx = x.toInt; val by = y.toInt
+    iconFetcher.fetch(iconSet, iconName) match
+      case Some(icon) =>
+        s"""<svg x="$bx" y="$by" width="$sw" height="$sh" viewBox="${icon.viewBox}">${icon.body}</svg>"""
+      case None =>
+        val cx = bx + sw / 2; val cy = by + sh / 2
+        s"""<rect x="$bx" y="$by" width="$sw" height="$sh" fill="none" stroke="#999" stroke-width="0.8" stroke-dasharray="3,2"/>
+<text x="$cx" y="$cy" text-anchor="middle" dominant-baseline="middle" fill="#999" font-size="6" font-family="sans-serif">${escapeXml(iconName)}</text>"""
 
   /** A centred <use> of a GRID×GRID symbol (used by centeredSymbol for ladders). */
   private def centeredUse(rm: RenderedRoom, id: String): String =

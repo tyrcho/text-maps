@@ -79,13 +79,33 @@ above (bold = closer to the viewer's own floor level, thin = farther away), bold
 (the flight rises toward the viewer) and boldest near the room-facing entry for `down` (the flight drops
 away below).
 
-**Room features can be positioned** — for the free-standing features (`pillar`, `statue`, `stalactite`,
-`stalagmite`, `crevasse`, `pool`, `stream`), the property's value is either a size or a position, not both:
-a bare number or `WxH` (e.g. `pillar: 2`, `statue: 2x3`) sets size with default placement; a wall-side word
-(e.g. `statue: west`) biases placement approximately toward that side of the room; `col,row` grid-cell
-coordinates (e.g. `statue: 2,1`, measured from the room's own top-left interior corner) place it precisely.
-Leave the value empty (`pool:`) to keep the feature's default size and placement (centred, or
-ceiling/floor-anchored for stalactite/stalagmite).
+**Free-standing room features are Iconify icons.** Import an icon set with a header-level `import` statement,
+then reference any icon in it as `<alias>.<icon-name>`:
+```
+map dungeon
+import icon-sets.iconify.design/game-icons as gi
+
+room hall 5x4
+  label: "Hall"
+  gi.stalactites:
+  gi.ionic-column: north
+  gi.colombian-statue: 2,1
+```
+`import` lines can appear before or after the `map` header. The path's last `/`-segment is used as the
+Iconify set prefix (`icon-sets.iconify.design/game-icons` → `game-icons`; any Iconify set works the same
+way — browse icons at [icon-sets.iconify.design](https://icon-sets.iconify.design)). A property key that
+doesn't match `<known-alias>.<name>` is ignored, same as any other unrecognized key.
+
+**Positioning works the same as before**: the property's value is either a size or a position, not both — a
+bare number or `WxH` (e.g. `gi.ionic-column: 2`, `gi.colombian-statue: 2x3`) sets size with default (centred)
+placement; a wall-side word (e.g. `gi.colombian-statue: west`) biases placement approximately toward that
+side of the room; `col,row` grid-cell coordinates (e.g. `gi.colombian-statue: 2,1`, measured from the room's
+own top-left interior corner) place it precisely. Leave the value empty (`gi.stalactites:`) to keep the
+default size and centred placement.
+
+Icons are fetched from `api.iconify.design` at render time (cached to disk for the Native CLI, to
+`localStorage` in the browser) — an unreachable or unknown icon renders as a small dashed placeholder box
+labeled with the icon name instead of breaking the rest of the map.
 
 **Label styles** (header property `labels:`): `legend` (numbered rooms + a "N - label" legend box below the
 map — default for `map dungeon`) | `inline` (no numbers; label centred inside each room — default for
@@ -112,7 +132,9 @@ generate dungeon rooms:10 seed:42
 
 **Layout engine** (`core/layout/LayoutEngine.scala`): BFS tree placement starting from the room named `entrance`, cycling through preset angles for each room unless a connection specifies an explicit `direction:`, which forces that placement instead. Corridors are computed as L-shaped rectangle segments (H + V legs) starting at room edges, creating visual doorway openings through wall borders. Each connection renders two independently-typed, independently-swung, correctly-angled doors — one where the corridor meets each room's wall.
 
-**SVG rendering** (`core/render/SvgStringRenderer.scala`): Dyson Logos / One Page Dungeon style — dense diagonal cross-hatching fills the stone areas of `Dungeon` maps; `Building` maps get a plain background instead, matching real floor-plan references. White floor shapes punch through (rectangular, circular, or an irregular hand-drawn-looking "cave" outline); a light grid is overlaid on rectangular floors *and* corridors alike, anchored to each shape's own top-left corner. Dark ink wall strokes. Doors are a plain gap by default, or an architectural leaf-and-arc symbol when `swing:` is set. Stairs are a bordered box with tapering horizontal step bars. Room labels are either numbered (bold number inside the room, keyed to a legend box below the map — `labels: legend`, the `Dungeon` default) or inline (label text centred in the room, no numbers — `labels: inline`, the `Building` default). Pure string generation, works on both JS and Native.
+**SVG rendering** (`core/render/SvgStringRenderer.scala`): Dyson Logos / One Page Dungeon style — dense diagonal cross-hatching fills the stone areas of `Dungeon` maps; `Building` maps get a plain background instead, matching real floor-plan references. White floor shapes punch through (rectangular, circular, or an irregular hand-drawn-looking "cave" outline); a light grid is overlaid on rectangular floors *and* corridors alike, anchored to each shape's own top-left corner. Dark ink wall strokes. Doors are a plain gap by default, or an architectural leaf-and-arc symbol when `swing:` is set. Stairs are a bordered box with tapering horizontal step bars. Room labels are either numbered (bold number inside the room, keyed to a legend box below the map — `labels: legend`, the `Dungeon` default) or inline (label text centred in the room, no numbers — `labels: inline`, the `Building` default). Pure string generation, works on both JS and Native — except free-standing features, which look up icon SVG content through an injected `IconFetcher` (default: always-miss, so `render(map)` alone stays pure/deterministic).
+
+**Icon fetching** (`core/shared/.../icons/IconFetcher.scala`): a small platform-agnostic `IconFetcher`/`IconCache` abstraction with a `CachingIconFetcher` decorator (cache-first, writes back on a live hit) and a lenient `IconSvgParser` (extracts `viewBox` + inner markup from an Iconify API response, `None` on anything unexpected). Concrete implementations are per-platform: `core/jvm/.../icons/JvmIconFetcher.scala` (`java.net.http.HttpClient` + a disk-file cache — also backs the JVM test suite's offline, deterministic icon cache under `core/jvm/src/test/resources/textmaps/icons-cache`), `core/native/.../icons/NativeIconFetcher.scala` (shells out to `curl`, since Scala Native has no HTTP client, caching to `~/.cache/text-maps/icons`), and `js/.../main/JsIconFetcher.scala` (synchronous XHR + `localStorage`, so the render pipeline can stay synchronous end-to-end in the browser too).
 
 **Procedural generator** (`core/generate/DungeonGenerator.scala`): BSP (Binary Space Partitioning). Recursively splits a canvas, places a room in each leaf, connects siblings. Produces `DungeonMapSource.Manual` — same rendering path as hand-authored maps.
 

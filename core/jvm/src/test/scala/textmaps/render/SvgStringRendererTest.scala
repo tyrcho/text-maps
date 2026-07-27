@@ -2,6 +2,7 @@ package textmaps.render
 
 import java.nio.file.{Files, Path}
 import org.scalatest.funsuite.AnyFunSuite
+import textmaps.icons.TestIcons
 
 class SvgStringRendererTest extends AnyFunSuite:
 
@@ -9,7 +10,7 @@ class SvgStringRendererTest extends AnyFunSuite:
   private val shouldUpdate = sys.env.get("UPDATE_SNAPSHOTS").contains("1")
 
   private def svgApproval(name: String, map: textmaps.layout.RenderedMap): Unit =
-    val actual = SvgStringRenderer.render(map)
+    val actual = SvgStringRenderer.render(map, TestIcons.fetcher)
     val file   = approvedDir.resolve(s"$name.approved.svg")
     if shouldUpdate then
       Files.createDirectories(approvedDir)

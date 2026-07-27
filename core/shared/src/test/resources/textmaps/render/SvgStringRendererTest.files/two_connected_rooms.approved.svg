@@ -37,42 +37,6 @@
     <line x1="8"  y1="19" x2="22" y2="19" stroke="#333" stroke-width="1"/>
     <line x1="8"  y1="25" x2="22" y2="25" stroke="#333" stroke-width="1"/>
   </symbol>
-  <symbol id="feat-pillar" viewBox="0 0 30 30">
-    <circle cx="15" cy="15" r="10" fill="#666" stroke="#333" stroke-width="1"/>
-    <circle cx="15" cy="15" r="7"  fill="#888"/>
-  </symbol>
-  <symbol id="feat-statue" viewBox="0 0 30 30">
-    <polygon points="15,3 27,15 15,27 3,15" fill="#ccc" stroke="#333" stroke-width="1.2"/>
-    <line x1="15" y1="7"  x2="15" y2="23" stroke="#333" stroke-width="0.8"/>
-    <line x1="7"  y1="15" x2="23" y2="15" stroke="#333" stroke-width="0.8"/>
-  </symbol>
-  <symbol id="feat-pool" viewBox="0 0 30 30">
-    <rect x="2" y="2" width="26" height="26" rx="8" fill="white" stroke="#99c" stroke-width="1"/>
-    <path d="M 6 10 Q 10 7 14 10 Q 18 13 22 10" fill="none" stroke="#99c" stroke-width="1.2"/>
-    <path d="M 6 16 Q 10 13 14 16 Q 18 19 22 16" fill="none" stroke="#99c" stroke-width="1.2"/>
-    <path d="M 6 22 Q 10 19 14 22 Q 18 25 22 22" fill="none" stroke="#99c" stroke-width="1.2"/>
-  </symbol>
-  <symbol id="feat-stream" viewBox="0 0 30 30">
-    <path d="M 0 12 Q 5 8 10 14 Q 15 20 20 14 Q 25 8 30 12"
-          fill="none" stroke="#99c" stroke-width="1.8"/>
-    <path d="M 0 18 Q 5 14 10 20 Q 15 26 20 20 Q 25 14 30 18"
-          fill="none" stroke="#99c" stroke-width="1.8"/>
-  </symbol>
-  <symbol id="feat-stalactite" viewBox="0 0 30 30">
-    <polygon points="7,2  4,16  10,16"  fill="#666"/>
-    <polygon points="15,2 12,13  18,13" fill="#666"/>
-    <polygon points="23,2 20,18  26,18" fill="#666"/>
-  </symbol>
-  <symbol id="feat-stalagmite" viewBox="0 0 30 30">
-    <polygon points="7,28  4,14  10,14"  fill="#666"/>
-    <polygon points="15,28 12,17  18,17" fill="#666"/>
-    <polygon points="23,28 20,12  26,12" fill="#666"/>
-  </symbol>
-  <symbol id="feat-crevasse" viewBox="0 0 30 30">
-    <polygon points="0,15 5,10 9,16 13,8 17,18 21,9 25,16 30,15 30,20 25,20 21,14 17,23 13,13 9,21 5,15 0,20"
-             fill="#555" stroke="#333" stroke-width="0.5"/>
-  </symbol>
-
   <!-- Wall-placed feature symbols (30×30, designed to sit on a wall) -->
   <symbol id="feat-window" viewBox="0 0 30 6">
     <rect x="0"  y="0" width="30" height="6" fill="white"/>

@@ -1,13 +1,26 @@
 package textmaps.dsl
 
 /** Line-oriented DSL parser. Each top-level declaration starts at column 0;
- *  properties are indented with at least one space.
+ *  properties are indented with at least one space. `import <path> as <alias>`
+ *  lines (anywhere in the document, before or after the `map` header) are
+ *  pulled out in a pre-pass, since they're a document-wide table rather than
+ *  a statement in the room/connect grammar.
  */
 object DslParser:
 
+  private val ImportRe = """^import\s+(\S+)\s+as\s+(\S+)$""".r
+
   def parse(input: String): ParseResult =
-    val lines = input.linesIterator.toList
-    parseLines(lines)
+    val allLines = input.linesIterator.toList
+    val (importLines, lines) = allLines.partition(l => ImportRe.matches(l.strip()))
+    val imports = importLines.flatMap { l =>
+      ImportRe.findFirstMatchIn(l.strip()).map { m =>
+        val path  = m.group(1)
+        val alias = m.group(2)
+        alias -> path.split("/").last
+      }
+    }.toMap
+    parseLines(lines, imports)
 
   // ── Line classification ────────────────────────────────────────────────
 
@@ -57,7 +70,7 @@ object DslParser:
   private case class ConnStmt(conn: Connection)    extends Stmt
   private case class GenStmt(gen: DungeonMapSource.Generated) extends Stmt
 
-  private def parseLines(lines: List[String]): ParseResult =
+  private def parseLines(lines: List[String], imports: Map[String, String]): ParseResult =
     val nonBlank = lines.indexWhere(l => l.strip().nonEmpty && !l.strip().startsWith("#"))
     if nonBlank < 0 then
       return Left(ParseError("Empty document", 0, 1, 1))
@@ -77,7 +90,7 @@ object DslParser:
         labelStyle = metaProps.get("labels").flatMap(parseLabelStyle),
       )
 
-      parseStatements(rest).map { stmts =>
+      parseStatements(rest, imports).map { stmts =>
         val genOpt = stmts.collectFirst { case GenStmt(g) => g }
         val source = genOpt.getOrElse {
           DungeonMapSource.Manual(
@@ -89,7 +102,7 @@ object DslParser:
       }
     }
 
-  private def parseStatements(lines: List[String]): Either[ParseError, List[Stmt]] =
+  private def parseStatements(lines: List[String], imports: Map[String, String]): Either[ParseError, List[Stmt]] =
     val stmts = collection.mutable.ListBuffer[Stmt]()
     val it    = lines.iterator.buffered
 
@@ -104,7 +117,7 @@ object DslParser:
             size     = size,
             label    = props.get("label"),
             shape    = props.get("shape").flatMap(parseShape).getOrElse(RoomShape.Rectangular),
-            features = parseRoomFeatures(props),
+            features = parseRoomFeatures(props, imports),
           ))
         case Right(Line.ConnDecl(from, to)) =>
           val props = consumeProps(it)
@@ -137,7 +150,7 @@ object DslParser:
 
   // ── Feature parsing ────────────────────────────────────────────────────
 
-  private def parseRoomFeatures(props: Map[String, String]): List[RoomFeature] =
+  private def parseRoomFeatures(props: Map[String, String], imports: Map[String, String]): List[RoomFeature] =
     val buf = List.newBuilder[RoomFeature]
 
     // Vertical movement
@@ -158,21 +171,22 @@ object DslParser:
     sides("bed")(RoomFeature.Bed(_))
     sides("curtain")(RoomFeature.Curtain(_))
 
-    // Sized, positionable features — presence of the key triggers the feature. The value is
-    // either a size (`2`, `2x3`) or a position (`north`, `2,1`) — not both at once.
-    def sized(key: String)(f: (FeatureSize, FeaturePosition) => RoomFeature): Unit =
-      props.get(key).foreach { v =>
-        val (size, position) = parseSizeOrPosition(v)
-        buf += f(size, position)
-      }
-
-    sized("pillar")(RoomFeature.Pillar(_, _))
-    sized("statue")(RoomFeature.Statue(_, _))
-    sized("stalactite")(RoomFeature.Stalactite(_, _))
-    sized("stalagmite")(RoomFeature.Stalagmite(_, _))
-    sized("crevasse")(RoomFeature.Crevasse(_, _))
-    sized("pool")(RoomFeature.Pool(_, _))
-    sized("stream")(RoomFeature.Stream(_, _))
+    // Free-standing, cell-positioned features — an icon from an imported Iconify
+    // icon set, keyed `<alias>.<icon-name>` (e.g. `gi.stalactites`, given a header
+    // `import icon-sets.iconify.design/game-icons as gi`). The value is either a
+    // size (`2`, `2x3`) or a position (`north`, `2,1`) — not both at once, same
+    // convention as the old hardcoded structural/natural features this replaces.
+    // Iterated in sorted key order — `props`/`imports` are plain Maps with no
+    // reliable iteration order, and feature order must be deterministic (both for
+    // stable rendering and for DslFixtureRenderTest, which compares against a
+    // hand-written Scala fixture listing features in this same sorted order).
+    for
+      (alias, iconSet) <- imports.toList.sortBy(_._1)
+      (key, value)      <- props.toList.sortBy(_._1)
+      iconName          <- Some(key).filter(_.startsWith(s"$alias.")).map(_.stripPrefix(s"$alias."))
+    do
+      val (size, position) = parseSizeOrPosition(value)
+      buf += RoomFeature.Icon(iconSet, iconName, size, position)
 
     buf.result()
 

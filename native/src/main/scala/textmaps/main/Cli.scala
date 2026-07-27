@@ -2,11 +2,18 @@ package textmaps.main
 
 import textmaps.dsl.DslParser
 import textmaps.generate.DungeonGenerator
+import textmaps.icons.{CachingIconFetcher, CurlIconFetcher, FileIconCache}
 import textmaps.layout.LayoutEngine
 import textmaps.render.SvgStringRenderer
 
-import java.io.{FileWriter, PrintWriter}
+import java.io.{File, FileWriter, PrintWriter}
 import java.nio.file.{Files, Paths}
+
+/** Cache dir: `~/.cache/text-maps/icons` — persists fetched icons across CLI
+ *  runs so repeat renders of the same map don't re-fetch every icon. */
+private val iconFetcher =
+  val cacheDir = new File(sys.props.getOrElse("user.home", "."), ".cache/text-maps/icons")
+  new CachingIconFetcher(new FileIconCache(cacheDir), new CurlIconFetcher())
 
 /** CLI entry point — mirrors the mermaid CLI / plantuml jar pattern.
  *
@@ -29,7 +36,7 @@ import java.nio.file.{Files, Paths}
           dungeon.copy(source = gen)
         case _ => dungeon
       val rendered = LayoutEngine.compute(expanded)
-      val svg      = SvgStringRenderer.render(rendered)
+      val svg      = SvgStringRenderer.render(rendered, iconFetcher)
       writeOutput(svg, output)
 
 private def readInput(pathOpt: Option[String]): String =
