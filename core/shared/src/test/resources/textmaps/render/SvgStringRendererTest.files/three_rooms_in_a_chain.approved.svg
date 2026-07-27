@@ -147,7 +147,9 @@
 <use href="#door-open" x="45" y="-15" width="30" height="30" preserveAspectRatio="none" transform="rotate(90,60,0)"/>
 <use href="#door-open" x="148" y="-15" width="30" height="30" preserveAspectRatio="none" transform="rotate(90,163,0)"/>
 <use href="#door-secret" x="328" y="-15" width="30" height="30" preserveAspectRatio="none" transform="rotate(90,343,0)"/>
+<text x="343" y="-21" text-anchor="middle" dominant-baseline="middle" fill="#888" font-size="8" font-family="sans-serif" font-weight="bold">S</text>
 <use href="#door-secret" x="424" y="-15" width="30" height="30" preserveAspectRatio="none" transform="rotate(90,439,0)"/>
+<text x="439" y="-21" text-anchor="middle" dominant-baseline="middle" fill="#888" font-size="8" font-family="sans-serif" font-weight="bold">S</text>
 <text x="0" y="-47" text-anchor="middle" dominant-baseline="auto" fill="#333" font-size="9" font-family="sans-serif" font-weight="bold">1</text>
 <text x="253" y="-47" text-anchor="middle" dominant-baseline="auto" fill="#333" font-size="9" font-family="sans-serif" font-weight="bold">2</text>
 <text x="484" y="-32" text-anchor="middle" dominant-baseline="auto" fill="#333" font-size="9" font-family="sans-serif" font-weight="bold">3</text>

@@ -67,13 +67,17 @@ an architectural swing arc: `default` (a plain gap, no arc) | `inside` (swings i
 `outside` (swings away from it, into the passage). Swing has no effect on `secret` doors, which always keep
 the flat blend-into-wall look.
 
-**Door types:** `open` (default) | `closed` | `locked` | `secret`
+**Door types:** `open` (default) | `closed` | `locked` | `secret` (dashed blend-into-wall line, marked
+with a small "S" above it)
 
 **Room shapes:** `rectangular` (default) | `circular` | `cave` (irregular, hand-drawn-looking outline)
 
 **Stairs:** `stairs: up` or `stairs: down` alone faces north by default; add a wall-side word to set which
-wall the flight leads toward, e.g. `stairs: up west`. The glyph's tapering step bars point toward that wall,
-and a small "UP"/"DN" label (no arrow) shows direction of travel.
+wall the flight leads toward, e.g. `stairs: up west`. The glyph's tapering step bars point toward that wall;
+no text or arrow marks Up vs Down — instead, step-bar stroke weight fades with depth as if viewed from
+above (bold = closer to the viewer's own floor level, thin = farther away), boldest near the wall for `up`
+(the flight rises toward the viewer) and boldest near the room-facing entry for `down` (the flight drops
+away below).
 
 **Room features can be positioned** — for the free-standing features (`pillar`, `statue`, `stalactite`,
 `stalagmite`, `crevasse`, `pool`, `stream`), the property's value is either a size or a position, not both:

@@ -13,10 +13,10 @@ import textmaps.layout.*
  *    for rooms and corridors alike
  *  - Dark ink wall strokes
  *  - Stairs: box with tapering step bars, rotated to face the wall the flight
- *    leads toward, with a small "UP"/"DN" label for direction of travel
+ *    leads toward; bar stroke weight fades with depth to show Up vs Down
  *  - Windows: small opening gap on the wall
  *  - Doors: flat gap glyph by default; an architectural leaf + swing arc when
- *    `swing` is Inside/Outside
+ *    `swing` is Inside/Outside; secret doors get a small "S" above their line
  *  - Room number inside (bold, centred); room name below the room
  */
 object SvgStringRenderer:
@@ -309,8 +309,12 @@ object SvgStringRenderer:
 
   /** Bordered box with tapering horizontal step bars (narrow near the top, wide
    *  near the bottom) — "steps receding into the distance". Rotated so the narrow
-   *  end points toward `facing` (the wall the stairs lead toward); an "UP"/"DN"
-   *  label (no arrow) shows direction of travel. */
+   *  end points toward `facing` (the wall the stairs lead toward). Bar stroke
+   *  weight encodes Up/Down: viewed from above, the step closer to the viewer's
+   *  own floor level is bolder, fading toward the step that's farther away —
+   *  bold at the wide/entry end and fading toward the wall for `Down` (the flight
+   *  drops away below), bold at the narrow/wall end and fading toward the entry
+   *  for `Up` (the flight rises toward the viewer). */
   private def stairHatch(rm: RenderedRoom, dir: StairDir, facing: WallSide): String =
     val bw = GRID; val bh = GRID
     val bx = (rm.x + (rm.w - bw) / 2).toInt
@@ -320,24 +324,23 @@ object SvgStringRenderer:
     val box = s"""<rect x="$bx" y="$by" width="$bw" height="$bh" fill="white" stroke="#333" stroke-width="0.8"/>"""
     val steps  = 5
     val stepGap = bh.toDouble / (steps + 1)
+    val minStroke = 0.7
+    val maxStroke = 2.6
     val bars = (1 to steps).map { i =>
       val y         = by + stepGap * i
       val widthFrac = 0.28 + 0.13 * i
       val halfW     = bw * widthFrac / 2
-      f"""<line x1="${cx - halfW}%.1f" y1="$y%.1f" x2="${cx + halfW}%.1f" y2="$y%.1f" stroke="#333" stroke-width="1.4"/>"""
+      val t         = i.toDouble / steps // 0 (near wall/facing) .. 1 (near entry)
+      val depthT    = if dir == StairDir.Down then t else 1 - t // 1 = closer to viewer, 0 = farther
+      val stroke    = minStroke + (maxStroke - minStroke) * depthT
+      f"""<line x1="${cx - halfW}%.1f" y1="$y%.1f" x2="${cx + halfW}%.1f" y2="$y%.1f" stroke="#333" stroke-width="$stroke%.2f"/>"""
     }.mkString("\n")
     val rotate = facing match
       case WallSide.North => 0
       case WallSide.East  => 90
       case WallSide.South => 180
       case WallSide.West  => 270
-    val group = s"""<g transform="rotate($rotate,${cx.toInt},${cy.toInt})">$box\n$bars</g>"""
-    val label = dir match
-      case StairDir.Up   => "UP"
-      case StairDir.Down => "DN"
-    val ly = (by + bh + 9).toInt
-    val text = s"""<text x="${cx.toInt}" y="$ly" text-anchor="middle" fill="#333" font-size="7" font-family="sans-serif" font-weight="bold">$label</text>"""
-    s"$group\n$text"
+    s"""<g transform="rotate($rotate,${cx.toInt},${cy.toInt})">$box\n$bars</g>"""
 
   /** Spiral staircase: circular arrow in a box. */
   private def spiralStairs(rm: RenderedRoom, dir: StairDir): String =
@@ -517,9 +520,17 @@ object SvgStringRenderer:
       val py = d.position.y.toInt
       // preserveAspectRatio="none": stretch the (square) symbol to the corridor's actual width
       // so the door gap fully spans the passage instead of being letterboxed at 30px.
-      s"""<use href="#$symbolId" x="$ux" y="$uy" width="$dw" height="30" preserveAspectRatio="none" transform="rotate(${d.angle.toInt},$px,$py)"/>"""
+      val use = s"""<use href="#$symbolId" x="$ux" y="$uy" width="$dw" height="30" preserveAspectRatio="none" transform="rotate(${d.angle.toInt},$px,$py)"/>"""
+      if d.doorType == DoorType.Secret then s"$use\n${secretMarker(d)}" else use
     else
       doorSwingArc(d)
+
+  /** Small "S" above the dashed line, marking a secret door — offset clear of the
+   *  line regardless of whether the wall (and so the line) is horizontal or vertical. */
+  private def secretMarker(d: RenderedDoor): String =
+    val margin = 6.0
+    val sy = if d.angle == 90.0 then d.position.y - d.width / 2 - margin else d.position.y - margin
+    s"""<text x="${d.position.x.toInt}" y="${sy.toInt}" text-anchor="middle" dominant-baseline="middle" fill="#888" font-size="8" font-family="sans-serif" font-weight="bold">S</text>"""
 
   /** Architectural door symbol: a leaf line + swing arc, swinging into or away
    *  from this door's own room. The leaf is drawn at a 45° opening angle (not a

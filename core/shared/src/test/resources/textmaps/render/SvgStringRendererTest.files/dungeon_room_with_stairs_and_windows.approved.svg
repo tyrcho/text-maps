@@ -127,12 +127,11 @@
 <line x1="117" y1="-15" x2="117" y2="15" stroke="#d8d8d8" stroke-width="0.5"/>
 <line x1="147" y1="-15" x2="147" y2="15" stroke="#d8d8d8" stroke-width="0.5"/>
 <g transform="rotate(270,198,0)"><rect x="183" y="-15" width="30" height="30" fill="white" stroke="#333" stroke-width="0.8"/>
-<line x1="191.9" y1="-10.0" x2="204.2" y2="-10.0" stroke="#333" stroke-width="1.4"/>
-<line x1="189.9" y1="-5.0" x2="206.1" y2="-5.0" stroke="#333" stroke-width="1.4"/>
-<line x1="188.0" y1="0.0" x2="208.1" y2="0.0" stroke="#333" stroke-width="1.4"/>
-<line x1="186.0" y1="5.0" x2="210.0" y2="5.0" stroke="#333" stroke-width="1.4"/>
-<line x1="184.1" y1="10.0" x2="212.0" y2="10.0" stroke="#333" stroke-width="1.4"/></g>
-<text x="198" y="24" text-anchor="middle" fill="#333" font-size="7" font-family="sans-serif" font-weight="bold">UP</text>
+<line x1="191.9" y1="-10.0" x2="204.2" y2="-10.0" stroke="#333" stroke-width="2.22"/>
+<line x1="189.9" y1="-5.0" x2="206.1" y2="-5.0" stroke="#333" stroke-width="1.84"/>
+<line x1="188.0" y1="0.0" x2="208.1" y2="0.0" stroke="#333" stroke-width="1.46"/>
+<line x1="186.0" y1="5.0" x2="210.0" y2="5.0" stroke="#333" stroke-width="1.08"/>
+<line x1="184.1" y1="10.0" x2="212.0" y2="10.0" stroke="#333" stroke-width="0.70"/></g>
 <use href="#feat-window" x="183" y="-45" width="30" height="6" transform="rotate(180,198,-42)"/>
 <use href="#door-locked" x="45" y="-15" width="30" height="30" preserveAspectRatio="none" transform="rotate(90,60,0)"/>
 <use href="#door-locked" x="138" y="-15" width="30" height="30" preserveAspectRatio="none" transform="rotate(90,153,0)"/>
