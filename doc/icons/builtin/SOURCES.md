@@ -85,23 +85,25 @@ filename.
 
 | File | Used as (DSL) | Notes |
 |---|---|---|
-| `stairs-up.svg` | `stairs: up [facing] [position]` | Tapering bars, bold near the wall the flight leads toward |
-| `stairs-down.svg` | `stairs: down [facing] [position]` | Same bars, bold near the room-facing entry instead |
+| `stairs-up.svg` | `stairs: up [facing] [position]` | Bordered on 3 sides only (the 4th — the entry, where you step on) is open; tapering bars, bold near the wall the flight leads toward |
+| `stairs-down.svg` | `stairs: down [facing] [position]` | Same 3-sided border, bars bold near the entry instead |
 | `ladder.svg` | `ladder: up\|down [position]` | Rungs; direction shown by a small arrow drawn alongside it, not part of this file |
-| `spiral-stairs-up.svg` | `spiral-stairs: up [position]` | Circle split into 4 quadrants around a center newel post; 3 form the flight (tapering bold at the far end from the entry), the 4th is left fully open as the entry/landing — undirected (no `facing`) |
-| `spiral-stairs-down.svg` | `spiral-stairs: down [position]` | Same circle, taper reversed (bold right at the entry, thin at the far end) |
+| `spiral-stairs-up.svg` | `spiral-stairs: up [position]` | Same 4-quadrant composition as Iconify's `memory:table-top-spiral-stairs-round-down` (redrawn smooth, not reused) — parallel entry steps, a hatch-textured quadrant, and two wedge quadrants — with a single continuous bold-to-thin gradient sweeping from the entry steps around to the far wedge, undirected (no `facing`) |
+| `spiral-stairs-down.svg` | `spiral-stairs: down [position]` | Same composition, gradient reversed (bold at the entry steps, thin at the far wedge) |
 
-No license concerns — these are original text-maps artwork. Design brief for the straight-stairs pair:
-"hand-drawn, in the spirit of Iconify's `memory:table-top-stairs-up`/`-down`, but original". The spiral pair
-went through two follow-up redesigns:
-1. "closer to [icon-sets.iconify.design/?query=spiral-st](https://icon-sets.iconify.design/?query=spiral-st),
-   keeping the bold gradient to show direction" — replaced an earlier circular-arrow-in-box design with a
-   full-circle, 8-spoke radial wheel.
-2. "you lost the entry in the stairs and the orientation. 90 deg of the arc should be used to show it like
-   in the model" — that 8-spoke wheel had no opening at all (unlike the reference, which leaves one 90°
-   quadrant of its circle completely blank, representing where you actually step on/off), and used 45°
-   spoke increments instead of a 90°-quadrant structure. The current version fixes both: one quadrant
-   (90°) is left empty as the entry, and the other 3 quadrants each get one tapering arc+radius pair —
-   still the same depth-fade language the straight stairs use (bold = closer to the viewer's own floor
-   level), now expressed per-quadrant instead of per-spoke. See git history for all three requests.
+No license concerns — these are original text-maps artwork (redrawn from scratch as smooth vector shapes;
+no path data reused from any Iconify icon). Design brief for the straight-stairs pair: "hand-drawn, in the
+spirit of Iconify's `memory:table-top-stairs-up`/`-down`, but original". Both pairs went through several
+follow-up redesigns, each driven by a specific user correction — see git history for the full sequence.
+The current spiral design directly mirrors the 4-quadrant layout of Iconify's
+`memory:table-top-spiral-stairs-round-down` (fetched and inspected pixel-by-pixel as a reference, not
+reused as path data): a top-left cluster of parallel horizontal bars ("the parallel steps which lead into
+the circling part"), a hatch-textured quadrant (reusing `SvgStringRenderer`'s existing `url(#hatch)`
+pattern rather than inventing a literal checkerboard), and two wedge quadrants each split by one diagonal.
+Direction is shown by a single smooth stroke-weight gradient running continuously from the entry bars,
+around through the textured quadrant, to the far wedge — "the smooth gradient where steps grow thicker as
+we walk up" — replacing an earlier, rejected attempt at a similar composition that used discrete taper
+steps per element ("the steps ... should look more uniform" — too jumpy/inconsistent bar-to-bar) and an
+even earlier full-circle 8-spoke wheel with no entry gap at all ("you lost the entry ... 90 deg of the arc
+should be used to show it like in the model").
 

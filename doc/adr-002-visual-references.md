@@ -220,6 +220,22 @@ since the "why" for both draws on the same reference images.
   `0 0 30 30`), not a hardcoded filename list, so a new `.svg` dropped in following either convention is
   picked up automatically. Verified byte-identical `SvgStringRenderer` output before/after (no approved
   snapshot needed regenerating).
+- **Implemented (two more follow-up user requests):** both movement-glyph pairs were revised once more.
+  1. Straight stairs: "doc/icons/builtin/stairs-down.svg and up: should only have 3 borders (the 4th is the
+     entry side)." The bordered box (previously a closed rect on all 4 sides) now omits the entry-side
+     (bottom, pre-rotation) line entirely — three `<line>`s instead of one bordered `<rect>`, plus a
+     separate unstroked `fill="white"` rect underneath so the enclosed area still reads solid.
+  2. Spiral stairs: entirely redrawn a third time, this time directly mirroring the 4-quadrant layout of
+     Iconify's `memory:table-top-spiral-stairs-round-down` (fetched and inspected pixel-by-pixel — not
+     reused as path data, since that set draws each icon as a solid "card" with a blocky, pixelated shape
+     that doesn't read at a 30×30 glyph size in this project's thin-line style): a top-left cluster of 4
+     parallel horizontal bars ("the parallel steps which lead into the circling part"), a
+     hatch-textured quadrant (reusing `SvgStringRenderer`'s existing `url(#hatch)` pattern rather than a
+     literal checkerboard), and two wedge quadrants each split by one diagonal — replacing the previous
+     8-spoke-wheel-then-4-quadrant designs. Direction is a single smooth stroke-weight gradient running
+     continuously from the entry bars, around through the textured quadrant, to the far wedge ("the
+     smooth gradient where steps grow thicker as we walk up") — no arrow, same depth-fade convention as
+     `Stairs`. See the `movement_features` fixture and `doc/icons/builtin/spiral-stairs-up.svg`/`-down.svg`.
 
 ### Medieval
 
