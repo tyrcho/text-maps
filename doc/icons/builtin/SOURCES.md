@@ -7,8 +7,7 @@ renderer with **no `import` statement needed** (e.g. `torch:`, `chest: north`, `
 Two groups, by origin:
 
 - **19 furnishing icons** (`anvil.svg` … `wooden-crate.svg` below) — externally sourced from
-  [game-icons.net](https://game-icons.net) via Iconify, embedded into `BuiltinIcons.scala`
-  (`core/shared/src/main/scala/textmaps/icons/BuiltinIcons.scala`) and rendered through
+  [game-icons.net](https://game-icons.net) via Iconify, rendered through
   `RoomFeature.Icon("builtin", <name>, ...)`, the same code path as any imported Iconify icon.
 - **5 movement glyphs** (`stairs-up.svg`, `stairs-down.svg`, `ladder.svg`, `spiral-stairs-up.svg`,
   `spiral-stairs-down.svg`) — original text-maps artwork, not sourced from anywhere (though the spiral
@@ -17,11 +16,14 @@ Two groups, by origin:
   These back `RoomFeature.Stairs`/`SpiralStairs`/`Ladder`, a separate case from `Icon` (they carry a
   direction and, for `Stairs`, a facing wall, not just a size/position).
 
-Both groups are single-sourced from these `.svg` files — `BuiltinIcons.scala`'s `paths`/`movementGlyphs`
-maps are *generated* from them (a one-off extraction script, not run at build time — see below), and
-`SvgStringRenderer.defs()` interpolates that generated data into `<symbol id="builtin-...">`/
-`<symbol id="feat-...">`s. Nothing in `SvgStringRenderer.scala` hand-duplicates any glyph's markup —
-edit the `.svg` file here and regenerate `BuiltinIcons.scala` from it, don't edit the Scala map by hand.
+These `.svg` files are the **only** place any of this artwork is defined — there is no hand-maintained
+Scala source containing image data anywhere in the repo. `textmaps.icons.BuiltinIcons` (the `paths`/
+`movementGlyphs` maps `SvgStringRenderer.defs()` reads to emit `<symbol id="builtin-...">`/
+`<symbol id="feat-...">`s) is generated fresh from this folder on every `sbt compile`, by
+`project/BuiltinIconsGen.scala` (an `sbt Compile / sourceGenerators` task wired up in `build.sbt`'s `core`
+cross-project) — the generated file lands in each platform's own `target/.../src_managed/`, never
+committed. To change a glyph: edit the `.svg` file here and recompile; don't look for a Scala file to edit,
+there isn't one.
 
 ## Furnishing icons — sourced from game-icons.net
 
@@ -67,15 +69,19 @@ Iconify-sourced derivative works credit this collection — attribution here is 
 | `well.svg` | `game-icons:well` | `well:` |
 | `wooden-crate.svg` | `game-icons:wooden-crate` | `wooden-crate:` |
 
-Regenerating `BuiltinIcons.scala` from this folder: extract each file's single `<path d="...">` attribute
-and its shared `viewBox="0 0 512 512"` — see the git history of this commit for the extraction script used
-(a short Python snippet, not checked in, since it's a one-off codegen step rather than part of the build).
+`BuiltinIconsGen` recognizes these as furnishing icons by their shared `viewBox="0 0 512 512"` (not by
+filename), extracting each file's single `<path d="...">` attribute into `BuiltinIcons.paths`.
 
 Any `import ...as <alias>` + `<alias>.<icon-name>:` icon from **any** other Iconify set continues to work
 exactly as before (fetched live, see `IconFetcher`) — this curated builtin set only covers the common
 furnishings above; everything else still needs an explicit `import`.
 
 ## Movement glyphs — original artwork
+
+`BuiltinIconsGen` recognizes these by their shared `viewBox="0 0 30 30"` (this project's own feature-grid
+size, distinct from the furnishing icons' Iconify-native `512x512`), extracting each file's full inner
+markup (everything between the outer `<svg>...</svg>`) into `BuiltinIcons.movementGlyphs`, keyed by
+filename.
 
 | File | Used as (DSL) | Notes |
 |---|---|---|

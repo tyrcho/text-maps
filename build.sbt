@@ -11,6 +11,14 @@ lazy val core = crossProject(JSPlatform, JVMPlatform, NativePlatform)
     name := "text-maps-core",
     libraryDependencies += "org.scalameta" %%% "munit" % "1.0.0" % Test,
     testFrameworks += new TestFramework("munit.Framework"),
+    // textmaps.icons.BuiltinIcons is generated straight from doc/icons/builtin/*.svg on every compile —
+    // those .svg files are the only place this artwork is defined, see BuiltinIconsGen.
+    Compile / sourceGenerators += Def.task {
+      BuiltinIconsGen.generate(
+        (ThisBuild / baseDirectory).value / "doc" / "icons" / "builtin",
+        (Compile / sourceManaged).value,
+      )
+    }.taskValue,
   )
   .jvmSettings(
     libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.20" % Test,

@@ -208,6 +208,18 @@ since the "why" for both draws on the same reference images.
   files the same way `paths` already was for the 19 furnishing icons; `defs()` now interpolates from that
   map instead of hand-copying the XML. The `.svg` files are the single source of truth for all 24 builtin
   glyphs now, not just the 19 furnishing ones.
+- **Implemented (follow-up user request — "no image defs in Scala"):** the previous fix still left
+  `BuiltinIcons.scala` as a *committed* file containing the (generated) glyph data — technically DRY
+  relative to `SvgStringRenderer.defs()`, but still Scala source holding image definitions rather than the
+  `.svg` files being the sole artifact. `core/shared/src/main/scala/textmaps/icons/BuiltinIcons.scala` is
+  deleted; `project/BuiltinIconsGen.scala` (a new build-support object, same pattern as the existing
+  `project/DevServer.scala`) generates it fresh from `doc/icons/builtin/*.svg` on every `sbt compile`, via
+  a `Compile / sourceGenerators` task added to the `core` cross-project in `build.sbt` — each of
+  `core.jvm`/`core.js`/`core.native` runs it independently into its own `target/.../src_managed/`, never
+  checked in. Furnishing icons vs. movement glyphs are told apart by their own `viewBox` (`0 0 512 512` vs
+  `0 0 30 30`), not a hardcoded filename list, so a new `.svg` dropped in following either convention is
+  picked up automatically. Verified byte-identical `SvgStringRenderer` output before/after (no approved
+  snapshot needed regenerating).
 
 ### Medieval
 
