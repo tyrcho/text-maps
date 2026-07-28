@@ -175,6 +175,11 @@ since the "why" for both draws on the same reference images.
   `RoomFeature.Icon("builtin", <name>, ...)`, the same case class the general Iconify-import path uses, just
   with a sentinel `iconSet` the renderer special-cases to skip `IconFetcher` entirely. Every other Iconify
   icon still needs an explicit `import` — this only covers the common cases. See the `builtin_icons` fixture.
+  The hand-drawn `Stairs`/`SpiralStairs`/`Ladder` glyphs from the item above are original artwork rather than
+  Iconify-sourced, but got the same treatment for consistency: `doc/icons/builtin/stairs-up.svg`,
+  `stairs-down.svg`, `ladder.svg`, `spiral-stairs-up.svg`, `spiral-stairs-down.svg` are now standalone files
+  too (previously only inline `<symbol>` markup in `SvgStringRenderer.defs()`), so every builtin glyph — not
+  just the ones sourced from game-icons.net — has an individually-inspectable `.svg` in the repo.
 
 ### Medieval
 

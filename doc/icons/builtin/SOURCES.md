@@ -1,15 +1,33 @@
 # Builtin icons — sources and attribution
 
-These 19 `.svg` files are the source of truth for `BuiltinIcons.scala`
-(`core/shared/src/main/scala/textmaps/icons/BuiltinIcons.scala`), which embeds each icon's path data
-directly into the renderer so it's usable as a room feature with **no `import` statement** (e.g. `torch:`,
-`chest: north`) — unlike `RoomFeature.Icon`'s general case, these never hit the network at render time.
+This folder holds the source-of-truth `.svg` files for every feature glyph that's built directly into the
+renderer with **no `import` statement needed** (e.g. `torch:`, `chest: north`, `stairs: up west`) — unlike
+`RoomFeature.Icon`'s general case, none of these hit the network at render time.
+
+Two groups, by origin:
+
+- **19 furnishing icons** (`anvil.svg` … `wooden-crate.svg` below) — externally sourced from
+  [game-icons.net](https://game-icons.net) via Iconify, embedded into `BuiltinIcons.scala`
+  (`core/shared/src/main/scala/textmaps/icons/BuiltinIcons.scala`) and rendered through
+  `RoomFeature.Icon("builtin", <name>, ...)`, the same code path as any imported Iconify icon.
+- **5 movement glyphs** (`stairs-up.svg`, `stairs-down.svg`, `ladder.svg`, `spiral-stairs-up.svg`,
+  `spiral-stairs-down.svg`) — original text-maps artwork, not sourced from anywhere. These back
+  `RoomFeature.Stairs`/`SpiralStairs`/`Ladder`, a separate case from `Icon` (they carry a direction and,
+  for `Stairs`, a facing wall, not just a size/position). `stairs-up`/`stairs-down`/`ladder` are copied
+  verbatim into `SvgStringRenderer.defs()` as `<symbol id="feat-...">`s; `spiral-stairs-up`/`-down` capture
+  what `SvgStringRenderer.spiralStairs` computes procedurally (its geometry doesn't need a static symbol at
+  render time, but this file is what the exported markup looks like at rest, `dir`'s default `Up`/`Down`
+  with no rotation applied). Kept here so every builtin glyph — not just the externally-sourced ones — has
+  a standalone, individually-inspectable `.svg` file in the repo, matching how the furnishing icons below
+  are stored.
+
+## Furnishing icons — sourced from game-icons.net
 
 All 19 are sourced from [game-icons.net](https://game-icons.net), via the
 [Iconify `game-icons` collection](https://icon-sets.iconify.design/game-icons/) (`https://api.iconify.design/game-icons/<name>.svg`),
 unmodified except for re-saving under their bare Iconify name.
 
-## License
+### License
 
 **CC BY 3.0** ([full text](https://creativecommons.org/licenses/by/3.0/)), collection license confirmed via
 `https://api.iconify.design/collections?prefix=game-icons`. Per
@@ -23,7 +41,7 @@ Iconify-sourced derivative works credit this collection — attribution here is 
 > see [game-icons/icons license.txt](https://github.com/game-icons/icons/blob/master/license.txt)), licensed
 > [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/).
 
-## Icon list
+### Icon list
 
 | File | Iconify name | Used as (DSL) |
 |---|---|---|
@@ -54,3 +72,18 @@ and its shared `viewBox="0 0 512 512"` — see the git history of this commit fo
 Any `import ...as <alias>` + `<alias>.<icon-name>:` icon from **any** other Iconify set continues to work
 exactly as before (fetched live, see `IconFetcher`) — this curated builtin set only covers the common
 furnishings above; everything else still needs an explicit `import`.
+
+## Movement glyphs — original artwork
+
+| File | Used as (DSL) | Notes |
+|---|---|---|
+| `stairs-up.svg` | `stairs: up [facing] [position]` | Tapering bars, bold near the wall the flight leads toward |
+| `stairs-down.svg` | `stairs: down [facing] [position]` | Same bars, bold near the room-facing entry instead |
+| `ladder.svg` | `ladder: up\|down [position]` | Rungs; direction shown by a small arrow drawn alongside it, not part of this file |
+| `spiral-stairs-up.svg` | `spiral-stairs: up [position]` | Circular-arrow-in-box, undirected (no `facing`) |
+| `spiral-stairs-down.svg` | `spiral-stairs: down [position]` | Mirror of the above |
+
+No license concerns — these are original text-maps artwork (design brief: "hand-drawn, in the spirit of
+Iconify's `memory:table-top-stairs-up`/`-down`, but original", per the user request that introduced them —
+see git history). Free to modify or replace like any other project source file.
+
