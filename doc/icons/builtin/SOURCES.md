@@ -11,15 +11,14 @@ Two groups, by origin:
   (`core/shared/src/main/scala/textmaps/icons/BuiltinIcons.scala`) and rendered through
   `RoomFeature.Icon("builtin", <name>, ...)`, the same code path as any imported Iconify icon.
 - **5 movement glyphs** (`stairs-up.svg`, `stairs-down.svg`, `ladder.svg`, `spiral-stairs-up.svg`,
-  `spiral-stairs-down.svg`) — original text-maps artwork, not sourced from anywhere. These back
-  `RoomFeature.Stairs`/`SpiralStairs`/`Ladder`, a separate case from `Icon` (they carry a direction and,
-  for `Stairs`, a facing wall, not just a size/position). `stairs-up`/`stairs-down`/`ladder` are copied
-  verbatim into `SvgStringRenderer.defs()` as `<symbol id="feat-...">`s; `spiral-stairs-up`/`-down` capture
-  what `SvgStringRenderer.spiralStairs` computes procedurally (its geometry doesn't need a static symbol at
-  render time, but this file is what the exported markup looks like at rest, `dir`'s default `Up`/`Down`
-  with no rotation applied). Kept here so every builtin glyph — not just the externally-sourced ones — has
-  a standalone, individually-inspectable `.svg` file in the repo, matching how the furnishing icons below
-  are stored.
+  `spiral-stairs-down.svg`) — original text-maps artwork, not sourced from anywhere (though the spiral
+  pair takes visual inspiration from the pie-wedge-circle motif in Iconify's
+  `memory:table-top-spiral-stairs-round-up`/`-down`, redrawn from scratch — see the design note below).
+  These back `RoomFeature.Stairs`/`SpiralStairs`/`Ladder`, a separate case from `Icon` (they carry a
+  direction and, for `Stairs`, a facing wall, not just a size/position); all five are copied verbatim into
+  `SvgStringRenderer.defs()` as `<symbol id="feat-...">`s. Kept here so every builtin glyph — not just the
+  externally-sourced ones — has a standalone, individually-inspectable `.svg` file in the repo, matching
+  how the furnishing icons below are stored.
 
 ## Furnishing icons — sourced from game-icons.net
 
@@ -80,10 +79,16 @@ furnishings above; everything else still needs an explicit `import`.
 | `stairs-up.svg` | `stairs: up [facing] [position]` | Tapering bars, bold near the wall the flight leads toward |
 | `stairs-down.svg` | `stairs: down [facing] [position]` | Same bars, bold near the room-facing entry instead |
 | `ladder.svg` | `ladder: up\|down [position]` | Rungs; direction shown by a small arrow drawn alongside it, not part of this file |
-| `spiral-stairs-up.svg` | `spiral-stairs: up [position]` | Circular-arrow-in-box, undirected (no `facing`) |
-| `spiral-stairs-down.svg` | `spiral-stairs: down [position]` | Mirror of the above |
+| `spiral-stairs-up.svg` | `spiral-stairs: up [position]` | Circle of 8 radial "tread" spokes fanning from a center newel post — the architectural top-down spiral-stair symbol — bold-to-thin clockwise from 12 o'clock, undirected (no `facing`) |
+| `spiral-stairs-down.svg` | `spiral-stairs: down [position]` | Same wheel, taper reversed (bold at 9 o'clock, thin at 12 o'clock) |
 
-No license concerns — these are original text-maps artwork (design brief: "hand-drawn, in the spirit of
-Iconify's `memory:table-top-stairs-up`/`-down`, but original", per the user request that introduced them —
-see git history). Free to modify or replace like any other project source file.
+No license concerns — these are original text-maps artwork. Design brief for the straight-stairs pair:
+"hand-drawn, in the spirit of Iconify's `memory:table-top-stairs-up`/`-down`, but original". The spiral pair
+was redrawn once more per a follow-up request ("closer to
+[icon-sets.iconify.design/?query=spiral-st](https://icon-sets.iconify.design/?query=spiral-st), keeping the
+bold gradient to show direction") — replacing an earlier circular-arrow-in-box design with the radial-spoke
+wheel above, closer to the pie-wedge-circle motif in that search's `memory:table-top-spiral-stairs-round-up`/
+`-down` icons while keeping the same depth-fade language (bold = closer to the viewer's own floor level)
+the straight stairs already use, rather than reusing that icon set's own combined spiral+bar-ladder artwork
+verbatim. See git history for both requests.
 

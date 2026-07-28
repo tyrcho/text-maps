@@ -49,6 +49,38 @@
     <line x1="3.0" y1="20" x2="27.0" y2="20" stroke="#333" stroke-width="2.22"/>
     <line x1="1.1" y1="25" x2="29.0" y2="25" stroke="#333" stroke-width="2.60"/>
   </symbol>
+  <!-- Spiral stairs: the architectural top-down symbol — a circle of radial "tread" spokes fanning out
+       from a center newel post (closer to Iconify's memory:table-top-spiral-stairs-round-up/-down pie-
+       wedge motif than a literal arrow, but original artwork). Same depth-fade language as the straight
+       stairs bars: spoke stroke weight tapers around the circle, boldest where the flight starts, to show
+       Up vs Down without an arrow — clockwise-fading (bold at 12 o'clock) for Up, counter-clockwise-fading
+       (bold at 9 o'clock, thin at 12 o'clock) for Down. -->
+  <symbol id="feat-spiral-stairs-up" viewBox="0 0 30 30">
+    <rect x="0.5" y="0.5" width="29" height="29" fill="white" stroke="#333" stroke-width="0.8"/>
+    <circle cx="15" cy="15" r="10" fill="none" stroke="#333" stroke-width="0.8"/>
+    <line x1="15.0" y1="12.8" x2="15.0" y2="5.0"   stroke="#333" stroke-width="2.60"/>
+    <line x1="16.56" y1="13.44" x2="22.07" y2="7.93" stroke="#333" stroke-width="2.33"/>
+    <line x1="17.2" y1="15.0" x2="25.0" y2="15.0"   stroke="#333" stroke-width="2.06"/>
+    <line x1="16.56" y1="16.56" x2="22.07" y2="22.07" stroke="#333" stroke-width="1.79"/>
+    <line x1="15.0" y1="17.2" x2="15.0" y2="25.0"   stroke="#333" stroke-width="1.51"/>
+    <line x1="13.44" y1="16.56" x2="7.93" y2="22.07" stroke="#333" stroke-width="1.24"/>
+    <line x1="12.8" y1="15.0" x2="5.0" y2="15.0"    stroke="#333" stroke-width="0.97"/>
+    <line x1="13.44" y1="13.44" x2="7.93" y2="7.93"  stroke="#333" stroke-width="0.70"/>
+    <circle cx="15" cy="15" r="1.3" fill="#333"/>
+  </symbol>
+  <symbol id="feat-spiral-stairs-down" viewBox="0 0 30 30">
+    <rect x="0.5" y="0.5" width="29" height="29" fill="white" stroke="#333" stroke-width="0.8"/>
+    <circle cx="15" cy="15" r="10" fill="none" stroke="#333" stroke-width="0.8"/>
+    <line x1="15.0" y1="12.8" x2="15.0" y2="5.0"   stroke="#333" stroke-width="0.70"/>
+    <line x1="16.56" y1="13.44" x2="22.07" y2="7.93" stroke="#333" stroke-width="0.97"/>
+    <line x1="17.2" y1="15.0" x2="25.0" y2="15.0"   stroke="#333" stroke-width="1.24"/>
+    <line x1="16.56" y1="16.56" x2="22.07" y2="22.07" stroke="#333" stroke-width="1.51"/>
+    <line x1="15.0" y1="17.2" x2="15.0" y2="25.0"   stroke="#333" stroke-width="1.79"/>
+    <line x1="13.44" y1="16.56" x2="7.93" y2="22.07" stroke="#333" stroke-width="2.06"/>
+    <line x1="12.8" y1="15.0" x2="5.0" y2="15.0"    stroke="#333" stroke-width="2.33"/>
+    <line x1="13.44" y1="13.44" x2="7.93" y2="7.93"  stroke="#333" stroke-width="2.60"/>
+    <circle cx="15" cy="15" r="1.3" fill="#333"/>
+  </symbol>
   <symbol id="feat-ladder" viewBox="0 0 30 30">
     <line x1="8"  y1="3"  x2="8"  y2="27" stroke="#333" stroke-width="1.5"/>
     <line x1="22" y1="3"  x2="22" y2="27" stroke="#333" stroke-width="1.5"/>

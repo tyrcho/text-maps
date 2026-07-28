@@ -180,6 +180,18 @@ since the "why" for both draws on the same reference images.
   `stairs-down.svg`, `ladder.svg`, `spiral-stairs-up.svg`, `spiral-stairs-down.svg` are now standalone files
   too (previously only inline `<symbol>` markup in `SvgStringRenderer.defs()`), so every builtin glyph — not
   just the ones sourced from game-icons.net — has an individually-inspectable `.svg` in the repo.
+- **Implemented (follow-up user request):** the `SpiralStairs` glyph was redrawn a second time — "use sth
+  closer to [icon-sets.iconify.design/?query=spiral-st](https://icon-sets.iconify.design/?query=spiral-st)
+  for spiral stairs (keeping the bold gradiant to show direction)". The circular-arrow-in-a-box from the
+  original implementation is gone; `feat-spiral-stairs-up`/`-down` (`SvgStringRenderer.defs()`) are now a
+  circle of 8 radial "tread" spokes fanning from a center newel post — the genuine architectural top-down
+  spiral-stair symbol, and visually closer to that search's `memory:table-top-spiral-stairs-round-up`/
+  `-down` pie-wedge-circle icons (that icon set's own artwork wasn't reused verbatim — it's drawn as a
+  solid "card" with a combined spiral+bar-ladder motif that doesn't fit this project's thin-line style at
+  a 30×30 glyph size). Direction is still shown purely by stroke-weight taper, no arrow, extending the same
+  depth-fade language `Stairs`' straight bars already use around the circle instead of along a row: bold at
+  12 o'clock fading clockwise for `Up`, bold at 9 o'clock fading toward 12 o'clock for `Down`. See the
+  `movement_features` fixture and `doc/icons/builtin/spiral-stairs-up.svg`/`-down.svg`.
 
 ### Medieval
 
