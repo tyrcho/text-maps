@@ -180,18 +180,34 @@ since the "why" for both draws on the same reference images.
   `stairs-down.svg`, `ladder.svg`, `spiral-stairs-up.svg`, `spiral-stairs-down.svg` are now standalone files
   too (previously only inline `<symbol>` markup in `SvgStringRenderer.defs()`), so every builtin glyph — not
   just the ones sourced from game-icons.net — has an individually-inspectable `.svg` in the repo.
-- **Implemented (follow-up user request):** the `SpiralStairs` glyph was redrawn a second time — "use sth
-  closer to [icon-sets.iconify.design/?query=spiral-st](https://icon-sets.iconify.design/?query=spiral-st)
-  for spiral stairs (keeping the bold gradiant to show direction)". The circular-arrow-in-a-box from the
-  original implementation is gone; `feat-spiral-stairs-up`/`-down` (`SvgStringRenderer.defs()`) are now a
-  circle of 8 radial "tread" spokes fanning from a center newel post — the genuine architectural top-down
-  spiral-stair symbol, and visually closer to that search's `memory:table-top-spiral-stairs-round-up`/
-  `-down` pie-wedge-circle icons (that icon set's own artwork wasn't reused verbatim — it's drawn as a
-  solid "card" with a combined spiral+bar-ladder motif that doesn't fit this project's thin-line style at
-  a 30×30 glyph size). Direction is still shown purely by stroke-weight taper, no arrow, extending the same
-  depth-fade language `Stairs`' straight bars already use around the circle instead of along a row: bold at
-  12 o'clock fading clockwise for `Up`, bold at 9 o'clock fading toward 12 o'clock for `Down`. See the
-  `movement_features` fixture and `doc/icons/builtin/spiral-stairs-up.svg`/`-down.svg`.
+- **Implemented (follow-up user request, then corrected once more):** the `SpiralStairs` glyph went through
+  two more redesigns after the original circular-arrow-in-a-box:
+  1. "use sth closer to [icon-sets.iconify.design/?query=spiral-st](https://icon-sets.iconify.design/?query=spiral-st)
+     for spiral stairs (keeping the bold gradiant to show direction)" → replaced the arrow-in-box with a
+     circle of 8 radial "tread" spokes fanning from a center newel post, stroke-weight tapering all the way
+     around (bold at 12 o'clock fading clockwise for `Up`, bold at 9 o'clock fading toward 12 o'clock for
+     `Down`).
+  2. "you lost the entry in the stairs and the orientation. 90 deg of the arc should be used to show it
+     like in the model" — the 8-spoke wheel filled the *entire* circle, unlike the reference's
+     `memory:table-top-spiral-stairs-round-up`/`-down` icons, which leave one 90° quadrant completely
+     blank (the entry/landing — where you actually step on or off the flight), and use 45° spoke
+     increments rather than the reference's 90°-quadrant structure. `feat-spiral-stairs-up`/`-down`
+     (`SvgStringRenderer.defs()`) are now a circle split into 4 quadrants: one left fully open (no arc, no
+     radius) as the entry, the other 3 each drawn as one tapering arc+radius pair — same depth-fade
+     language as before (bold = closer to the viewer's own floor level), now expressed per-quadrant: bold
+     at the far end from the entry for `Up`, bold right at the entry for `Down`. That icon set's own
+     artwork still wasn't reused verbatim (it's drawn as a solid "card" with a combined spiral+bar-ladder
+     motif that doesn't fit this project's thin-line style at a 30×30 glyph size) — this keeps the
+     reference's quadrant-with-an-opening *structure* while staying original artwork. See the
+     `movement_features` fixture and `doc/icons/builtin/spiral-stairs-up.svg`/`-down.svg`.
+- **Implemented (DRY fix):** the 5 movement glyphs (`stairs-up`/`stairs-down`/`ladder`/`spiral-stairs-up`/
+  `spiral-stairs-down`) had drifted into being hand-maintained twice — once as literal `<symbol>` markup
+  in `SvgStringRenderer.defs()`, once as the standalone `doc/icons/builtin/*.svg` files added right above
+  — the exact kind of duplication that let the spiral pair go stale for a redesign cycle. `BuiltinIcons.scala`
+  gained a `movementGlyphs: Map[String, String]` (id → inner `<symbol>` markup), generated from those `.svg`
+  files the same way `paths` already was for the 19 furnishing icons; `defs()` now interpolates from that
+  map instead of hand-copying the XML. The `.svg` files are the single source of truth for all 24 builtin
+  glyphs now, not just the 19 furnishing ones.
 
 ### Medieval
 

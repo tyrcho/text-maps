@@ -15,10 +15,13 @@ Two groups, by origin:
   pair takes visual inspiration from the pie-wedge-circle motif in Iconify's
   `memory:table-top-spiral-stairs-round-up`/`-down`, redrawn from scratch — see the design note below).
   These back `RoomFeature.Stairs`/`SpiralStairs`/`Ladder`, a separate case from `Icon` (they carry a
-  direction and, for `Stairs`, a facing wall, not just a size/position); all five are copied verbatim into
-  `SvgStringRenderer.defs()` as `<symbol id="feat-...">`s. Kept here so every builtin glyph — not just the
-  externally-sourced ones — has a standalone, individually-inspectable `.svg` file in the repo, matching
-  how the furnishing icons below are stored.
+  direction and, for `Stairs`, a facing wall, not just a size/position).
+
+Both groups are single-sourced from these `.svg` files — `BuiltinIcons.scala`'s `paths`/`movementGlyphs`
+maps are *generated* from them (a one-off extraction script, not run at build time — see below), and
+`SvgStringRenderer.defs()` interpolates that generated data into `<symbol id="builtin-...">`/
+`<symbol id="feat-...">`s. Nothing in `SvgStringRenderer.scala` hand-duplicates any glyph's markup —
+edit the `.svg` file here and regenerate `BuiltinIcons.scala` from it, don't edit the Scala map by hand.
 
 ## Furnishing icons — sourced from game-icons.net
 
@@ -79,16 +82,20 @@ furnishings above; everything else still needs an explicit `import`.
 | `stairs-up.svg` | `stairs: up [facing] [position]` | Tapering bars, bold near the wall the flight leads toward |
 | `stairs-down.svg` | `stairs: down [facing] [position]` | Same bars, bold near the room-facing entry instead |
 | `ladder.svg` | `ladder: up\|down [position]` | Rungs; direction shown by a small arrow drawn alongside it, not part of this file |
-| `spiral-stairs-up.svg` | `spiral-stairs: up [position]` | Circle of 8 radial "tread" spokes fanning from a center newel post — the architectural top-down spiral-stair symbol — bold-to-thin clockwise from 12 o'clock, undirected (no `facing`) |
-| `spiral-stairs-down.svg` | `spiral-stairs: down [position]` | Same wheel, taper reversed (bold at 9 o'clock, thin at 12 o'clock) |
+| `spiral-stairs-up.svg` | `spiral-stairs: up [position]` | Circle split into 4 quadrants around a center newel post; 3 form the flight (tapering bold at the far end from the entry), the 4th is left fully open as the entry/landing — undirected (no `facing`) |
+| `spiral-stairs-down.svg` | `spiral-stairs: down [position]` | Same circle, taper reversed (bold right at the entry, thin at the far end) |
 
 No license concerns — these are original text-maps artwork. Design brief for the straight-stairs pair:
 "hand-drawn, in the spirit of Iconify's `memory:table-top-stairs-up`/`-down`, but original". The spiral pair
-was redrawn once more per a follow-up request ("closer to
-[icon-sets.iconify.design/?query=spiral-st](https://icon-sets.iconify.design/?query=spiral-st), keeping the
-bold gradient to show direction") — replacing an earlier circular-arrow-in-box design with the radial-spoke
-wheel above, closer to the pie-wedge-circle motif in that search's `memory:table-top-spiral-stairs-round-up`/
-`-down` icons while keeping the same depth-fade language (bold = closer to the viewer's own floor level)
-the straight stairs already use, rather than reusing that icon set's own combined spiral+bar-ladder artwork
-verbatim. See git history for both requests.
+went through two follow-up redesigns:
+1. "closer to [icon-sets.iconify.design/?query=spiral-st](https://icon-sets.iconify.design/?query=spiral-st),
+   keeping the bold gradient to show direction" — replaced an earlier circular-arrow-in-box design with a
+   full-circle, 8-spoke radial wheel.
+2. "you lost the entry in the stairs and the orientation. 90 deg of the arc should be used to show it like
+   in the model" — that 8-spoke wheel had no opening at all (unlike the reference, which leaves one 90°
+   quadrant of its circle completely blank, representing where you actually step on/off), and used 45°
+   spoke increments instead of a 90°-quadrant structure. The current version fixes both: one quadrant
+   (90°) is left empty as the entry, and the other 3 quadrants each get one tapering arc+radius pair —
+   still the same depth-fade language the straight stairs use (bold = closer to the viewer's own floor
+   level), now expressed per-quadrant instead of per-spoke. See git history for all three requests.
 

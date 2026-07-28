@@ -117,67 +117,10 @@ object SvgStringRenderer:
           stroke="#888" stroke-width="1.2" stroke-dasharray="6,6"/>
   </symbol>
 
-  <!-- ── Room feature symbols (viewBox 0 0 30 30, one grid cell) ── -->
-  <!-- Stairs: tapering horizontal bars, "steps receding into the distance" (hand-drawn, in the spirit
-       of Iconify's memory:table-top-stairs-up/-down but original artwork). Narrow end points toward the
-       wall the flight leads to (via rotation on <use>); bar stroke weight fades with depth to show
-       Up vs Down without text or an arrow — bold = closer to the viewer's own floor level. -->
-  <symbol id="feat-stairs-up" viewBox="0 0 30 30">
-    <rect x="0.5" y="0.5" width="29" height="29" fill="white" stroke="#333" stroke-width="0.8"/>
-    <line x1="8.9" y1="5"  x2="21.2" y2="5"  stroke="#333" stroke-width="2.22"/>
-    <line x1="6.9" y1="10" x2="23.1" y2="10" stroke="#333" stroke-width="1.84"/>
-    <line x1="5.0" y1="15" x2="25.1" y2="15" stroke="#333" stroke-width="1.46"/>
-    <line x1="3.0" y1="20" x2="27.0" y2="20" stroke="#333" stroke-width="1.08"/>
-    <line x1="1.1" y1="25" x2="29.0" y2="25" stroke="#333" stroke-width="0.70"/>
-  </symbol>
-  <symbol id="feat-stairs-down" viewBox="0 0 30 30">
-    <rect x="0.5" y="0.5" width="29" height="29" fill="white" stroke="#333" stroke-width="0.8"/>
-    <line x1="8.9" y1="5"  x2="21.2" y2="5"  stroke="#333" stroke-width="1.08"/>
-    <line x1="6.9" y1="10" x2="23.1" y2="10" stroke="#333" stroke-width="1.46"/>
-    <line x1="5.0" y1="15" x2="25.1" y2="15" stroke="#333" stroke-width="1.84"/>
-    <line x1="3.0" y1="20" x2="27.0" y2="20" stroke="#333" stroke-width="2.22"/>
-    <line x1="1.1" y1="25" x2="29.0" y2="25" stroke="#333" stroke-width="2.60"/>
-  </symbol>
-  <!-- Spiral stairs: the architectural top-down symbol — a circle of radial "tread" spokes fanning out
-       from a center newel post (closer to Iconify's memory:table-top-spiral-stairs-round-up/-down pie-
-       wedge motif than a literal arrow, but original artwork). Same depth-fade language as the straight
-       stairs bars: spoke stroke weight tapers around the circle, boldest where the flight starts, to show
-       Up vs Down without an arrow — clockwise-fading (bold at 12 o'clock) for Up, counter-clockwise-fading
-       (bold at 9 o'clock, thin at 12 o'clock) for Down. -->
-  <symbol id="feat-spiral-stairs-up" viewBox="0 0 30 30">
-    <rect x="0.5" y="0.5" width="29" height="29" fill="white" stroke="#333" stroke-width="0.8"/>
-    <circle cx="15" cy="15" r="10" fill="none" stroke="#333" stroke-width="0.8"/>
-    <line x1="15.0" y1="12.8" x2="15.0" y2="5.0"   stroke="#333" stroke-width="2.60"/>
-    <line x1="16.56" y1="13.44" x2="22.07" y2="7.93" stroke="#333" stroke-width="2.33"/>
-    <line x1="17.2" y1="15.0" x2="25.0" y2="15.0"   stroke="#333" stroke-width="2.06"/>
-    <line x1="16.56" y1="16.56" x2="22.07" y2="22.07" stroke="#333" stroke-width="1.79"/>
-    <line x1="15.0" y1="17.2" x2="15.0" y2="25.0"   stroke="#333" stroke-width="1.51"/>
-    <line x1="13.44" y1="16.56" x2="7.93" y2="22.07" stroke="#333" stroke-width="1.24"/>
-    <line x1="12.8" y1="15.0" x2="5.0" y2="15.0"    stroke="#333" stroke-width="0.97"/>
-    <line x1="13.44" y1="13.44" x2="7.93" y2="7.93"  stroke="#333" stroke-width="0.70"/>
-    <circle cx="15" cy="15" r="1.3" fill="#333"/>
-  </symbol>
-  <symbol id="feat-spiral-stairs-down" viewBox="0 0 30 30">
-    <rect x="0.5" y="0.5" width="29" height="29" fill="white" stroke="#333" stroke-width="0.8"/>
-    <circle cx="15" cy="15" r="10" fill="none" stroke="#333" stroke-width="0.8"/>
-    <line x1="15.0" y1="12.8" x2="15.0" y2="5.0"   stroke="#333" stroke-width="0.70"/>
-    <line x1="16.56" y1="13.44" x2="22.07" y2="7.93" stroke="#333" stroke-width="0.97"/>
-    <line x1="17.2" y1="15.0" x2="25.0" y2="15.0"   stroke="#333" stroke-width="1.24"/>
-    <line x1="16.56" y1="16.56" x2="22.07" y2="22.07" stroke="#333" stroke-width="1.51"/>
-    <line x1="15.0" y1="17.2" x2="15.0" y2="25.0"   stroke="#333" stroke-width="1.79"/>
-    <line x1="13.44" y1="16.56" x2="7.93" y2="22.07" stroke="#333" stroke-width="2.06"/>
-    <line x1="12.8" y1="15.0" x2="5.0" y2="15.0"    stroke="#333" stroke-width="2.33"/>
-    <line x1="13.44" y1="13.44" x2="7.93" y2="7.93"  stroke="#333" stroke-width="2.60"/>
-    <circle cx="15" cy="15" r="1.3" fill="#333"/>
-  </symbol>
-  <symbol id="feat-ladder" viewBox="0 0 30 30">
-    <line x1="8"  y1="3"  x2="8"  y2="27" stroke="#333" stroke-width="1.5"/>
-    <line x1="22" y1="3"  x2="22" y2="27" stroke="#333" stroke-width="1.5"/>
-    <line x1="8"  y1="7"  x2="22" y2="7"  stroke="#333" stroke-width="1"/>
-    <line x1="8"  y1="13" x2="22" y2="13" stroke="#333" stroke-width="1"/>
-    <line x1="8"  y1="19" x2="22" y2="19" stroke="#333" stroke-width="1"/>
-    <line x1="8"  y1="25" x2="22" y2="25" stroke="#333" stroke-width="1"/>
-  </symbol>
+  <!-- ── Room feature symbols (viewBox 0 0 30 30, one grid cell), see BuiltinIcons.movementGlyphs for
+       the markup itself and doc/icons/builtin/{stairs,spiral-stairs}-{up,down}.svg / ladder.svg for the
+       design notes (tapering-bar / quadrant-with-an-open-entry / rung glyphs). ── -->
+$movementSymbolDefs
   <!-- Wall-placed feature symbol (30×6, designed to sit on a wall) -->
   <symbol id="feat-window" viewBox="0 0 30 6">
     <rect x="0"  y="0" width="30" height="6" fill="white"/>
@@ -189,6 +132,12 @@ object SvgStringRenderer:
   <!-- ── Builtin furnishing icons — no `import` needed, see BuiltinIcons.scala ── -->
 $builtinSymbolDefs
 </defs>"""
+
+  /** One `<symbol>` per `BuiltinIcons.movementGlyphs` entry, id'd `feat-<name>`. */
+  private def movementSymbolDefs: String =
+    BuiltinIcons.movementGlyphs.toList.sortBy(_._1).map { (name, markup) =>
+      s"""  <symbol id="feat-$name" viewBox="0 0 30 30">\n$markup\n  </symbol>"""
+    }.mkString("\n")
 
   /** One `<symbol>` per `BuiltinIcons.paths` entry, id'd `builtin-<name>` so `<name>: <value>` works as a
    *  room feature with no `import` statement (see `DslParser.parseRoomFeatures`'s builtin-icon pass). */
